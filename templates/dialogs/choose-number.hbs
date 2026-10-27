@@ -1,0 +1,17 @@
+<div class="rl-dlg rl-dlg--number">
+  {{#if content}}<div class="rl-callout">{{{content}}}</div>{{/if}}
+  <div class="rl-field rl-dlg-stepfield">
+    {{#if label}}<label for="rl-number-value">{{localize label}}</label>{{/if}}
+    <div class="rl-dlg-stepper">
+      <button type="button" class="rl-btn rl-dlg-stepper__btn" data-step="-1" aria-label="−"><i class="fa-solid fa-minus" inert></i></button>
+      <input id="rl-number-value" class="rl-dlg-stepper__value" type="number" name="value" value="{{value}}" min="{{min}}" max="{{max}}" step="{{step}}" autofocus>
+      <button type="button" class="rl-btn rl-dlg-stepper__btn" data-step="1" aria-label="+"><i class="fa-solid fa-plus" inert></i></button>
+    </div>
+    <div class="rl-dlg-stepper__range">
+      <button type="button" class="rl-dlg-stepper__set" data-set="min">{{localize "RL.UI.Min"}} {{min}}</button>
+      <span class="rl-dlg-stepper__track" aria-hidden="true"></span>
+      <button type="button" class="rl-dlg-stepper__set" data-set="max">{{localize "RL.UI.Max"}} {{max}}</button>
+    </div>
+    {{#if hint}}<p class="hint">{{localize hint}}</p>{{/if}}
+  </div>
+</div>

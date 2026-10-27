@@ -1,0 +1,273 @@
+# PACK 4 - opened when the World Capital mark is placed. Card codes E122-E132s.
+pack:
+  label: "Pack 4: World Capital"
+  order: 4
+  kind: package
+  trigger:
+    key: worldCapitalPlaced
+    text: Open when the World Capital Mark is about to go on the board.
+    sealedText: "OPEN WHEN THE WORLD CAPITAL MARK IS ABOUT TO GO ON THE BOARD."
+    rulebook: "PACK 4: Open when the [World Capital] mark is placed on the board. When you first open the game, that mark isn't even available to you yet. So first you have to get it. Then you have to find a way to get it onto the board. Patience. This will be opened in the middle of a game."
+    when: midGame
+
+notes:
+  - rules/images/evolution_1.jpg (E122) and evolution_2.jpg (E123) are "THE WAR PROGRESSES" narrative cards (listed under warProgresses). The Evolution sticker cards are private_mission_rules (E124s), lead_faction_rules (E125s) and world_capital_rules (E126s).
+  - The rulebook boxes for E124s/E125s/E126s are not written on the scanned fronts (the backs, which name the box, were not scanned). G/H/I are inferred; see data/content/README.md.
+  - Each private mission card (E127s-E132s) is both a mission (missions[]) and the red faction-card sticker it awards (powers[], slot "mission"). The power's `check` is the same as the mission's.
+  - "Advanced Training: the card reads \"turn in 10+ resources for troops\"; powers/cards.yaml said \"turn in 10+ troops\" (the card wins). Advanced Tactics' rules text reads \"the faction still collect the red star\" (sic) where the other five say \"collects the Red Star\"."
+  - The World Capital mark itself comes from pack secondwin (stickers/world_capital); its rules live here (marks/world_capital).
+
+warProgresses:
+  - yaml: rules:evolution_1
+    id: worldcapital_evolution_1
+    code: E122
+    order: 1
+    title: "The War Progresses: World Capital (1)"
+    text: |-
+      The world capital has been founded. The shape of this world is becoming clear as factions have started to create their own plans for domination.
+
+      Place the stickers from the Evolution cards onto the rulebook in the matching boxes.
+    textSource: card
+  - yaml: rules:evolution_2
+    id: worldcapital_evolution_2
+    code: E123
+    order: 2
+    title: "The War Progresses: World Capital (2)"
+    text: |-
+      In this pack are also private missions. Shuffle these into the mission deck immediately.
+
+      If the lead faction is currently playing and the game isn't over, the player controlling the lead faction selects the next mission instead of it being selected at random. Reshuffle the mission deck afterwards.
+    textSource: card
+
+rules:
+  - yaml: rules:private_mission_rules
+    id: private_mission_rules
+    kind: addition
+    addition: G
+    page: 13
+    inferred: true
+    inferredFrom: "Remaining stickers (A, G-N) assigned in card-code order E124s, E125s, E126s, J167s, J168s, J169s, K185s(x2); page 13 boxes follow the Mission card rules."
+    code: E124s
+    title: Private Mission Rules
+    text: |-
+      Private Missions: Treat private missions like any other mission with one exception. After a faction completes a private mission, they gain a red star and adds the sticker to their faction card if they have an empty red slot.
+
+      If they do not have an empty red slot, they collect the red star and discard the mission normally.
+
+      In future games, factions with a private mission in their red slot can complete that private mission once per game following normal mission rules in order to earn a red star.
+
+      You cannot complete a private mission on your faction card, and a normal mission in the same turn.
+    replaces: null
+    textSource: card
+  - yaml: rules:lead_faction_rules
+    id: lead_faction_rules
+    kind: addition
+    addition: H
+    page: 13
+    inferred: true
+    inferredFrom: "Card-code order (see private_mission_rules). Could also belong in A (setup); A was given to the Bringer of Nuclear Fire sticker because that one talks about starting Missile tokens."
+    code: E125s
+    title: Lead Faction Rules
+    text: |-
+      Lead Faction: The faction that is playing that has won the most games is the lead faction. If more than one faction is tied, then there is no lead faction for this game. The lead faction has two privileges:
+
+      • The lead faction chooses which mission card is face up at the start of the game.
+      • The lead faction starts in the World Capital (see below).
+    replaces: null
+    textSource: card
+  - yaml: rules:world_capital_rules
+    id: world_capital_rules
+    kind: addition
+    addition: I
+    page: 13
+    inferred: true
+    inferredFrom: "Card-code order (see private_mission_rules)."
+    code: E126s
+    title: World Capital Rules
+    text: |-
+      World Capital: The world capital has a population of 5. If the world capital was placed on top of a Major City, the player who originally placed the major city can no longer start in this territory.
+
+      The lead faction (if there is one) starts with 3 troops in the world capital territory in addition to that faction's chosen starting territory and troops.
+
+      If there is no lead faction, the world capital starts unoccupied and may be expanded into like any city. The world capital may be fortified like any other city.
+    replaces: null
+    mark: world_capital
+    textSource: card
+
+marks:
+  - id: world_capital
+    name: World Capital
+    code: D120s
+    img: assets/unlocks/secondwin/stickersheet/images/scar_capital.png
+    cardImg: assets/unlocks/secondwin/missions/images/world_capital.jpg
+    text: |-
+      World Capital: The world capital has a population of 5. If the world capital was placed on top of a Major City, the player who originally placed the major city can no longer start in this territory.
+
+      The lead faction (if there is one) starts with 3 troops in the world capital territory in addition to that faction's chosen starting territory and troops.
+
+      If there is no lead faction, the world capital starts unoccupied and may be expanded into like any city. The world capital may be fortified like any other city.
+    effect: {type: city, cityType: worldCapital, population: 5, leadFactionStartTroops: 3}
+    rules: [world_capital_rules, lead_faction_rules]
+    textSource: card
+
+missions:
+  - yaml: missions:advanced_tactics
+    name: Advanced Tactics
+    code: E128s
+    private: true
+    text: |-
+      If a faction with an empty red slot completes this mission, they collect the red star and apply the power to that faction's card. If so, DESTROY this card.
+
+      Otherwise, the faction still collect the red star, but this card is DISCARDED.
+
+      Advanced Tactics: When recruiting troops, turn in at least 2 territory cards that have 4+ resources each.
+    stickerText: "Advanced Tactics: When recruiting troops, turn in at least 2 territory cards that have 4+ resources each."
+    reward: 1
+    afterComplete: destroyIfStickerApplied
+    check: {type: turnInCards, cardType: territory, count: 2, minResourcesEach: 4}
+    power: advanced_tactics
+    textSource: card
+  - yaml: missions:advanced_training
+    name: Advanced Training
+    code: E132s
+    private: true
+    text: |-
+      If a faction with an empty red slot completes this mission, they collect the red star and apply the power to that faction's card. If so, DESTROY this card.
+
+      Otherwise, the faction still collects the Red Star, but this card is DISCARDED.
+
+      Advanced Training: When recruiting troops, turn in 10+ resources for troops.
+    stickerText: "Advanced Training: When recruiting troops, turn in 10+ resources for troops."
+    reward: 1
+    afterComplete: destroyIfStickerApplied
+    check: {type: turnInResources, count: 10}
+    power: advanced_training
+    textSource: card
+  - yaml: missions:forced_occupation
+    name: Forced Occupation
+    code: E127s
+    private: true
+    text: |-
+      If a faction with an empty red slot completes this mission, they collect the red star and apply the power to that faction's card. If so, DESTROY this card.
+
+      Otherwise, the faction still collects the Red Star, but this card is DISCARDED.
+
+      Forced Occupation: Knock out or Eliminate a player who has 3+ Resource Cards.
+    stickerText: "Forced Occupation: Knock out or Eliminate a player who has 3+ Resource Cards."
+    reward: 1
+    afterComplete: destroyIfStickerApplied
+    check: {type: knockOutPlayer, minResourceCards: 3}
+    power: forced_occupation
+    textSource: card
+  - yaml: missions:guerilla_warfare
+    name: Guerilla Warfare
+    code: E131s
+    private: true
+    text: |-
+      If a faction with an empty red slot completes this mission, they collect the red star and apply the power to that faction's card. If so, DESTROY this card.
+
+      Otherwise, the faction still collects the Red Star, but this card is DISCARDED.
+
+      Guerilla Warfare: Control all the Bunker and Mercenary territories.
+    stickerText: "Guerilla Warfare: Control all the Bunker and Mercenary territories."
+    reward: 1
+    afterComplete: destroyIfStickerApplied
+    check: {type: controlAllScarred, scars: [bunker, mercenary]}
+    power: guerilla_warfare
+    textSource: card
+  - yaml: missions:urban_troop_surge
+    name: Urban Troop Surge
+    code: E130s
+    private: true
+    text: |-
+      If a faction with an empty red slot completes this mission, they collect the red star and apply the power to that faction's card. If so, DESTROY this card.
+
+      Otherwise, the faction still collects the Red Star, but this card is DISCARDED.
+
+      Urban Troop Surge: Control the World Capital and 3 major cities.
+    stickerText: "Urban Troop Surge: Control the World Capital and 3 major cities."
+    reward: 1
+    afterComplete: destroyIfStickerApplied
+    check:
+      type: all
+      checks:
+        - {type: controlTerritoriesWithCities, cityType: worldCapital, count: 1}
+        - {type: controlTerritoriesWithCities, cityType: major, count: 3}
+    power: urban_troop_surge
+    textSource: card
+  - yaml: missions:wide_border
+    name: Wide Border
+    code: E129s
+    private: true
+    text: |-
+      If a faction with an empty red slot completes this mission, they collect the red star and apply the power to that faction's card. If so, DESTROY this card.
+
+      Otherwise, the faction still collects the Red Star, but this card is DISCARDED.
+
+      Wide Border: Control 2 continents at the start of your turn.
+    stickerText: "Wide Border: Control 2 continents at the start of your turn."
+    reward: 1
+    afterComplete: destroyIfStickerApplied
+    check: {type: controlContinents, count: 2, when: startOfTurn}
+    power: wide_border
+    textSource: card
+
+powers:
+  - yaml: powers:advanced_tactics
+    name: Advanced Tactics
+    code: E128s
+    text: When recruiting troops, turn in at least 2 territory cards that have 4+ resources each.
+    cardImg: assets/unlocks/worldcapital/missions/images/advanced_tactics.jpg
+    timing: endOfTurn
+    check: {type: turnInCards, cardType: territory, count: 2, minResourcesEach: 4}
+    mission: advanced_tactics
+    textSource: card
+  - yaml: powers:advanced_training
+    name: Advanced Training
+    code: E132s
+    text: When recruiting troops, turn in 10+ resources for troops.
+    cardImg: assets/unlocks/worldcapital/missions/images/advanced_training.jpg
+    timing: endOfTurn
+    check: {type: turnInResources, count: 10}
+    mission: advanced_training
+    textSource: card
+  - yaml: powers:forced_occupation
+    name: Forced Occupation
+    code: E127s
+    text: Knock out or Eliminate a player who has 3+ Resource Cards.
+    cardImg: assets/unlocks/worldcapital/missions/images/forced_occupation.jpg
+    timing: endOfTurn
+    check: {type: knockOutPlayer, minResourceCards: 3}
+    mission: forced_occupation
+    textSource: card
+  - yaml: powers:guerilla_warfare
+    name: Guerilla Warfare
+    code: E131s
+    text: Control all the Bunker and Mercenary territories.
+    cardImg: assets/unlocks/worldcapital/missions/images/guerilla_warfare.jpg
+    timing: endOfTurn
+    check: {type: controlAllScarred, scars: [bunker, mercenary]}
+    mission: guerilla_warfare
+    textSource: card
+  - yaml: powers:urban_troop_surge
+    name: Urban Troop Surge
+    code: E130s
+    text: Control the World Capital and 3 major cities.
+    cardImg: assets/unlocks/worldcapital/missions/images/urban_troop_surge.jpg
+    timing: endOfTurn
+    check:
+      type: all
+      checks:
+        - {type: controlTerritoriesWithCities, cityType: worldCapital, count: 1}
+        - {type: controlTerritoriesWithCities, cityType: major, count: 3}
+    mission: urban_troop_surge
+    textSource: card
+  - yaml: powers:wide_border
+    name: Wide Border
+    code: E129s
+    text: Control 2 continents at the start of your turn.
+    cardImg: assets/unlocks/worldcapital/missions/images/wide_border.jpg
+    timing: endOfTurn
+    check: {type: controlContinents, count: 2, when: startOfTurn}
+    mission: wide_border
+    textSource: card

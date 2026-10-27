@@ -1,0 +1,29 @@
+<div class="rl-prompt-body">
+  {{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/hot-seat.hbs"}}
+  <p class="rl-lead">{{localize "RL.Wizard.Prompt.draftLead"}}</p>
+  <input type="hidden" name="pick" value="">
+  <div class="rl-camp-draft-scroll">
+    {{#each draftGroups}}
+    <section class="rl-camp-draft-group {{#if held}}is-held{{/if}}">
+      <h3 class="rl-subhead">{{label}}{{#if held}} <span class="rl-hand rl-hand--red">{{localize "RL.Wizard.Prompt.alreadyHeld"}}</span>{{/if}}</h3>
+      <div class="rl-camp-draft-cards">
+        {{#each cards}}
+        <figure class="rl-camp-draft-card {{#if disabled}}is-disabled{{/if}}" {{#unless disabled}}data-action="choose" data-name="pick" data-value="{{value}}" tabindex="0"{{/unless}}>
+          <img src="{{img}}" alt="{{name}}" loading="lazy"><figcaption>{{name}}</figcaption>
+        </figure>
+        {{/each}}
+      </div>
+    </section>
+    {{/each}}
+    <section class="rl-camp-draft-group rl-camp-draft-group--factions {{#if hasFaction}}is-held{{/if}}">
+      <h3 class="rl-subhead">{{localize "RL.Wizard.Setup.faction"}}{{#if hasFaction}} <span class="rl-hand rl-hand--red">{{localize "RL.Wizard.Prompt.alreadyHeld"}}</span>{{/if}}</h3>
+      <div class="rl-camp-faction-grid rl-camp-faction-grid--small">
+        {{#each factions}}{{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/faction-card.hbs" this choose=(ifThen disabled "" "pick")}}{{/each}}
+      </div>
+    </section>
+  </div>
+  <footer class="rl-prompt-footer">
+    <button type="button" class="rl-btn" data-action="cancel">{{localize "RL.Wizard.Prompt.later"}}</button>
+    <button type="submit" class="rl-btn rl-btn--primary"><i class="fa-solid fa-hand-pointer" inert></i> {{localize "RL.Wizard.Prompt.takeCard"}}</button>
+  </footer>
+</div>

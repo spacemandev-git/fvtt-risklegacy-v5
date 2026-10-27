@@ -1,0 +1,5 @@
+namespace: biohazard.scars.minorcities.risklegacy.spacemandev
+data:
+  tokenImg: scar_biohazard.png
+imgPath: biohazard.jpg
+qty: 3

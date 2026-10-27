@@ -1,0 +1,211 @@
+{{!-- Bot Log (module/bots/ui/bot-log.mjs, BOTS.md §7.2). Styled in styles/bots.css. --}}
+<div class="rl-bot-log">
+  <dl class="rl-bot-stats">
+    {{#each stats as |s|}}
+    <div class="rl-bot-stats__item{{#if s.warn}} is-warn{{/if}}"{{#if s.tip}} data-tooltip="{{s.tip}}"{{/if}}><dd>{{s.value}}</dd><dt>{{s.label}}</dt></div>
+    {{/each}}
+  </dl>
+
+  <div class="rl-bot-log__bar">
+    <label class="rl-bot-log__filter">
+      <span class="rl-label">{{localize "RL.Bots.Log.faction"}}</span>
+      <select name="faction">
+        <option value="">{{localize "RL.Bots.Log.allFactions"}}</option>
+        {{#each filters.factions as |f|}}<option value="{{f.value}}" {{#if f.selected}}selected{{/if}}>{{f.label}}</option>{{/each}}
+      </select>
+    </label>
+    <label class="rl-bot-log__filter">
+      <span class="rl-label">{{localize "RL.Bots.Log.kind"}}</span>
+      <select name="kind">
+        <option value="">{{localize "RL.Bots.Log.allKinds"}}</option>
+        {{#each filters.kinds as |k|}}<option value="{{k.value}}" {{#if k.selected}}selected{{/if}}>{{k.label}}</option>{{/each}}
+      </select>
+    </label>
+    <span class="rl-bot-log__count">{{#unless empty}}{{localize "RL.Bots.Log.count" shown=shown total=total}}{{/unless}}</span>
+    <button type="button" class="rl-bot-link" data-action="clear" {{disabled empty}}><i class="fa-solid fa-eraser" inert></i> {{localize "RL.Bots.Log.clear"}}</button>
+  </div>
+
+  <div class="rl-bot-log__list">
+    {{#if empty}}
+    <div class="rl-slot rl-bot-empty rl-bot-empty--log">
+      <span>{{localize "RL.Bots.Log.empty"}}
+        {{#unless isActiveGM}}{{#if activeGM}}<br>{{localize "RL.Bots.Log.otherGM" name=activeGM.name}}{{/if}}{{/unless}}</span>
+    </div>
+    {{else if noMatch}}
+    <div class="rl-slot rl-bot-empty">{{localize "RL.Bots.Log.noMatch"}}</div>
+    {{else}}
+    {{#each records as |r|}}
+    <details class="rl-bot-rec rl-bot-rec--{{r.category}}{{#if r.heuristic}} is-heuristic{{/if}}{{#if r.errors}} is-error{{/if}}" data-record-id="{{r.id}}" {{#if r.open}}open{{/if}}
+      {{#if r.color}}style="--rl-bot-faction: {{r.color}}"{{/if}}>
+      <summary class="rl-bot-rec__sum" id="rl-bot-rec-{{r.id}}">
+        <span class="rl-bot-rec__meta">
+          <time class="rl-bot-rec__time" datetime="{{r.timeFull}}" data-tooltip="{{r.timeFull}}">{{r.time}}</time>
+          <span class="rl-bot-rec__faction"><span class="rl-bot-chip" aria-hidden="true"></span>{{r.faction}}</span>
+          <span class="rl-bot-rec__cat">{{r.categoryLabel}}</span>
+          {{#if r.requests}}<span class="rl-bot-rec__jev" data-tooltip="{{r.jev}}"><i class="fa-solid fa-bolt" inert></i> {{r.requests}}</span>{{/if}}
+          {{#if r.chats}}<span class="rl-bot-rec__jev" data-tooltip="{{r.chat}}"><i class="fa-solid fa-comments" inert></i> {{r.chats}} · {{r.cost}}</span>{{/if}}
+          {{#if r.say}}<span class="rl-bot-rec__jev" data-tooltip="{{r.say}}"><i class="fa-solid fa-quote-left" inert></i></span>{{/if}}
+          {{#if r.heuristic}}<span class="rl-bot-badge rl-bot-badge--heuristic" data-tooltip="{{r.heuristicTip}}">{{localize "RL.Bots.Log.heuristic"}}</span>{{/if}}
+          {{#if r.errors}}<span class="rl-bot-badge rl-bot-badge--error">{{localize "RL.Bots.Log.errors" n=r.errors}}</span>{{/if}}
+        </span>
+        <span class="rl-bot-rec__line">{{r.line}}</span>
+      </summary>
+      {{#if r.detail}}
+      {{#with r.detail as |d|}}
+      <div class="rl-bot-rec__body">
+        <div class="rl-bot-rec__facts">
+          <span><span class="rl-label">{{localize "RL.Bots.Log.kind"}}</span> <code class="rl-bot-code">{{r.kind}}</code></span>
+          <span><span class="rl-label">{{localize "RL.Bots.Log.difficulty"}}</span> {{r.difficulty}}</span>
+          {{#if r.personality}}<span><span class="rl-label">{{localize "RL.Bots.Log.personality"}}</span> {{r.personality}}</span>{{/if}}
+          {{#if r.model}}<span><span class="rl-label">{{localize "RL.Bots.Log.chatModel"}}</span> <code class="rl-bot-code">{{r.model}}</code></span>{{/if}}
+          {{#if r.requests}}<span><span class="rl-label">{{localize "RL.Bots.Log.jev"}}</span> {{r.jev}}</span>{{/if}}
+          {{#if r.chats}}<span><span class="rl-label">{{localize "RL.Bots.Log.chat"}}</span> {{r.chat}}</span>{{/if}}
+          <button type="button" class="rl-btn rl-bot-small rl-bot-rec__copy" data-action="copyRecord"><i class="fa-regular fa-copy" inert></i> {{localize "RL.Bots.Log.copyJson"}}</button>
+        </div>
+
+        {{#if d.error}}<p class="rl-bot-rec__error"><i class="fa-solid fa-triangle-exclamation" inert></i> {{d.error}}</p>{{/if}}
+
+        <section class="rl-bot-rec__block">
+          <h4 class="rl-bot-rec__head">{{localize "RL.Bots.Log.why"}}</h4>
+          <p class="rl-bot-rec__reason"><code class="rl-bot-code">{{#if d.reason}}{{d.reason}}{{else}}—{{/if}}</code>
+            {{#if d.reason}}{{#unless d.reasonKnown}}<span class="rl-bot-rec__unknown">{{localize "RL.Bots.Log.unknownReason"}}</span>{{/unless}}{{/if}}</p>
+          {{#if d.why.length}}
+          <dl class="rl-bot-kv">
+            {{#each d.why as |w|}}<div><dt>{{w.key}}</dt><dd>{{w.value}}</dd></div>{{/each}}
+          </dl>
+          {{/if}}
+        </section>
+
+        {{#if r.say}}
+        <section class="rl-bot-rec__block">
+          <h4 class="rl-bot-rec__head">{{localize "RL.Bots.Log.tableTalk"}}</h4>
+          <blockquote class="rl-bot-quote">{{localize "RL.Bots.Talk.quote" say=r.say}}</blockquote>
+        </section>
+        {{/if}}
+
+        <section class="rl-bot-rec__block">
+          <h4 class="rl-bot-rec__head">{{localize "RL.Bots.Log.decision"}}</h4>
+          <pre class="rl-bot-pre">{{d.decision}}</pre>
+        </section>
+
+        {{#each d.chats as |x|}}
+        <section class="rl-bot-rec__block rl-bot-x rl-bot-x--llm{{#if x.error}} is-error{{/if}}">
+          <h4 class="rl-bot-rec__head rl-bot-x__head">
+            <span>{{localize "RL.Bots.Log.chatRequest" n=x.n}} <code class="rl-bot-code">{{x.purpose}}</code></span>
+            <button type="button" class="rl-btn rl-bot-small" data-action="copyExchange" data-index="{{x.index}}"><i class="fa-regular fa-copy" inert></i> {{localize "RL.Bots.Log.copyJson"}}</button>
+          </h4>
+          <p class="rl-bot-x__facts">
+            {{#if x.model}}<span data-tooltip="{{x.modelId}}"><i class="fa-solid fa-comments" inert></i> {{x.model}}</span>{{/if}}
+            <span>{{localize "RL.Bots.Log.ms" ms=x.ms}}</span>
+            {{#if x.tokens}}<span>{{x.tokens}}</span>{{/if}}
+            {{#if x.cost}}<span class="rl-bot-x__cost">{{x.cost}}</span>{{/if}}
+            {{#if x.attempt}}<span>{{x.attempt}}</span>{{/if}}
+            {{#if x.finish}}<span class="rl-bot-x__warn">{{localize "RL.Bots.Log.finish" finish=x.finish}}</span>{{/if}}
+            {{#if x.settings}}<span>{{x.settings}}</span>{{/if}}
+          </p>
+          {{#if x.error}}<p class="rl-bot-rec__error"><i class="fa-solid fa-triangle-exclamation" inert></i> {{x.error}}</p>{{/if}}
+          {{#if x.thinking}}
+          <div class="rl-bot-think">
+            <span class="rl-label">{{localize "RL.Bots.Log.thinking"}}</span>
+            <p class="rl-bot-think__text">{{x.thinking}}</p>
+          </div>
+          {{/if}}
+          {{#if x.say}}<blockquote class="rl-bot-quote">{{localize "RL.Bots.Talk.quote" say=x.say}}</blockquote>{{/if}}
+          {{#if x.answer}}
+          <div class="rl-bot-answer">
+            <span class="rl-label">{{#if x.raw}}{{localize "RL.Bots.Log.content"}}{{else}}{{localize "RL.Bots.Log.answer"}}{{/if}}{{#if x.schema}} <code class="rl-bot-code">{{x.schema}}</code>{{/if}}</span>
+            <pre class="rl-bot-pre">{{x.answer}}</pre>
+          </div>
+          {{/if}}
+
+          <details class="rl-bot-state" data-sync="{{x.messagesSync}}" {{#if x.messagesOpen}}open{{/if}}>
+            <summary>{{localize "RL.Bots.Log.messages" n=x.messages.length}}</summary>
+            <div class="rl-bot-msgs">
+              {{#each x.messages as |m|}}
+              {{#if m.system}}
+              <details class="rl-bot-state rl-bot-msg rl-bot-msg--system" data-sync="{{m.sync}}" {{#if m.open}}open{{/if}}>
+                <summary>{{localize "RL.Bots.Log.systemMessage" n=m.chars}}</summary>
+                <pre class="rl-bot-pre">{{m.content}}</pre>
+              </details>
+              {{else}}
+              <div class="rl-bot-msg rl-bot-msg--{{m.role}}">
+                <span class="rl-bot-msg__role">{{m.roleLabel}}</span>
+                <pre class="rl-bot-pre">{{m.content}}</pre>
+              </div>
+              {{/if}}
+              {{/each}}
+            </div>
+          </details>
+          {{#if x.reasoning}}
+          <details class="rl-bot-state" data-sync="{{x.reasoningSync}}" {{#if x.reasoningOpen}}open{{/if}}>
+            <summary>{{localize "RL.Bots.Log.reasoning" n=x.reasoningChars}}</summary>
+            <pre class="rl-bot-pre">{{x.reasoning}}</pre>
+          </details>
+          {{/if}}
+        </section>
+        {{/each}}
+
+        {{#each d.exchanges as |x|}}
+        <section class="rl-bot-rec__block rl-bot-x{{#if x.error}} is-error{{/if}}">
+          <h4 class="rl-bot-rec__head rl-bot-x__head">
+            <span>{{localize "RL.Bots.Log.request" n=x.n}} <code class="rl-bot-code">{{x.purpose}}</code></span>
+            <button type="button" class="rl-btn rl-bot-small" data-action="copyRequest" data-index="{{x.index}}"><i class="fa-regular fa-copy" inert></i> {{localize "RL.Bots.Log.copyRequest"}}</button>
+          </h4>
+          <p class="rl-bot-x__facts">
+            {{#if x.model}}<span>{{localize "RL.Bots.Log.model" model=x.model}}</span>{{/if}}
+            <span>{{localize "RL.Bots.Log.ms" ms=x.ms}}</span>
+            {{#if x.inputTokens}}<span>{{localize "RL.Bots.Log.tokens" input=x.inputTokens output=x.outputTokens}}</span>{{/if}}
+          </p>
+          {{#if x.error}}<p class="rl-bot-rec__error"><i class="fa-solid fa-triangle-exclamation" inert></i> {{x.error}}</p>{{/if}}
+
+          {{#each x.questions as |q|}}
+          <div class="rl-bot-q">
+            <div class="rl-bot-q__head"><code class="rl-bot-code">{{q.name}}</code> <span class="rl-bot-q__type">{{q.typeLabel}}</span>
+              {{#if q.score}}<span class="rl-bot-q__score">{{localize "RL.Bots.Log.expected" score=q.score}}</span>{{/if}}
+              {{#if q.confidence}}<span class="rl-bot-q__score">{{localize "RL.Bots.Log.confidence" pct=q.confidence}}</span>{{/if}}</div>
+            {{#if q.instructions}}<p class="rl-bot-q__text">{{q.instructions}}</p>{{/if}}
+            {{#if q.missing}}<p class="rl-bot-q__none">{{localize "RL.Bots.Log.noAnswer"}}</p>{{/if}}
+            {{#if q.noul}}
+            <div class="rl-bot-bars">
+              <div class="rl-bot-barrow{{#if q.noul.chosen}} is-chosen{{/if}}"><span class="rl-bot-barrow__key">{{localize "RL.Bots.Log.true"}}</span>
+                <span class="rl-bot-bar"><span style="width: {{q.noul.width}}%"></span></span><span class="rl-bot-barrow__pct">{{q.noul.pct}}</span></div>
+            </div>
+            {{#each q.criteria as |c|}}<p class="rl-bot-q__crit"><b>{{c.key}}:</b> {{c.text}}</p>{{/each}}
+            {{/if}}
+            {{#if q.options}}
+            <div class="rl-bot-bars">
+              {{#each q.options as |o|}}
+              <div class="rl-bot-barrow{{#if o.chosen}} is-chosen{{/if}}"{{#if o.text}} data-tooltip="{{o.text}}"{{/if}}><span class="rl-bot-barrow__key">{{o.key}}</span>
+                <span class="rl-bot-bar"><span style="width: {{o.width}}%"></span></span><span class="rl-bot-barrow__pct">{{o.pct}}</span></div>
+              {{/each}}
+            </div>
+            {{/if}}
+            {{#if q.levels}}
+            <div class="rl-bot-bars">
+              {{#each q.levels as |l|}}
+              <div class="rl-bot-barrow rl-bot-barrow--level{{#if l.chosen}} is-chosen{{/if}}"><span class="rl-bot-barrow__key">{{l.key}} · {{l.text}}</span>
+                <span class="rl-bot-bar"><span style="width: {{l.width}}%"></span></span><span class="rl-bot-barrow__pct">{{l.pct}}</span></div>
+              {{/each}}
+            </div>
+            {{/if}}
+            {{#if q.raw}}<pre class="rl-bot-pre">{{q.raw}}</pre>{{/if}}
+          </div>
+          {{/each}}
+
+          <details class="rl-bot-state" data-sync="state-{{r.id}}-{{x.index}}" {{#if x.stateOpen}}open{{/if}}>
+            <summary>{{localize "RL.Bots.Log.state" n=x.stateChars}}</summary>
+            <pre class="rl-bot-pre">{{x.state}}</pre>
+          </details>
+        </section>
+        {{/each}}
+      </div>
+      {{/with}}
+      {{/if}}
+    </details>
+    {{/each}}
+    {{#if more}}
+    <div class="rl-bot-log__more"><button type="button" class="rl-btn" data-action="more"><i class="fa-solid fa-angles-down" inert></i> {{localize "RL.Bots.Log.more"}}</button></div>
+    {{/if}}
+    {{/if}}
+  </div>
+</div>

@@ -1,0 +1,36 @@
+<div class="rl-camp-step rl-camp-step--sign">
+  <div class="rl-camp-lid" style="--rl-lid: url('{{lid}}')">
+    <div class="rl-camp-lid__signatures">
+      {{#each signatures}}
+      <span class="rl-camp-lid__signature rl-hand" style="--tilt: {{rotate}}deg; --shift: {{offset}}px">
+        {{name}}
+        <button type="button" class="rl-camp-lid__remove" data-action="removeSignature" data-index="{{index}}" aria-label="{{localize "RL.Wizard.New.removeSignature"}}" data-tooltip="RL.Wizard.New.removeSignature">
+          <i class="fa-solid fa-xmark" inert></i>
+        </button>
+      </span>
+      {{else}}
+      <span class="rl-camp-lid__empty rl-hand rl-hand--concept">{{localize "RL.Wizard.New.signHere"}}</span>
+      {{/each}}
+    </div>
+    <div class="rl-camp-lid__date">
+      <input type="date" name="date" value="{{date}}" class="rl-input--hand" aria-label="{{localize "RL.Wizard.New.date"}}">
+    </div>
+  </div>
+  <div class="rl-camp-lid-controls">
+    <div class="rl-field">
+      <label for="rl-new-signature">{{localize "RL.Wizard.New.addSignature"}}</label>
+      <div class="rl-camp-lid-controls__row">
+        <input id="rl-new-signature" type="text" name="signature" class="rl-input--hand" placeholder="{{localize "RL.Wizard.New.signaturePlaceholder"}}" autocomplete="off">
+        <button type="button" class="rl-btn" data-action="addSignature"><i class="fa-solid fa-pen-nib" inert></i> {{localize "RL.Wizard.New.sign"}}</button>
+      </div>
+    </div>
+    {{#if users.length}}
+    <div class="rl-camp-lid-controls__users">
+      <span class="rl-label">{{localize "RL.Wizard.New.signAs"}}</span>
+      {{#each users}}
+      <button type="button" class="rl-camp-chip" data-action="signAs" data-name="{{name}}">{{#if gm}}<i class="fa-solid fa-crown" inert></i> {{/if}}{{name}}</button>
+      {{/each}}
+    </div>
+    {{/if}}
+  </div>
+</div>

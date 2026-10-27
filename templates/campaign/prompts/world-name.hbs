@@ -1,0 +1,12 @@
+<div class="rl-prompt-body">
+  {{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/hot-seat.hbs"}}
+  <p class="rl-lead">{{localize "RL.Wizard.Prompt.worldLead"}}</p>
+  <div class="rl-camp-world-plate">
+    <span class="rl-label">{{localize "RL.Wizard.End.theWorldOf"}}</span>
+    <input type="text" name="name" class="rl-input--hand rl-camp-world-plate__input" maxlength="40" autofocus>
+  </div>
+  <footer class="rl-prompt-footer">
+    <button type="button" class="rl-btn" data-action="cancel">{{localize "RL.Wizard.Prompt.later"}}</button>
+    <button type="submit" class="rl-btn rl-btn--primary"><i class="fa-solid fa-earth-europe" inert></i> {{localize "RL.Wizard.Prompt.nameIt"}}</button>
+  </footer>
+</div>

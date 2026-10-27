@@ -1,0 +1,30 @@
+{
+ "name": "debrief",
+ "description": "Game 4 is over: Enclave won by taking Khan's HQ China; Khan held on in India.",
+ "me": "khan",
+ "difficulty": "normal",
+ "factions": {
+  "khan": { "name": "Khan Industries", "key": "khan", "redStarTokens": 1 },
+  "enclave": { "name": "Enclave of the Bear", "key": "enclave", "redStarTokens": 2 },
+  "balkania": { "name": "Imperial Balkania", "key": "balkania", "redStarTokens": 1 }
+ },
+ "pieces": {
+  "china": { "enclave": 4, "khan": { "troops": 0, "hq": true } }, "india": { "khan": 3 },
+  "kamchatka": { "enclave": { "troops": 5, "hq": true } }, "russia": { "balkania": { "troops": 6, "hq": true } }
+ },
+ "turn": { "faction": "enclave", "phase": "end", "stage": "ended" },
+ "view": { "game": 4 },
+ "llm": {
+  "personality": "test_berserker",
+  "memory": { "notes": "Enclave's player always rushes Mongolia.", "grudges": [], "lessons": [ "Hit the leader early." ], "games": [], "updated": 3 },
+  "bots": { "balkania": "Analyst Petra Quill" }
+ },
+ "summary": {
+  "game": 4, "winner": "enclave", "result": "held on", "stars": 1, "hq": "lost China to Enclave of the Bear in round 7",
+  "against": [ "Enclave of the Bear took China (your HQ) in round 7", "Imperial Balkania fired a missile at your defence of Ural" ],
+  "by": [ "You took Siberia and Irkutsk from Enclave of the Bear", "You broke Imperial Balkania's Europe in round 5" ],
+  "scars": [ "Bunker placed in China by you" ],
+  "opponents": [ { "user": "user-enclave", "faction": "enclave" }, { "user": "user-balkania", "faction": "balkania" } ]
+ },
+ "calls": [ { "fn": "debrief" } ]
+}

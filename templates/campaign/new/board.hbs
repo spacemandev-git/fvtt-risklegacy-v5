@@ -1,0 +1,16 @@
+<div class="rl-camp-step rl-camp-step--board">
+  <h2 class="rl-title">{{localize "RL.Wizard.New.boardTitle"}}</h2>
+  <p class="rl-lead">{{localize "RL.Wizard.New.boardLead"}}</p>
+  <div class="rl-camp-board-choice">
+    {{#each boards}}
+    <div class="rl-camp-board-option {{#if selected}}is-selected{{/if}}" role="button" tabindex="0" data-action="selectBoard" data-variant="{{id}}" aria-pressed="{{#if selected}}true{{else}}false{{/if}}">
+      <span class="rl-camp-board-option__img rl-framed"><img src="{{img}}" alt="{{label}}" loading="lazy"></span>
+      <span class="rl-camp-board-option__label">{{label}}</span>
+      {{#if credits}}<span class="rl-caption">{{credits}}</span>{{/if}}
+      {{#unless ready}}<span class="rl-camp-board-option__warn"><i class="fa-solid fa-triangle-exclamation" inert></i> {{localize "RL.Wizard.New.boardNotReady"}}</span>{{/unless}}
+      {{#if selected}}<span class="rl-circled rl-camp-board-option__mark rl-hand rl-hand--red">{{localize "RL.Wizard.New.thisOne"}}</span>{{/if}}
+    </div>
+    {{/each}}
+  </div>
+  <div class="rl-note"><span class="rl-label">{{localize "RL.Wizard.noteLabel"}}</span> {{localize "RL.Wizard.New.boardNote"}}</div>
+</div>

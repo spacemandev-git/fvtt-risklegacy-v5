@@ -1,0 +1,182 @@
+/* canvas area styles. Scope everything under .risklegacy (see styles/risklegacy.css and design/DESIGN.md). */
+
+/* --------------------------------------------------------------------------
+   Prompt banner (pickTerritory / startPlacement): hazard tape over a steel plate
+   -------------------------------------------------------------------------- */
+.risklegacy.rl-board-banner {
+  position: fixed;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: calc(var(--z-index-ui, 60) + 10);
+  min-width: 420px;
+  max-width: min(760px, 70vw);
+  pointer-events: auto;
+  filter: drop-shadow(0 6px 12px rgb(0 0 0 / .45));
+  color: var(--rl-ink);
+}
+.risklegacy.rl-board-banner .rl-board-banner__tape {
+  height: 12px;
+}
+.risklegacy.rl-board-banner .rl-board-banner__plate {
+  display: grid;
+  /* the reserve count has its own column, so a long prompt wraps instead of running under it */
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    "faction prompt count cancel"
+    "faction hint   hint  cancel";
+  align-items: center;
+  column-gap: 0;   /* gaps are margins on the optional faction/count cells, so a missing one leaves no gutter */
+  row-gap: var(--rl-space-2);
+  padding: 10px var(--rl-space-6);
+  background: var(--rl-grad-steel);
+  box-shadow: var(--rl-bevel-steel), inset 0 -3px 0 var(--rl-steel-lo);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+}
+.risklegacy.rl-board-banner .rl-board-banner__faction {
+  grid-area: faction;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  padding: var(--rl-space-1) var(--rl-space-2) var(--rl-space-1) 10px;
+  margin-right: var(--rl-space-5);
+  border-left: 8px solid var(--rl-faction);
+  font: normal 900 var(--rl-fs-md)/1.05 var(--rl-font-display);
+  letter-spacing: var(--rl-track-caps, .04em);
+  text-transform: uppercase;
+  max-width: 180px;
+}
+.risklegacy.rl-board-banner .rl-board-banner__prompt {
+  grid-area: prompt;
+  font: normal 900 var(--rl-fs-lg)/1.05 var(--rl-font-display);
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: var(--rl-red);
+}
+.risklegacy.rl-board-banner .rl-board-banner__count {
+  grid-area: count;
+  margin-left: var(--rl-space-5);
+  display: inline-flex;
+  align-items: center;
+  font: normal 700 var(--rl-fs-sm)/1 var(--rl-font-body);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+.risklegacy.rl-board-banner .rl-board-banner__count b {
+  display: inline-grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  margin-right: var(--rl-space-3);
+  padding: 0 6px;
+  background: var(--rl-red-bright);
+  color: #fff;
+  font: normal 900 20px/1 var(--rl-font-display);
+  border-radius: 15px;
+}
+.risklegacy.rl-board-banner .rl-board-banner__hint {
+  grid-area: hint;
+  font: italic 400 var(--rl-fs-sm)/1.25 var(--rl-font-body);
+  color: var(--rl-k70);
+}
+.risklegacy.rl-board-banner .rl-board-banner__cancel {
+  grid-area: cancel;
+  margin-left: var(--rl-space-6);
+  min-height: 32px;
+  padding-inline: var(--rl-space-5) var(--rl-space-6);
+  font-size: 14px;
+}
+
+/* --------------------------------------------------------------------------
+   Territory hover tooltip: a printed briefing card (same in both themes)
+   -------------------------------------------------------------------------- */
+.risklegacy.rl-board-tooltip {
+  position: fixed;
+  z-index: calc(var(--z-index-tooltip, 9999) - 1);
+  min-width: 200px;
+  max-width: 300px;
+  pointer-events: none;
+  background: var(--rl-paper);
+  border: 2px solid var(--rl-ink);
+  box-shadow: var(--rl-shadow-card);
+  color: var(--rl-ink);
+  font: normal 400 var(--rl-fs-sm)/1.3 var(--rl-font-body);
+}
+.risklegacy.rl-board-tooltip .rl-board-tooltip__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--rl-space-5);
+  padding: var(--rl-space-3) 10px 5px;
+  background: var(--rl-grad-steel);
+  border-bottom: 1px solid var(--rl-steel-lo);
+}
+.risklegacy.rl-board-tooltip .rl-board-tooltip__name {
+  font: normal 900 var(--rl-fs-md)/1 var(--rl-font-display);
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: var(--rl-red);
+}
+.risklegacy.rl-board-tooltip .rl-board-tooltip__continent {
+  font: italic 400 var(--rl-fs-xs)/1 var(--rl-font-body);
+  color: var(--rl-k70);
+}
+.risklegacy.rl-board-tooltip .rl-board-tooltip__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rl-space-3);
+  padding: var(--rl-space-4) 10px 10px;
+}
+.risklegacy.rl-board-tooltip .rl-board-tooltip__row {
+  display: flex;
+  align-items: center;
+  gap: var(--rl-space-3) var(--rl-space-4);
+}
+/* a detail line ("Founded by…", the scar's effect) stays close to the line it explains */
+.risklegacy.rl-board-tooltip .rl-board-tooltip__row.rl-board-tooltip__sub { margin-top: calc(-1 * var(--rl-space-2)); }
+.risklegacy.rl-board-tooltip .rl-board-tooltip__swatch {
+  flex: 0 0 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--rl-faction);
+  box-shadow: 0 0 0 1px var(--rl-ink-rich);
+}
+.risklegacy.rl-board-tooltip .rl-board-tooltip__who {
+  font-weight: 700;
+  flex: 1;
+}
+.risklegacy.rl-board-tooltip .is-other { opacity: .8; }
+.risklegacy.rl-board-tooltip .rl-board-tooltip__num {
+  font: normal 900 18px/1 var(--rl-font-display);
+}
+.risklegacy.rl-board-tooltip .rl-board-tooltip__hq {
+  padding: 2px 6px 1px;
+  background: var(--rl-red-star);
+  color: #fff;
+  font: normal 900 11px/1.1 var(--rl-font-display);
+  letter-spacing: .05em;
+}
+.risklegacy.rl-board-tooltip .rl-board-tooltip__label {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: var(--rl-fs-xs);
+  letter-spacing: .04em;
+  color: var(--rl-k80);
+}
+.risklegacy.rl-board-tooltip .rl-board-tooltip__city {
+  font-size: 17px;
+  line-height: 1;
+}
+.risklegacy.rl-board-tooltip .rl-board-tooltip__pop { color: var(--rl-k70); }
+.risklegacy.rl-board-tooltip .rl-board-tooltip__sub {
+  font-style: italic;
+  font-size: var(--rl-fs-xs);
+  color: var(--rl-k70);
+}
+.risklegacy.rl-board-tooltip .rl-board-tooltip__empty { color: var(--rl-k70); font-style: italic; }
+.risklegacy.rl-board-tooltip .rl-board-tooltip__destroyed {
+  font-family: var(--rl-font-hand);
+  font-size: 15px;
+  color: var(--rl-red);
+}

@@ -1,0 +1,31 @@
+<div class="rl-prompt-body">
+  {{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/hot-seat.hbs"}}
+  <p class="rl-lead">{{localize "RL.Wizard.Prompt.heldOnLead" faction=faction}}</p>
+  <input type="hidden" name="reward" value="{{reward}}">
+  <div class="rl-camp-reward-grid rl-camp-reward-grid--two">
+    {{#each rewards}}
+    <div class="rl-camp-reward {{#unless ok}}is-disabled{{/unless}} {{#if selected}}is-selected{{/if}}" data-reward="{{key}}" {{#if ok}}data-action="choose" data-name="reward" data-value="{{key}}" tabindex="0"{{/if}}>
+      <span class="rl-camp-reward__art"><img src="{{img}}" alt=""></span>
+      <span class="rl-camp-reward__label">{{label}}</span>
+      <span class="rl-camp-reward__hint">{{hint}}</span>
+      {{#unless ok}}<span class="rl-hand rl-hand--red">{{why}}</span>{{/unless}}
+      <span class="rl-camp-reward__left">{{localize "RL.Wizard.Prompt.left" n=left}}</span>
+    </div>
+    {{/each}}
+  </div>
+  <div class="rl-camp-reward-form" data-reward-form="foundMinorCity" {{#unless (eq reward "foundMinorCity")}}hidden{{/unless}}>
+    <div class="rl-field"><label>{{localize "RL.Wizard.Prompt.controlledTerritory"}}</label>
+      {{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/territory-select.hbs" name="foundMinorCity.territory" groups=sub.foundMinorCity canPick=canPick}}</div>
+    <div class="rl-field"><label>{{localize "RL.Wizard.Prompt.cityName"}}</label>
+      <input type="text" name="foundMinorCity.name" class="rl-input--hand" placeholder="BenTown" maxlength="30"></div>
+  </div>
+  <div class="rl-camp-reward-form" data-reward-form="upgradeCard" {{#unless (eq reward "upgradeCard")}}hidden{{/unless}}>
+    <div class="rl-field"><label>{{localize "RL.Wizard.Prompt.cardToUpgrade"}}</label>
+      {{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/territory-select.hbs" name="upgradeCard.territory" groups=sub.upgradeCard canPick=canPick}}</div>
+  </div>
+  <footer class="rl-prompt-footer">
+    <button type="button" class="rl-btn" data-action="cancel">{{localize "RL.Wizard.Prompt.later"}}</button>
+    <button type="button" class="rl-btn" data-action="stickerSheet" data-tooltip="RL.Legacy.Sheet.useSheetHint"><i class="fa-solid fa-note-sticky" inert></i> {{localize "RL.Legacy.Sheet.useSheet"}}</button>
+    <button type="submit" class="rl-btn rl-btn--primary"><i class="fa-solid fa-shield-halved" inert></i> {{localize "RL.Wizard.Prompt.claimReward"}}</button>
+  </footer>
+</div>

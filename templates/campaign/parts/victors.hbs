@@ -1,0 +1,14 @@
+<ol class="rl-camp-victors">
+  {{#each lines}}
+  <li class="rl-camp-victors__line {{#if current}}is-current{{/if}}">
+    <span class="rl-camp-victors__n">{{n}}</span>
+    {{#if entry}}
+    <span class="rl-camp-victors__sig rl-hand">{{entry.player}}</span>
+    <span class="rl-camp-victors__date rl-hand">{{entry.date}}</span>
+    {{#if entry.motto}}<span class="rl-camp-victors__motto rl-hand rl-hand--red">“{{entry.motto}}”</span>{{/if}}
+    {{else if current}}
+    <span class="rl-camp-victors__sig rl-hand rl-hand--concept">{{localize "RL.Wizard.End.signHere"}}</span>
+    {{/if}}
+  </li>
+  {{/each}}
+</ol>

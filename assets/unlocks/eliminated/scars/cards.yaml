@@ -1,0 +1,5 @@
+namespace: mercenary.scars.eliminated.risklegacy.spacemandev
+data:
+  tokenImg: scar_mercenary.png
+imgPath: mercenary.jpg
+qty: 3

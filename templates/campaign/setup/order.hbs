@@ -1,0 +1,28 @@
+<div class="rl-camp-step rl-camp-step--order">
+  <h2 class="rl-title">{{localize "RL.Wizard.Setup.orderTitle"}}</h2>
+  <p class="rl-lead">{{#if draft}}{{localize "RL.Wizard.Setup.orderLeadDraft"}}{{else}}{{localize "RL.Wizard.Setup.orderLead"}}{{/if}}</p>
+  {{#if rounds.length}}
+  <div class="rl-camp-roll-rounds">
+    {{#each rounds}}
+    <div class="rl-camp-roll-round">
+      <span class="rl-label">{{#if @first}}{{localize "RL.Wizard.Setup.roll"}}{{else}}{{localize "RL.Wizard.Setup.tieRoll" n=n}}{{/if}}</span>
+      <div class="rl-dice">
+        {{#each rolls}}
+        <span class="rl-camp-roll {{#if top}}is-top{{/if}}"><span class="rl-die rl-die--defend">{{value}}</span><span class="rl-camp-roll__name">{{name}}</span></span>
+        {{/each}}
+      </div>
+    </div>
+    {{/each}}
+  </div>
+  <div class="rl-panel rl-panel--gold rl-camp-order-result">
+    <p><span class="rl-circled rl-hand">{{first}}</span> {{localize "RL.Wizard.Setup.choosesFirst"}}</p>
+    <ol class="rl-steps">
+      {{#each orderList}}
+      <li>{{name}} <span class="rl-camp-seat__tokens">{{#if redStar}}<span class="rl-token"></span>{{else}}<span class="rl-counter"><span class="rl-token rl-token--missile"></span><span class="rl-counter__value">{{missiles}}</span></span>{{/if}}</span></li>
+      {{/each}}
+    </ol>
+  </div>
+  {{else}}
+  <div class="rl-slot rl-camp-order-empty">{{localize "RL.Wizard.Setup.rollHint"}}</div>
+  {{/if}}
+</div>

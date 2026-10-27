@@ -1,0 +1,111 @@
+// Turn area e2e, part 3 (after e2e-turn1.js): Balkania attacks, conquers Saharan's HQ (knock-out, hand transfer),
+// draws a card; Saharan joins the war; GM eliminates Balkania (skipped in the turn order); Khan buys the 4th Red Star.
+const RL = game.risklegacy;
+const SYS = "fvtt-risklegacy-v5";
+const log = [];
+const step = (name, data) => log.push({ step: name, ...(data ?? {}) });
+const wait = ms => new Promise(r => setTimeout(r, ms));
+async function waitFor(fn, ms = 20000) {
+  const t0 = Date.now();
+  while ( Date.now() - t0 < ms ) {
+    try { if ( fn() ) return true; } catch(e) { /* keep waiting */ }
+    await wait(150);
+  }
+  return false;
+}
+await waitFor(() => RL.state.getCampaignBoard() && RL.state.buildSnapshot());
+const war = RL.state.getWar();
+const [khan, balk, sah] = ["khan", "balkania", "saharan"].map(k => RL.state.getFactionByKey(k));
+const snap = () => RL.turn.snapshot();
+const troops = (f, t) => snap().territories[t].pieces?.[f.id]?.troops ?? 0;
+const startedFor = f => waitFor(() => (war.combatant?.actorId === f.id) && (war.system.turn.faction === f.id)
+  && game.messages.contents.some(m => (m.flags?.[SYS]?.turn === "turnStarted") && (m.flags?.[SYS]?.faction === f.id) && (m.timestamp > (startedFor.since ?? 0))));
+const hooks = [];
+for ( const h of ["risklegacy.conquered", "risklegacy.factionKnockedOut", "risklegacy.factionEliminated", "risklegacy.warEnded", "risklegacy.turnStarted", "risklegacy.phaseChanged"] ) {
+  Hooks.on(h, (...args) => hooks.push(`${h.split(".")[1]}:${args.map(a => a?.name ?? a?.system?.key ?? (typeof a === "string" ? a : "")).filter(Boolean).join("/")}`));
+}
+
+// ---- Balkania (round 1) ----
+await startedFor(balk);
+await RL.cards.dealCoins({ faction: sah.id, count: 3 });
+const r = await RL.turn.recruit({ faction: balk.id });
+step("balkRecruit", { base: r?.base, roundedUp: r?.roundedUp, divided: r?.divided, total: r?.total });
+await RL.turn.placeReserve({ faction: balk.id, territory: "brazil", count: 3 });
+await RL.turn.expand({ faction: balk.id, from: "brazil", to: "north_africa", count: 6 });
+const atk = await RL.turn.attack({ faction: balk.id, from: "north_africa", to: "egypt", dice: 3 });
+await wait(2500);
+const msg = game.messages.get(atk?.messageId);
+step("attack", { messageId: !!atk?.messageId, type: msg?.type, status: msg?.system.status, firstAttackTarget: war.system.turn.firstAttackTarget, attacks: war.system.turn.attacks, phase: war.system.phase });
+if ( msg && !["resolved", "cancelled"].includes(msg.system.status) ) await RL.battle.cancelBattle({ message: msg.id }).catch(() => null);
+if ( msg?.system.status === "resolved" ) step("battleResult", { result: msg.system.result });
+
+// Simulated conquest of Egypt (deterministic): all defenders fall, three survivors move in
+const egyptSah = troops(sah, "egypt");
+if ( egyptSah ) await RL.board.removeTroops({ faction: sah.id, territory: "egypt", count: egyptSah });
+const conquestBefore = war.system.turn.conquered;
+if ( (snap().territories.egypt.owner ?? null) !== balk.id ) {
+  await RL.board.moveTroops({ faction: balk.id, from: "north_africa", to: "egypt", count: 2 });
+}
+const rec = await RL.turn.recordConquest({ faction: balk.id, from: "north_africa", to: "egypt", defender: sah.id });
+await wait(500);
+step("conquest", {
+  rec, conquered: war.system.turn.conquered - conquestBefore, sahStatus: sah.system.war.status,
+  sahHand: RL.state.getHand(sah)?.cards.size ?? 0, balkHand: RL.state.getHand(balk)?.cards.size ?? 0,
+  balkStars: RL.rules.redStarTotal(snap(), balk.id), knockouts: war.system.turn.flags.knockouts,
+  lastAdvance: war.system.turn.flags.lastAdvance
+});
+
+// End of turn with a draw (eligible: conquered)
+const opts = RL.cards.drawOptions(balk.id);
+const allowed = opts.row?.find(o => o.allowed);
+const draw = allowed ? { cardId: allowed.cardId } : (opts.coinAllowed ? { coin: true } : null);
+const ended = await RL.actions.run("turn.end", { faction: balk.id, draw, completeMission: false, powers: {} });
+step("balkEnd", { draw, ended: { drawn: !!ended?.drawn?.cardId, winner: ended?.winner }, balkHand: RL.state.getHand(balk)?.cards.size });
+
+// ---- Saharan (round 1): knocked out → Join the War ----
+startedFor.since = Date.now() - 1;
+await startedFor(sah);
+let info = RL.turn.getTurnInfo();
+const info2 = RL.turn.getTurnInfo();
+step("sahStart", {
+  current: info.faction?.system.key, joinWar: info.actions.joinWar.ok, recruit: info.actions.recruit.reason,
+  cached: info === info2, legal: (info.actions.joinWar.data?.territories ?? []).length,
+  note: game.messages.contents.filter(m => m.flags?.[SYS]?.turn === "turnStarted").at(-1)?.content.includes("Join the War")
+});
+step("sahRecruit", { result: await RL.turn.recruit({ faction: sah.id }) });
+const joined = await RL.turn.joinWar({ faction: sah.id, territory: "peru" });
+step("sahJoin", { joined: { territory: joined?.territory, troops: joined?.troops }, status: sah.system.war.status, phase: war.system.phase, peru: troops(sah, "peru") });
+await RL.actions.run("turn.end", { faction: sah.id, draw: null });
+
+// ---- Khan (round 2): GM eliminates Balkania; the turn order skips it ----
+startedFor.since = Date.now() - 1;
+await startedFor(khan);
+step("khanRound2", { round: war.round, khan1: war.system.turn.flags.startOfTurn, siberia: troops(khan, "siberia") });
+const elim = await RL.turn.eliminate({ faction: balk.id });
+step("eliminate", { elim, status: balk.system.war.status, defeated: war.combatants.find(c => c.actorId === balk.id)?.defeated, eliminated: war.system.eliminated.length });
+await RL.turn.recruit({ faction: khan.id });
+await RL.turn.placeReserve({ faction: khan.id, territory: "siberia", count: khan.system.war.reserve });
+await RL.turn.setPhase({ faction: khan.id, phase: "end" });
+step("setPhase", { phase: war.system.phase });
+await RL.actions.run("turn.end", { faction: khan.id, draw: null });
+startedFor.since = Date.now() - 1;
+await startedFor(sah);
+step("skipped", { current: RL.turn.getTurnInfo().faction?.system.key, round: war.round });
+await RL.turn.recruit({ faction: sah.id });
+await RL.turn.placeReserve({ faction: sah.id, territory: "peru", count: sah.system.war.reserve });
+await RL.actions.run("turn.end", { faction: sah.id, draw: null });
+
+// ---- Khan (round 3): buys the 4th Red Star and wins ----
+startedFor.since = Date.now() - 1;
+await startedFor(khan);
+await khan.update({ "system.war.redStarTokens": 2 });
+await wait(800);
+step("notYet", { stage: war.system.stage, stars: RL.rules.redStarTotal(snap(), khan.id) });
+const deal = await RL.cards.dealCoins({ faction: khan.id, count: 4 });
+const stars = await RL.turn.buyRedStars({ faction: khan.id, cardIds: deal.cardIds });
+await wait(500);
+step("victory", {
+  stars, stage: war.system.stage, winner: game.actors.get(war.system.winner)?.system.key,
+  results: RL.turn.computeResults(war).map(r => `${game.actors.get(r.faction).system.key}:${r.result}`)
+});
+return { log, hooks, chat: game.messages.contents.map(m => m.flags?.[SYS]?.turn ?? m.type).slice(-24) };

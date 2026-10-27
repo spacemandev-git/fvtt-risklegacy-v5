@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" width="60" height="60">
+  <title>Legacy "rules addition" brackets — K20 grey, 45° cut arm tips (rules.pdf p.7/12/13). Use as border-image, slice 20.</title>
+  <g fill="#d1d3d4">
+    <polygon points="0,0 20,0 16,4 4,4 4,56 16,56 20,60 0,60"/>
+    <polygon points="60,0 40,0 44,4 56,4 56,56 44,56 40,60 60,60"/>
+  </g>
+</svg>

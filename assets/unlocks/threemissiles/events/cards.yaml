@@ -1,0 +1,15 @@
+namespace: agent_of_chaos.events.threemissiles.risklegacy.spacemandev
+imgPath: agent_of_chaos.jpg
+qty: 3
+---
+namespace: fallout.events.threemissiles.risklegacy.spacemandev
+imgPath: fallout.jpg
+qty: 3
+---
+namespace: mutants_evolve_1.events.threemissiles.risklegacy.spacemandev
+imgPath: mutants_evolve_1.jpg
+qty: 1
+---
+namespace: mutants_evolve_2.events.threemissiles.risklegacy.spacemandev
+imgPath: mutants_evolve_2.jpg
+qty: 1

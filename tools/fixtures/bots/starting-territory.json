@@ -1,0 +1,73 @@
+{
+ "name": "starting-territory",
+ "description": "Game setup: Balkania (Northern Europe), Khan (China) and Saharan (Egypt) have placed. Enclave picks a starting territory.",
+ "me": "enclave",
+ "difficulty": "normal",
+ "factions": {
+  "enclave": {
+   "name": "Enclave of the Bear",
+   "key": "enclave"
+  },
+  "balkania": {
+   "name": "Imperial Balkania",
+   "key": "balkania",
+   "redStarTokens": 1
+  },
+  "khan": {
+   "name": "Khan Industries",
+   "key": "khan",
+   "redStarTokens": 1
+  },
+  "saharan": {
+   "name": "Saharan Republic",
+   "key": "saharan",
+   "redStarTokens": 1
+  }
+ },
+ "marks": {
+  "brazil": {
+   "city": "minor"
+  },
+  "peru": {
+   "scar": "bunker"
+  },
+  "eastern_united_states": {
+   "city": "major",
+   "founder": "Someone Else",
+   "founderId": "user-x"
+  }
+ },
+ "pieces": {
+  "northern_europe": {
+   "balkania": {
+    "troops": 8,
+    "hq": true
+   }
+  },
+  "china": {
+   "khan": {
+    "troops": 8,
+    "hq": true
+   }
+  },
+  "egypt": {
+   "saharan": {
+    "troops": 8,
+    "hq": true
+   }
+  }
+ },
+ "turn": {
+  "faction": "enclave",
+  "phase": "start",
+  "stage": "placement"
+ },
+ "calls": [
+  {
+   "fn": "chooseStartingTerritory",
+   "args": {
+    "legal": "auto"
+   }
+  }
+ ]
+}

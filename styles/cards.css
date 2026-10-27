@@ -1,0 +1,543 @@
+/* ==========================================================================
+   Risk Legacy: cards area (Sideboard, hands, card dialogs, card chat cards).
+   Everything is scoped under .risklegacy and reuses styles/risklegacy.css tokens.
+   Cards are printed objects: they look the same in light and dark themes.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Shared: CSS card backs (cards without a scanned back), value coins
+   -------------------------------------------------------------------------- */
+.risklegacy .rl-cardback {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 63 / 88;
+  border-radius: var(--rl-radius-card);
+  overflow: hidden;
+  background: var(--rl-grad-gunmetal);
+  box-shadow: var(--rl-shadow-card), inset 0 0 0 3px rgb(255 255 255 / .12);
+  color: var(--rl-steel-hi);
+  font: 900 var(--rl-fs-md)/1 var(--rl-font-display);
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+  text-align: center;
+}
+.risklegacy .rl-cardback::before {      /* hazard tape across the top */
+  content: "";
+  position: absolute; left: 0; right: 0; top: 12%;
+  height: 9%;
+  background: var(--rl-grad-hazard);
+  box-shadow: 0 1px 0 var(--rl-ink-rich), 0 -1px 0 var(--rl-ink-rich);
+}
+.risklegacy .rl-cardback > span { position: relative; padding: 0 8%; }
+.risklegacy .rl-cardback--scar,
+.risklegacy .rl-cardback--mission,
+.risklegacy .rl-cardback--draft { aspect-ratio: 88 / 63; }
+.risklegacy .rl-cardback--scar { background: var(--rl-card-paper) var(--rl-tex-paper); background-size: 300px; color: var(--rl-ink); }
+.risklegacy .rl-cardback--scar::before { top: 18%; height: 8%; background: var(--rl-ink); box-shadow: none; }
+.risklegacy .rl-cardback--mission { background: linear-gradient(180deg, #e6e8e7, #c8cacc); color: var(--rl-ink); }
+.risklegacy .rl-cardback--mission::before { background: var(--rl-red); height: 6%; }
+.risklegacy .rl-cardback--territory,
+.risklegacy .rl-cardback--coin { background: linear-gradient(180deg, #3b3b3c, var(--rl-ink-rich)); }
+
+/* --------------------------------------------------------------------------
+   Hover zoom (one fixed element in <body>)
+   -------------------------------------------------------------------------- */
+.risklegacy.rl-zoom {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / .5), 0 18px 40px rgb(0 0 0 / .55);
+  background: var(--rl-card-paper);
+}
+.risklegacy.rl-zoom[hidden] { display: none; }
+.risklegacy.rl-zoom > img { display: block; width: 100%; height: 100%; object-fit: cover; border: 0; }
+
+/* --------------------------------------------------------------------------
+   Sideboard window
+   -------------------------------------------------------------------------- */
+/* window content keeps the shared 16 px padding */
+.risklegacy .rl-sideboard { display: flex; flex-direction: column; gap: var(--rl-space-5); }
+
+.risklegacy .rl-sb-board {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2789 / 1496;
+  background: var(--rl-sage) center / 100% 100% no-repeat;
+  border: var(--rl-border-frame);
+  box-shadow: var(--rl-shadow-panel);
+  container-type: inline-size;
+  user-select: none;
+}
+
+.risklegacy .rl-sb-slot {
+  position: absolute;
+  display: grid;
+  place-items: center;
+}
+.risklegacy .rl-sb-slot > * { grid-area: 1 / 1; }
+
+/* a card in a slot: real scan at its own aspect ratio */
+.risklegacy .rl-sb-card {
+  display: block;
+  height: 96%;
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: 63 / 88;
+  object-fit: cover;
+  border: 0;
+  border-radius: clamp(3px, .8cqi, 8px);
+  box-shadow: var(--rl-shadow-card);
+  transition: box-shadow .15s, filter .15s, transform .15s;
+}
+.risklegacy .rl-sb-card--landscape { height: auto; width: 96%; aspect-ratio: 88 / 63; }
+.risklegacy .rl-sb-card.rl-cardback { font-size: clamp(10px, 2.2cqi, 22px); }
+
+/* piles: a few card edges under the top card */
+.risklegacy .rl-sb-stack {
+  position: relative;
+  height: 96%;
+  aspect-ratio: 63 / 88;
+}
+.risklegacy .rl-sb-stack > .rl-sb-card { position: relative; height: 100%; width: 100%; z-index: 1; }
+.risklegacy .rl-sb-stack::before,
+.risklegacy .rl-sb-stack::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: clamp(3px, .8cqi, 8px);
+  background: #e9e7df;
+  box-shadow: 0 1px 2px rgb(0 0 0 / .45);
+}
+.risklegacy .rl-sb-stack::before { transform: translate(2px, 2px); }
+.risklegacy .rl-sb-stack::after { transform: translate(4px, 4px); }
+
+/* labels: small steel plates hanging off the bottom of each slot */
+.risklegacy .rl-sb-tag {
+  align-self: end;
+  justify-self: center;
+  z-index: 3;
+  margin-bottom: -1.1cqi;
+  padding: 5px 16px 4px 10px;            /* right side clears the 8 px chamfer */
+  max-width: 120%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: var(--rl-grad-steel);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(0 0 0 / .45);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+  color: var(--rl-ink);
+  font: 800 clamp(10px, 1.45cqi, 14px)/1 var(--rl-font-display);
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+}
+.risklegacy .rl-sb-tag b { color: var(--rl-red); font-weight: 900; }
+.risklegacy button.rl-sb-tag--button { border: 0; cursor: pointer; height: auto; width: auto; min-height: 0; line-height: 1; }
+.risklegacy button.rl-sb-tag--button:hover:not(:disabled) { color: var(--rl-red); }
+.risklegacy button.rl-sb-tag--button:disabled { cursor: default; opacity: 1; }
+
+/* resource value on row cards: a coin, with a red marker ring when even */
+.risklegacy .rl-sb-value {
+  align-self: start;
+  justify-self: end;
+  z-index: 3;
+  display: grid; place-items: center;
+  width: clamp(18px, 3.4cqi, 32px);
+  aspect-ratio: 1;
+  margin: -0.8cqi -0.8cqi 0 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #f9df8a, #d5a43a 50%, #8a5a12 78%, var(--rl-coin-brown) 80%);
+  box-shadow: 0 1px 3px rgb(0 0 0 / .55);
+  color: var(--rl-ink);
+  font: 900 clamp(11px, 2.1cqi, 20px)/1 var(--rl-font-display);
+}
+.risklegacy .rl-sb-value.is-even { box-shadow: 0 0 0 3px var(--rl-red-bright), 0 1px 3px rgb(0 0 0 / .55); }
+.risklegacy .rl-sb-yours {
+  align-self: center;
+  justify-self: start;
+  z-index: 3;
+  margin: 0 0 0 -6%;
+  padding: 0 4px;
+  background: rgb(255 255 255 / .85);
+  transform: rotate(-6deg);
+  font-size: clamp(12px, 1.8cqi, 18px);
+}
+
+/* drawing: legal choices glow, the rest dims */
+.risklegacy .rl-sb-slot.is-allowed > .rl-sb-card,
+.risklegacy .rl-sb-slot.is-allowed > .rl-sb-stack {
+  box-shadow: 0 0 0 3px var(--rl-red-bright), 0 0 16px 2px rgb(196 21 28 / .7);
+  border-radius: clamp(3px, .8cqi, 8px);
+  transform: translateY(-2px);
+}
+.risklegacy .rl-sb-slot.is-dimmed > .rl-sb-card,
+.risklegacy .rl-sb-slot.is-dimmed > .rl-sb-stack { filter: grayscale(.7) brightness(.72); }
+.risklegacy .rl-sb-take {
+  z-index: 4;
+  align-self: end;
+  margin-bottom: 18%;
+  min-height: 0;
+  padding: 5px 12px 3px;
+  font-size: clamp(11px, 1.6cqi, 15px);
+}
+
+/* the coin pile's printed note */
+.risklegacy .rl-sb-coinnote {
+  position: relative;
+  align-self: start;
+  z-index: 3;
+  display: flex; align-items: center; gap: var(--rl-space-3);
+  width: 100%;
+  margin-top: 5%;
+  padding: 5px 6px 5px 8px;
+  background: var(--rl-cream);
+  border: 2px solid var(--rl-ink);
+  box-shadow: var(--rl-shadow-panel);
+  color: var(--rl-ink);
+  font: 700 clamp(8px, 1.05cqi, 11px)/1.15 var(--rl-font-body);
+  cursor: help;
+}
+.risklegacy .rl-sb-coinnote .rl-token { width: clamp(14px, 2.4cqi, 24px); height: clamp(14px, 2.4cqi, 24px); }
+.risklegacy .rl-sb-coinnote__text { flex: 1; }
+.risklegacy .rl-sb-coinnote.is-spent .rl-sb-coinnote__text { text-decoration: line-through var(--rl-red) 2px; }
+.risklegacy .rl-sb-coinnote.is-spent .rl-token { filter: grayscale(1) opacity(.5); }
+.risklegacy .rl-sb-coinnote__spent {
+  position: absolute; right: -4px; bottom: -1.2em;
+  padding: 0 3px;
+  background: rgb(255 255 255 / .85);
+  font-size: clamp(12px, 1.7cqi, 17px);
+  line-height: 1;
+  transform: rotate(-5deg);
+}
+
+/* mission */
+.risklegacy .rl-sb-status {
+  align-self: end; z-index: 3;
+  margin-bottom: 9%;
+  padding: 5px 10px 4px;
+  background: var(--rl-cream);
+  border: 2px solid var(--rl-ink);
+  color: var(--rl-ink);
+  font: 800 clamp(9px, 1.3cqi, 13px)/1.1 var(--rl-font-display);
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+}
+.risklegacy .rl-sb-status--complete { color: var(--rl-red); }
+.risklegacy .rl-sb-status--manual { font-style: italic; }
+.risklegacy .rl-sb-slot--mission .rl-sb-take { margin-bottom: 26%; }
+
+/* event: events in play chip */
+.risklegacy .rl-sb-chip {
+  align-self: end; z-index: 3;
+  margin-bottom: 16%;
+  width: auto; height: auto; min-height: 0;
+  padding: 5px 10px 4px;
+  border: 2px solid var(--rl-ink);
+  border-radius: 0;
+  background: var(--rl-cream);
+  color: var(--rl-ink);
+  font: 800 clamp(9px, 1.3cqi, 13px)/1 var(--rl-font-display);
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.risklegacy .rl-sb-chip.is-pending { background: var(--rl-hazard); }
+
+/* marker note: even value in slot 1 → event */
+.risklegacy .rl-sb-hint {
+  position: absolute;
+  left: 7%; top: 45.4%;              /* in the gap between the DRAW tag and slot 1's coin */
+  z-index: 2;
+  padding: 0 6px;
+  color: var(--rl-red);
+  font-size: clamp(12px, 2cqi, 21px);
+  line-height: 1;
+  white-space: nowrap;
+  transform: rotate(-2deg);
+  text-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 0 2px #fff;
+  pointer-events: none;
+}
+.risklegacy .rl-sb-hint.is-hot { font-size: clamp(14px, 2.4cqi, 25px); }
+.risklegacy .rl-sb-hint.is-hot::after {
+  content: "";
+  position: absolute; inset: -.35em -.3em;
+  background: var(--rl-red);
+  -webkit-mask: var(--rl-svg-loop) center / 100% 100% no-repeat;
+          mask: var(--rl-svg-loop) center / 100% 100% no-repeat;
+}
+
+/* status bar */
+.risklegacy .rl-sb-status-bar {
+  display: flex; align-items: center; gap: var(--rl-space-5);
+  min-height: 34px;
+  padding: var(--rl-space-3) var(--rl-space-5);
+  background: var(--rl-grad-steel);
+  box-shadow: var(--rl-bevel-steel), var(--rl-shadow-panel);
+  color: var(--rl-ink);
+  font-size: var(--rl-fs-base);
+}
+.risklegacy .rl-sideboard.is-drawing .rl-sb-status-bar { box-shadow: var(--rl-bevel-steel), inset 4px 0 0 var(--rl-red); }
+.risklegacy .rl-sb-status-bar .rl-label { color: var(--rl-red); }
+
+/* --------------------------------------------------------------------------
+   Card pickers (draw prompt, turn-in picker)
+   -------------------------------------------------------------------------- */
+.risklegacy.rl-cards-dialog .rl-lead { margin: 0 0 var(--rl-space-5); }
+.risklegacy.rl-cards-dialog .rl-callout { margin-bottom: var(--rl-space-5); }
+.risklegacy .rl-pick {
+  position: relative;
+  display: block;
+  flex: none;
+  width: 92px;
+  aspect-ratio: 63 / 88;
+  border-radius: var(--rl-radius-card);
+  cursor: pointer;
+  transition: transform .12s, box-shadow .12s, filter .12s;
+}
+.risklegacy .rl-pick > input { position: absolute; opacity: 0; pointer-events: none; }
+.risklegacy .rl-pick > img {
+  display: block; width: 100%; height: 100%;
+  object-fit: cover; border: 0;
+  border-radius: var(--rl-radius-card);
+  box-shadow: var(--rl-shadow-card);
+}
+.risklegacy .rl-pick:hover:not(.is-disabled) { transform: translateY(-3px); }
+.risklegacy .rl-pick.is-selected > img { box-shadow: 0 0 0 3px var(--rl-red-bright), 0 0 14px rgb(196 21 28 / .6); }
+.risklegacy .rl-pick.is-selected { transform: translateY(-6px); }
+.risklegacy .rl-pick.is-disabled { cursor: not-allowed; filter: grayscale(.8) brightness(.75); }
+.risklegacy .rl-pick:has(input:focus-visible) > img { outline: 2px solid var(--rl-focus); outline-offset: 2px; }
+.risklegacy .rl-pick__slot,
+.risklegacy .rl-pick__count {
+  position: absolute; left: 50%; bottom: -11px; transform: translateX(-50%);
+  padding: 3px 10px 2px;
+  background: var(--rl-grad-steel);
+  box-shadow: 0 1px 2px rgb(0 0 0 / .4);
+  color: var(--rl-ink);
+  font: 900 13px/1 var(--rl-font-display);
+}
+.risklegacy .rl-pick__value {
+  position: absolute; right: -6px; top: -6px;
+  display: grid; place-items: center;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #f9df8a, #d5a43a 50%, #8a5a12 78%, var(--rl-coin-brown) 80%);
+  box-shadow: 0 1px 2px rgb(0 0 0 / .5);
+  color: var(--rl-ink);
+  font: 900 15px/1 var(--rl-font-display);
+}
+.risklegacy .rl-pick__value.is-even { box-shadow: 0 0 0 2px var(--rl-red-bright), 0 1px 2px rgb(0 0 0 / .5); }
+.risklegacy .rl-pick__flag { position: absolute; left: 4px; top: 6px; padding: 0 3px; background: rgb(255 255 255 / .85); transform: rotate(-6deg); font-size: 15px; }
+.risklegacy .rl-pick__empty {
+  display: grid; place-items: center; height: 100%;
+  border: 2px dashed var(--rl-k40);
+  border-radius: var(--rl-radius-card);
+  color: var(--rl-on-page-muted);
+  font: italic var(--rl-fs-xs)/1.1 var(--rl-font-body);
+  text-align: center;
+  padding: var(--rl-space-3);
+}
+.risklegacy .rl-draw-prompt__row {
+  display: flex; align-items: center; gap: var(--rl-space-6);
+  padding: var(--rl-space-4) var(--rl-space-2) var(--rl-space-6);   /* room for the coins, the lift and the slot tags */
+  overflow-x: auto;
+}
+.risklegacy .rl-draw-prompt__or { font: 800 var(--rl-fs-md)/1 var(--rl-font-display); text-transform: uppercase; color: var(--rl-on-page-muted); }
+
+.risklegacy .rl-choose__body { display: flex; gap: var(--rl-space-6); align-items: flex-start; }
+.risklegacy .rl-choose__cards {
+  flex: 1;
+  display: flex; flex-wrap: wrap; align-content: flex-start; gap: var(--rl-space-6);
+  padding: var(--rl-space-4) var(--rl-space-3) var(--rl-space-5) var(--rl-space-2);   /* room for the coins and the lift */
+  max-height: min(380px, 48vh);         /* three full rows of cards before it scrolls */
+  overflow-y: auto;
+}
+.risklegacy .rl-choose__empty { margin: 0; color: var(--rl-on-page-muted); font-style: italic; }
+.risklegacy .rl-choose__cards .rl-pick { width: 78px; }
+.risklegacy .rl-trade-chart {
+  flex: none;
+  width: auto;
+  margin: 0;
+  border-collapse: collapse;
+  background: var(--rl-panel-white);
+  border: var(--rl-border-frame);
+  color: var(--rl-ink);
+  font: 800 var(--rl-fs-base)/1 var(--rl-font-display);
+  text-align: center;
+}
+.risklegacy .rl-trade-chart th { padding: 6px 10px 5px; background: var(--rl-ink); color: #fff; font-weight: 800; text-transform: uppercase; letter-spacing: var(--rl-track-caps); }
+.risklegacy .rl-trade-chart td { padding: 4px 10px; border-top: 1px solid var(--rl-k40); }
+.risklegacy .rl-trade-chart tr.is-current td { background: var(--rl-red); color: #fff; }
+.risklegacy .rl-pick-summary {
+  margin-top: var(--rl-space-5);
+  padding: var(--rl-space-4) var(--rl-space-5);
+  background: var(--rl-k10);
+  border-left: 4px solid var(--rl-k50);
+  color: var(--rl-ink);
+  font: 700 var(--rl-fs-md)/1.2 var(--rl-font-body);
+}
+.risklegacy .rl-pick-summary.is-legal { background: var(--rl-cream); border-left-color: var(--rl-red); }
+
+/* --------------------------------------------------------------------------
+   Hand view (embedded in sheets, <rl-hand>, the hand window)
+   -------------------------------------------------------------------------- */
+rl-hand.rl-hand-host { display: block; }
+.risklegacy.rl-hand-view,
+.risklegacy .rl-hand-view {
+  display: flex; flex-direction: column; gap: var(--rl-space-5);
+  --rl-hand-card-w: 84px;
+  --rl-hand-gap: var(--rl-space-6);
+}
+.risklegacy.rl-hand-view.is-compact,
+.risklegacy .rl-hand-view.is-compact { --rl-hand-card-w: 58px; --rl-hand-gap: var(--rl-space-5); gap: var(--rl-space-4); }
+.risklegacy .rl-hand-view__head { display: flex; align-items: center; gap: var(--rl-space-4); }
+.risklegacy .rl-hand-view__head .rl-label { color: var(--rl-page-heading); }
+.risklegacy .rl-hand-view__count { color: var(--rl-on-page-muted); font-style: italic; }
+.risklegacy .rl-hand-view__coins { margin-left: auto; display: inline-flex; align-items: center; gap: var(--rl-space-3); font: 900 var(--rl-fs-lg)/1 var(--rl-font-display); }
+.risklegacy .rl-hand-view__coins .rl-coin { width: 20px; height: 20px; }
+/* each row of cards: the padding leaves room for the coin badges (−5 px) and the hover lift (−4 px) */
+.risklegacy .rl-hand-view__cards,
+.risklegacy .rl-hand-view__scars,
+.risklegacy .rl-hand-view__others {
+  display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--rl-hand-gap);
+  padding: var(--rl-space-3) var(--rl-space-3) var(--rl-space-2) 0;
+}
+.risklegacy .rl-hand-card {
+  position: relative;
+  flex: none;
+  width: var(--rl-hand-card-w);
+  aspect-ratio: 63 / 88;
+  margin: 0;
+  transition: transform .12s;
+}
+.risklegacy .rl-hand-card--landscape { width: calc(var(--rl-hand-card-w) * 1.4); aspect-ratio: 88 / 63; }
+.risklegacy .rl-hand-card:hover { transform: translateY(-4px); }
+.risklegacy .rl-hand-card > img,
+.risklegacy .rl-hand-card > .rl-cardback {
+  display: block; width: 100%; height: 100%;
+  object-fit: cover; border: 0;
+  border-radius: var(--rl-radius-card);
+  box-shadow: var(--rl-shadow-card);
+}
+.risklegacy .rl-hand-card > .rl-cardback { display: grid; font-size: 11px; }
+.risklegacy .rl-hand-card__value {
+  position: absolute; right: -5px; top: -5px;
+  display: grid; place-items: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #f9df8a, #d5a43a 50%, #8a5a12 78%, var(--rl-coin-brown) 80%);
+  box-shadow: 0 1px 2px rgb(0 0 0 / .5);
+  color: var(--rl-ink);
+  font: 900 14px/1 var(--rl-font-display);
+}
+/* a playable scar: the PLAY button sits under the card instead of covering its text */
+.risklegacy .rl-hand-card:has(> .rl-hand-card__play) {
+  display: flex; flex-direction: column; align-items: center; gap: var(--rl-space-3);
+  aspect-ratio: auto;
+}
+.risklegacy .rl-hand-card:has(> .rl-hand-card__play) > img { height: auto; aspect-ratio: 88 / 63; }
+.risklegacy .rl-hand-view__empty { margin: 0; color: var(--rl-on-page-muted); font-style: italic; }
+.risklegacy .rl-hand-view__actions { display: flex; flex-wrap: wrap; gap: var(--rl-space-4); margin-top: var(--rl-space-2); }
+.risklegacy .rl-hand-view__actions .rl-token { width: 20px; height: 20px; }
+/* the hand window keeps the shared 16 px window padding */
+
+/* --------------------------------------------------------------------------
+   Pile viewer
+   -------------------------------------------------------------------------- */
+/* the pile window keeps the shared 16 px window padding */
+.risklegacy .rl-pile { display: flex; flex-direction: column; min-height: 0; }
+.risklegacy .rl-pile__cards {
+  display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--rl-space-7) var(--rl-space-6);
+  max-height: 70vh; overflow-y: auto;
+  padding: var(--rl-space-3);              /* room for the pending ring */
+}
+.risklegacy .rl-pile-card { position: relative; flex: none; width: 110px; margin: 0; display: flex; flex-direction: column; gap: var(--rl-space-4); }
+.risklegacy .rl-pile-card--landscape { width: 160px; }
+.risklegacy .rl-pile-card > img {
+  display: block; width: 100%; aspect-ratio: 63 / 88; object-fit: cover; border: 0;
+  border-radius: var(--rl-radius-card); box-shadow: var(--rl-shadow-card);
+}
+.risklegacy .rl-pile-card--landscape > img { aspect-ratio: 88 / 63; }
+.risklegacy .rl-pile-card.is-pending > img { box-shadow: 0 0 0 3px var(--rl-hazard), var(--rl-shadow-card); }
+/* caption: name (wraps) and value on one line; the "kept in play" marker note on its own line */
+.risklegacy .rl-pile-card figcaption {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--rl-space-2) var(--rl-space-4);
+  margin: 0;
+  font: 800 var(--rl-fs-sm)/1.15 var(--rl-font-display);
+  letter-spacing: var(--rl-track-caps);
+  text-align: left;                        /* core centres figcaptions */
+  text-transform: uppercase;
+}
+.risklegacy .rl-pile-card__name { flex: 1 1 0; min-width: 0; }
+.risklegacy .rl-pile-card__value { flex: none; }
+.risklegacy .rl-pile-card figcaption > .rl-hand { flex: 1 1 100%; font-size: 17px; line-height: 1; text-transform: none; letter-spacing: 0; }
+.risklegacy .rl-pile-card__pending { font-size: 17px; line-height: 1; }
+.risklegacy .rl-pile-card__resolve { display: flex; flex-direction: column; gap: var(--rl-space-3); }
+.risklegacy .rl-pile-card__resolve .rl-btn.rl-btn--icon { font-size: 13px; padding: 5px 10px 4px; }   /* beats the shared --icon padding */
+.risklegacy .rl-pile-card__resolve .rl-btn.rl-btn--destroy { padding-left: 26px; }   /* clear the hazard edge */
+.risklegacy .rl-pile__empty { margin: 0; font-style: italic; color: var(--rl-on-page-muted); }
+
+/* --------------------------------------------------------------------------
+   Chat cards (chat-card.hbs, event-card.hbs). The sidebar leaves ~246 px inside the body: two portrait cards, or a
+   landscape card plus a sticker, fit on one line.
+   -------------------------------------------------------------------------- */
+/* Long titles take the whole head and the sub drops under them (core chat sets word-break: break-word, which
+   otherwise lets a long sub squeeze the title until words break mid-word). */
+.risklegacy.rl-cards-chat .rl-chat-card__head { flex-wrap: wrap; row-gap: var(--rl-space-2); }
+.risklegacy.rl-cards-chat .rl-chat-card__title { flex: 1 1 auto; }
+.risklegacy.rl-cards-chat .rl-chat-card__body { display: flex; flex-wrap: wrap; align-items: center; gap: var(--rl-space-4); }
+.risklegacy.rl-cards-chat .rl-chat-card__body > .rl-token { width: 36px; height: 36px; }
+.risklegacy .rl-cards-chat__images { display: flex; flex-wrap: wrap; align-items: center; gap: var(--rl-space-5) var(--rl-space-4); }
+/* core styles every <figure> as a full-width block with 1rem margins (and centres its img): undo that */
+.risklegacy .rl-cards-chat__figure { position: relative; flex: none; width: auto; margin: 0; }
+.risklegacy .rl-cards-chat__figure img {
+  display: block; margin: 0; border: 0;
+  border-radius: 5px;
+  box-shadow: var(--rl-shadow-card);
+  object-fit: cover;
+}
+.risklegacy .rl-cards-chat__figure--portrait img { width: 92px; aspect-ratio: 63 / 88; }
+.risklegacy.rl-cards-chat--setup .rl-cards-chat__figure--portrait img { width: 54px; }   /* slots 1–4 on one line */
+.risklegacy .rl-cards-chat__figure--landscape img { width: 180px; aspect-ratio: 88 / 63; }
+.risklegacy .rl-cards-chat__figure--sticker img { width: 54px; height: 54px; object-fit: contain; box-shadow: none; filter: drop-shadow(0 1px 2px rgb(0 0 0 / .4)); }
+.risklegacy .rl-cards-chat__figure figcaption {
+  position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%);
+  padding: 2px 7px 1px;
+  background: var(--rl-grad-steel);
+  box-shadow: 0 1px 2px rgb(0 0 0 / .35);
+  color: var(--rl-ink);
+  font: 900 11px/1 var(--rl-font-display);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.risklegacy .rl-cards-chat__images:has(figcaption) { padding-bottom: var(--rl-space-3); }   /* the hanging tags */
+.risklegacy .rl-cards-chat__figure.is-even img { box-shadow: 0 0 0 3px var(--rl-red-bright), var(--rl-shadow-card); }
+.risklegacy .rl-cards-chat__figure.is-destroyed img { filter: grayscale(.6); }
+.risklegacy .rl-cards-chat__figure.is-destroyed::after {     /* marker cross-out */
+  content: "";
+  position: absolute; inset: 8%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' preserveAspectRatio='none'%3E%3Cpath d='M2 2.5c5 4 10 9.5 16 15.5M17.5 2C12 7 7 12 2.5 18' fill='none' stroke='%23b11116' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
+.risklegacy .rl-cards-chat__text { flex: 1 1 100%; font-size: var(--rl-fs-sm); line-height: var(--rl-lh-snug); }
+.risklegacy .rl-cards-chat__text > :first-child { margin-top: 0; }
+.risklegacy .rl-cards-chat__text > :last-child { margin-bottom: 0; }
+.risklegacy .rl-cards-chat__buttons {
+  display: flex; flex-wrap: wrap; gap: var(--rl-space-4);
+  padding: var(--rl-space-4) var(--rl-space-5);
+  border-top: 1px solid var(--rl-k30);
+}
+.risklegacy .rl-cards-chat__buttons .rl-btn { flex: 1 1 auto; font-size: 13px; min-height: 28px; padding: 5px 10px 4px; }
+.risklegacy .rl-cards-chat__buttons:not(:has(button)) { display: none; }   /* players: chat.mjs removes the GM buttons */
+
+/* event-card.hbs: the "does not occur" stamp, and the outcome block (who, dice rows, summary, marker note) */
+.risklegacy .rl-stamp.rl-cards-chat__stamp { margin: var(--rl-space-3) auto; font-size: 20px; }
+.risklegacy.rl-cards-chat .rl-chat-card__body.rl-cards-chat__outcome {
+  display: grid; gap: var(--rl-space-4);
+  border-top: 1px solid var(--rl-k30);
+}
+.risklegacy .rl-cards-chat__lead { display: flex; align-items: baseline; justify-content: space-between; gap: var(--rl-space-4); }
+.risklegacy .rl-cards-chat__lead-value { font-size: 16px; text-align: right; }
+.risklegacy .rl-cards-chat__row-value { display: inline-flex; align-items: center; gap: var(--rl-space-3); text-align: right; }
+.risklegacy .rl-cards-chat__row-value .is-strong { font-weight: 700; }
+.risklegacy .rl-cards-chat__summary { display: flex; align-items: center; gap: var(--rl-space-4); font-weight: 700; }
+.risklegacy .rl-cards-chat__summary > .rl-token { width: 32px; height: 32px; }
+.risklegacy .rl-cards-chat__summary > div { flex: 1; min-width: 0; }
+.risklegacy .rl-cards-chat__note { font-size: 16px; text-align: right; }

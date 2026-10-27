@@ -1,0 +1,30 @@
+{
+ "name": "missile-choice",
+ "description": "Enclave attacks Indonesia (3) from Southeast Asia (7) and rolled 6,5,2 against Khan's 4,3: both defenders fall unless Khan fires. Losing Indonesia breaks Khan's Australia.",
+ "me": "khan",
+ "difficulty": "normal",
+ "factions": {
+  "khan": { "name": "Khan Industries", "key": "khan", "redStarTokens": 1, "missiles": 2, "startingTerritory": "eastern_australia" },
+  "enclave": { "name": "Enclave of the Bear", "key": "enclave", "redStarTokens": 1, "startingTerritory": "kamchatka", "hand": { "count": 2, "coins": 3 } },
+  "balkania": { "name": "Imperial Balkania", "key": "balkania", "redStarTokens": 1, "startingTerritory": "russia" }
+ },
+ "pieces": {
+  "eastern_australia": { "khan": { "troops": 5, "hq": true } },
+  "indonesia": { "khan": 3 }, "new_guinea": { "khan": 2 }, "western_australia": { "khan": 2 },
+  "southeast_asia": { "enclave": 7 }, "kamchatka": { "enclave": { "troops": 5, "hq": true } }, "china": { "enclave": 4 },
+  "russia": { "balkania": { "troops": 6, "hq": true } }, "ural": { "balkania": 3 }
+ },
+ "turn": { "faction": "enclave", "phase": "attack", "log": { "recruited": true } },
+ "llm": { "personality": "test_turtle" },
+ "calls": [
+  {
+   "fn": "missileDecision",
+   "args": { "battle": {
+    "id": "battle-indonesia", "attacker": "enclave", "defender": "khan", "from": "southeast_asia", "to": "indonesia",
+    "attackDice": 3, "defendDice": 2, "status": "rolled",
+    "attack": [ { "slot": 0, "natural": 6, "value": 6 }, { "slot": 1, "natural": 5, "value": 5 }, { "slot": 2, "natural": 2, "value": 2 } ],
+    "defend": [ { "slot": 0, "natural": 4, "value": 4 }, { "slot": 1, "natural": 3, "value": 3 } ]
+   } }
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+<div class="rl-prompt-body">
+  {{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/hot-seat.hbs"}}
+  <p class="rl-lead">{{#if data.hint}}{{data.hint}}{{else}}{{localize "RL.Wizard.Prompt.factionLead"}}{{/if}}</p>
+  <input type="hidden" name="faction" value="">
+  <div class="rl-camp-faction-grid">
+    {{#each factions}}{{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/faction-card.hbs" this choose="faction"}}{{/each}}
+  </div>
+  <footer class="rl-prompt-footer">
+    <button type="button" class="rl-btn" data-action="cancel">{{localize "RL.Wizard.Prompt.later"}}</button>
+    <button type="submit" class="rl-btn rl-btn--primary"><i class="fa-solid fa-flag" inert></i> {{localize "RL.Wizard.Prompt.takeFaction"}}</button>
+  </footer>
+</div>

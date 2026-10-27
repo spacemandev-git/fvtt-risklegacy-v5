@@ -1,0 +1,155 @@
+{
+ "name": "placement-exposure",
+ "description": "Khan holds Australia (Indonesia, 2 troops, faces 9 Enclave troops) and a staging front in South Africa next to weak Saharan territories. 8 troops to place.",
+ "me": "khan",
+ "difficulty": "hard",
+ "factions": {
+  "khan": {
+   "name": "Khan Industries",
+   "key": "khan",
+   "redStarTokens": 1,
+   "startingTerritory": "eastern_australia"
+  },
+  "enclave": {
+   "name": "Enclave of the Bear",
+   "key": "enclave",
+   "redStarTokens": 1,
+   "startingTerritory": "china",
+   "hand": {
+    "count": 3,
+    "coins": 6
+   }
+  },
+  "saharan": {
+   "name": "Saharan Republic",
+   "key": "saharan",
+   "redStarTokens": 1,
+   "startingTerritory": "north_africa",
+   "hand": {
+    "count": 1,
+    "coins": 1
+   }
+  },
+  "balkania": {
+   "name": "Imperial Balkania",
+   "key": "balkania",
+   "redStarTokens": 1,
+   "startingTerritory": "northern_europe",
+   "hand": {
+    "count": 2,
+    "coins": 4
+   }
+  }
+ },
+ "pieces": {
+  "eastern_australia": {
+   "khan": {
+    "troops": 4,
+    "hq": true
+   }
+  },
+  "indonesia": {
+   "khan": 2
+  },
+  "new_guinea": {
+   "khan": 1
+  },
+  "western_australia": {
+   "khan": 1
+  },
+  "south_africa": {
+   "khan": 4
+  },
+  "madagascar": {
+   "khan": 2
+  },
+  "china": {
+   "enclave": {
+    "troops": 5,
+    "hq": true
+   }
+  },
+  "southeast_asia": {
+   "enclave": 9
+  },
+  "india": {
+   "enclave": 4
+  },
+  "siberia": {
+   "enclave": 2
+  },
+  "mongolia": {
+   "enclave": 2
+  },
+  "ural": {
+   "enclave": 1
+  },
+  "afghanistan": {
+   "enclave": 2
+  },
+  "middle_east": {
+   "enclave": 2
+  },
+  "north_africa": {
+   "saharan": {
+    "troops": 3,
+    "hq": true
+   }
+  },
+  "east_africa": {
+   "saharan": 2
+  },
+  "central_africa": {
+   "saharan": 1
+  },
+  "egypt": {
+   "saharan": 2
+  },
+  "brazil": {
+   "saharan": 2
+  },
+  "venezuela": {
+   "saharan": 1
+  },
+  "northern_europe": {
+   "balkania": {
+    "troops": 5,
+    "hq": true
+   }
+  },
+  "western_europe": {
+   "balkania": 3
+  },
+  "southern_europe": {
+   "balkania": 3
+  },
+  "russia": {
+   "balkania": 3
+  },
+  "scandinavia": {
+   "balkania": 1
+  },
+  "great_britain": {
+   "balkania": 2
+  }
+ },
+ "turn": {
+  "faction": "khan",
+  "phase": "recruit",
+  "log": {
+   "recruited": true
+  }
+ },
+ "calls": [
+  {
+   "fn": "assessSituation"
+  },
+  {
+   "fn": "planPlacement",
+   "args": {
+    "reserve": 8
+   },
+   "reserve": 8
+  }
+ ]
+}

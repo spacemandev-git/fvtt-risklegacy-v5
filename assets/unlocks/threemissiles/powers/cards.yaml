@@ -1,0 +1,24 @@
+namespace: emp.powers.threemissiles.risklegacy.spacemandev
+data:
+  description: Activate before a combat roll. Dice rolled for combat in that territory can't be modified for the rest of the turn. 
+  type: missile
+---
+namespace: interference.powers.threemissiles.risklegacy.spacemandev
+data:
+  description: Activate as a player draws a resource card. That card cannot be drawn. The player can draw any other eligible card.
+  type: missile
+---
+namespace: recon.powers.threemissiles.risklegacy.spacemandev
+data:
+  description: Activate before you would draw a coin card. You may take any one face up territory card instead. 
+  type: missile
+---
+namespace: bad_intel.powers.threemissiles.risklegacy.spacemandev
+data:
+  description: Activate at the start of another player's turn. Deny that player one continent bonus, your choice. 
+  type: missile
+---
+namespace: rally.powers.threemissiles.risklegacy.spacemandev
+data:
+  description: Activate at the start of your turn. Place 2 troops in every HQ you control.
+  type: missile

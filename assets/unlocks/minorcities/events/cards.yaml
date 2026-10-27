@@ -1,0 +1,16 @@
+namespace: control_the_people.events.minorcities.risklegacy.spacemandev
+imgPath: control_the_people.jpg
+qty: 2
+---
+namespace: fortify.events.minorcities.risklegacy.spacemandev
+imgPath: fortify.jpg
+qty: 2
+---
+namespace: resistance.events.minorcities.risklegacy.spacemandev
+imgPath: resistance.jpg
+qty: 2
+---
+namespace: riots.events.minorcities.risklegacy.spacemandev
+imgPath: riots.jpg
+qty: 1
+

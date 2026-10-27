@@ -1,0 +1,228 @@
+{
+ "name": "hq-win-vs-continent",
+ "description": "Khan (3 Red Stars) can take Balkania's HQ in Russia and win, break Saharan's Africa, or take a 1-troop card conquest in China.",
+ "me": "khan",
+ "difficulty": "hard",
+ "factions": {
+  "khan": {
+   "name": "Khan Industries",
+   "key": "khan",
+   "redStarTokens": 2,
+   "startingTerritory": "middle_east",
+   "hand": {
+    "count": 2,
+    "coins": 4
+   }
+  },
+  "balkania": {
+   "name": "Imperial Balkania",
+   "key": "balkania",
+   "redStarTokens": 1,
+   "startingTerritory": "russia",
+   "hand": {
+    "count": 3,
+    "coins": 6
+   }
+  },
+  "saharan": {
+   "name": "Saharan Republic",
+   "key": "saharan",
+   "redStarTokens": 1,
+   "startingTerritory": "central_africa",
+   "hand": {
+    "count": 1,
+    "coins": 2
+   }
+  },
+  "enclave": {
+   "name": "Enclave of the Bear",
+   "key": "enclave",
+   "redStarTokens": 1,
+   "startingTerritory": "kamchatka",
+   "hand": {
+    "count": 2,
+    "coins": 3
+   }
+  }
+ },
+ "pieces": {
+  "middle_east": {
+   "khan": {
+    "troops": 5,
+    "hq": true
+   }
+  },
+  "afghanistan": {
+   "khan": 8
+  },
+  "india": {
+   "khan": 3
+  },
+  "ural": {
+   "khan": 2
+  },
+  "southeast_asia": {
+   "khan": 2
+  },
+  "russia": {
+   "balkania": {
+    "troops": 3,
+    "hq": true
+   }
+  },
+  "scandinavia": {
+   "balkania": 2
+  },
+  "northern_europe": {
+   "balkania": 4
+  },
+  "southern_europe": {
+   "balkania": 3
+  },
+  "western_europe": {
+   "balkania": 2
+  },
+  "great_britain": {
+   "balkania": 1
+  },
+  "iceland": {
+   "balkania": 1
+  },
+  "greenland": {
+   "balkania": 2
+  },
+  "northwest_territory": {
+   "balkania": 1
+  },
+  "alberta": {
+   "balkania": 1
+  },
+  "ontario": {
+   "balkania": 2
+  },
+  "eastern_canada": {
+   "balkania": 1
+  },
+  "western_united_states": {
+   "balkania": 2
+  },
+  "eastern_united_states": {
+   "balkania": 1
+  },
+  "central_america": {
+   "balkania": 1
+  },
+  "central_africa": {
+   "saharan": {
+    "troops": 3,
+    "hq": true
+   }
+  },
+  "egypt": {
+   "saharan": 3
+  },
+  "north_africa": {
+   "saharan": 3
+  },
+  "east_africa": {
+   "saharan": 2
+  },
+  "south_africa": {
+   "saharan": 1
+  },
+  "madagascar": {
+   "saharan": 1
+  },
+  "brazil": {
+   "saharan": 2
+  },
+  "venezuela": {
+   "saharan": 1
+  },
+  "peru": {
+   "saharan": 1
+  },
+  "argentina": {
+   "saharan": 1
+  },
+  "kamchatka": {
+   "enclave": {
+    "troops": 6,
+    "hq": true
+   }
+  },
+  "china": {
+   "enclave": 1
+  },
+  "siberia": {
+   "enclave": 2
+  },
+  "mongolia": {
+   "enclave": 2
+  },
+  "irkutsk": {
+   "enclave": 1
+  },
+  "yakutsk": {
+   "enclave": 1
+  },
+  "japan": {
+   "enclave": 1
+  },
+  "alaska": {
+   "enclave": 2
+  },
+  "indonesia": {
+   "enclave": 2
+  },
+  "new_guinea": {
+   "enclave": 1
+  },
+  "western_australia": {
+   "enclave": 1
+  },
+  "eastern_australia": {
+   "enclave": 1
+  }
+ },
+ "turn": {
+  "faction": "khan",
+  "phase": "attack",
+  "log": {
+   "recruited": true
+  }
+ },
+ "view": {
+  "hand": [
+   {
+    "id": "c1",
+    "kind": "territory",
+    "territory": "ural",
+    "coins": 2
+   },
+   {
+    "id": "c2",
+    "kind": "territory",
+    "territory": "india",
+    "coins": 2
+   }
+  ]
+ },
+ "calls": [
+  {
+   "fn": "assessSituation"
+  },
+  {
+   "fn": "planPlacement",
+   "args": {
+    "reserve": 5
+   },
+   "phase": "recruit",
+   "reserve": 5
+  },
+  {
+   "fn": "nextMove",
+   "phase": "attack"
+  }
+ ]
+}

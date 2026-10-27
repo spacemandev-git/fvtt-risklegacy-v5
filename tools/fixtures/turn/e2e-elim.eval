@@ -1,0 +1,73 @@
+// Turn area e2e, elimination: a knocked-out faction with no legal starting territory is eliminated at the start of
+// its turn and skipped; "Next turn" in the core tracker runs turn.endTurn; the last faction standing wins.
+const RL = game.risklegacy;
+const SYS = "fvtt-risklegacy-v5";
+const log = [];
+const step = (name, data) => log.push({ step: name, ...(data ?? {}) });
+const wait = ms => new Promise(r => setTimeout(r, ms));
+async function waitFor(fn, ms = 20000) {
+  const t0 = Date.now();
+  while ( Date.now() - t0 < ms ) {
+    try { if ( fn() ) return true; } catch(e) { /* keep waiting */ }
+    await wait(150);
+  }
+  return false;
+}
+await waitFor(() => RL.state.getCampaignBoard() && RL.state.buildSnapshot());
+const [khan, balk, sah] = ["khan", "balkania", "saharan"].map(k => RL.state.getFactionByKey(k));
+const snap = () => RL.turn.snapshot();
+let since = Date.now();
+const startedFor = f => waitFor(() => {
+  const war = RL.state.getWar();
+  return (war.combatant?.actorId === f.id) && (war.system.turn.faction === f.id)
+    && game.messages.contents.some(m => (m.flags?.[SYS]?.turn === "turnStarted") && (m.flags?.[SYS]?.faction === f.id) && (m.timestamp >= since));
+});
+const hooks = [];
+Hooks.on("risklegacy.factionEliminated", f => hooks.push(`eliminated:${f.system.key}`));
+Hooks.on("risklegacy.warEnded", (w, f) => hooks.push(`warEnded:${f?.system.key}`));
+
+await RL.board.clearPieces({});
+await waitFor(() => !RL.state.getBoardScene().tokens.size);
+since = Date.now();
+await RL.turn.createWar({ replace: true, participants: [khan, balk, sah].map((f, i) => ({ faction: f.id, seat: i })) });
+const war = RL.state.getWar();
+await RL.turn.beginPlacement({});
+await RL.turn.placeStartingForces({ faction: khan.id, territory: "siberia" });
+await RL.turn.placeStartingForces({ faction: balk.id, territory: "brazil" });
+await RL.turn.placeStartingForces({ faction: sah.id, territory: "egypt" });
+await startedFor(khan);
+
+// Scar every other territory: once Balkania loses Brazil there's nowhere to join
+const campaign = RL.state.getCampaign();
+const scarred = Object.keys(RL.state.getCampaignBoard().territories).filter(id => !["siberia", "brazil", "egypt"].includes(id));
+const before = Object.fromEntries(scarred.map(id => [id, campaign.system.territories[id]?.scar ?? ""]));
+await campaign.update(Object.fromEntries(scarred.map(id => [`system.territories.${id}.scar`, "bunker"])));
+
+await RL.turn.recruit({ faction: khan.id });
+await RL.turn.placeReserve({ faction: khan.id, territory: "siberia", count: 3 });
+// Khan wipes out Balkania in Brazil (simulated) and takes it
+await RL.board.removeTroops({ faction: balk.id, territory: "brazil", count: 8 });
+await RL.board.spawnPieces({ faction: khan.id, territory: "brazil", troops: 2 });
+const rec = await RL.turn.recordConquest({ faction: khan.id, from: "siberia", to: "brazil", defender: balk.id });
+step("knockOut", { rec, balk: balk.system.war.status, legal: RL.rules.legalStartingTerritories(snap(), balk.id, { joining: true }).length });
+await war.update({ "system.turn.conquered": 0 });   // no draw dialog in this headless run
+
+// The core tracker's "Next turn" goes through turn.endTurn
+since = Date.now();
+await war.nextTurn();
+await waitFor(() => balk.system.war.status === "eliminated");
+await startedFor(sah);
+step("eliminatedAtStart", {
+  balk: balk.system.war.status, defeated: war.combatants.find(c => c.actorId === balk.id)?.defeated,
+  eliminated: war.system.eliminated.map(id => game.actors.get(id).system.key), current: RL.turn.getTurnInfo().faction?.system.key
+});
+
+// The GM eliminates Saharan: Khan is the last faction standing
+const res = await RL.turn.eliminate({ faction: sah.id });
+await waitFor(() => war.system.stage === "ended", 5000);
+step("lastStanding", { res, stage: war.system.stage, winner: game.actors.get(war.system.winner)?.system.key,
+  results: RL.turn.computeResults(war).map(r => `${game.actors.get(r.faction).system.key}:${r.result}`) });
+
+// Restore the board
+await campaign.update(Object.fromEntries(scarred.map(id => [`system.territories.${id}.scar`, before[id]])));
+return { log, hooks, chat: game.messages.contents.map(m => m.flags?.[SYS]?.turn ?? m.type).slice(-8) };

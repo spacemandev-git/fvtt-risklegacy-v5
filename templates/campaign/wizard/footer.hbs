@@ -1,0 +1,16 @@
+<footer class="rl-wizard-footer">
+  {{#if footer.back}}
+  <button type="button" class="rl-btn" data-action="back"><i class="fa-solid fa-arrow-left" inert></i> {{localize "RL.Wizard.back"}}</button>
+  {{/if}}
+  <span class="rl-wizard-footer__spacer"></span>
+  {{#each footer.buttons}}
+  <button type="button" class="rl-btn {{#if primary}}rl-btn--primary{{/if}} {{#if destroy}}rl-btn--destroy{{/if}}" data-action="{{action}}" {{disabled disabled}}>
+    {{#if icon}}<i class="{{icon}}" inert></i>{{/if}} {{label}}
+  </button>
+  {{/each}}
+  {{#if footer.next}}
+  <button type="button" class="rl-btn {{#unless footer.buttons.length}}rl-btn--primary{{/unless}}" data-action="next" {{disabled footer.next.disabled}}>
+    {{footer.next.label}} <i class="fa-solid fa-arrow-right" inert></i>
+  </button>
+  {{/if}}
+</footer>

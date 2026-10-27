@@ -1,0 +1,134 @@
+{
+ "name": "bystander-missile",
+ "description": "Balkania (3 Red Stars) is about to take Enclave's HQ and win. Khan, not in the battle, holds a missile.",
+ "me": "khan",
+ "difficulty": "hard",
+ "factions": {
+  "khan": {
+   "name": "Khan Industries",
+   "key": "khan",
+   "redStarTokens": 1,
+   "missiles": 1,
+   "startingTerritory": "china"
+  },
+  "balkania": {
+   "name": "Imperial Balkania",
+   "key": "balkania",
+   "redStarTokens": 1,
+   "startingTerritory": "western_europe"
+  },
+  "saharan": {
+   "name": "Saharan Republic",
+   "key": "saharan",
+   "redStarTokens": 1,
+   "startingTerritory": "great_britain"
+  },
+  "enclave": {
+   "name": "Enclave of the Bear",
+   "key": "enclave",
+   "redStarTokens": 1,
+   "startingTerritory": "middle_east"
+  }
+ },
+ "pieces": {
+  "western_europe": {
+   "balkania": {
+    "troops": 5,
+    "hq": true
+   }
+  },
+  "southern_europe": {
+   "balkania": 6
+  },
+  "great_britain": {
+   "balkania": 3,
+   "saharan": {
+    "troops": 0,
+    "hq": true
+   }
+  },
+  "egypt": {
+   "saharan": 3
+  },
+  "north_africa": {
+   "saharan": 3
+  },
+  "middle_east": {
+   "enclave": {
+    "troops": 2,
+    "hq": true
+   }
+  },
+  "india": {
+   "enclave": 2
+  },
+  "afghanistan": {
+   "enclave": 3
+  },
+  "china": {
+   "khan": {
+    "troops": 6,
+    "hq": true
+   }
+  },
+  "mongolia": {
+   "khan": 3
+  },
+  "siberia": {
+   "khan": 2
+  }
+ },
+ "turn": {
+  "faction": "balkania",
+  "phase": "attack",
+  "log": {
+   "recruited": true
+  }
+ },
+ "calls": [
+  {
+   "fn": "missileDecision",
+   "args": {
+    "battle": {
+     "id": "battle-bystander",
+     "attacker": "balkania",
+     "defender": "enclave",
+     "from": "southern_europe",
+     "to": "middle_east",
+     "attackDice": 3,
+     "defendDice": 2,
+     "status": "rolled",
+     "attack": [
+      {
+       "slot": 0,
+       "natural": 6,
+       "value": 6
+      },
+      {
+       "slot": 1,
+       "natural": 5,
+       "value": 5
+      },
+      {
+       "slot": 2,
+       "natural": 2,
+       "value": 2
+      }
+     ],
+     "defend": [
+      {
+       "slot": 0,
+       "natural": 5,
+       "value": 5
+      },
+      {
+       "slot": 1,
+       "natural": 4,
+       "value": 4
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,22 @@
+{{!-- Turn-event chat card (design/DESIGN.md §6 "Chat messages"). Built by module/turn/chat.mjs; all strings arrive localized.
+     Styled in styles/battle.css ("Turn chat cards"). --}}
+<div class="risklegacy rl-chat-card rl-turn-card {{factionClass}}" data-turn-card="{{kind}}">
+  {{#if hazard}}<span class="rl-hazard rl-hazard--thin"></span>{{/if}}
+  <div class="rl-chat-card__head">
+    <h3 class="rl-chat-card__title">{{title}}</h3>
+    {{#if sub}}<span class="rl-chat-card__sub">{{sub}}</span>{{/if}}
+  </div>
+  {{#if hasBody}}
+  <div class="rl-chat-card__body rl-turn-card__body{{#if tokenClass}} rl-turn-card__body--token{{/if}}">
+    {{#if tokenClass}}<span class="{{tokenClass}} rl-turn-card__token" aria-hidden="true"></span>{{/if}}
+    <div class="rl-turn-card__lines">
+      {{#if text}}<div class="rl-turn-card__text">{{{text}}}</div>{{/if}}
+      {{#each rows}}
+      <div class="rl-chat-card__row rl-turn-card__row"><span class="rl-label">{{label}}</span><span class="rl-turn-card__value">{{value}}</span></div>
+      {{/each}}
+      {{#if note}}<div class="rl-hand rl-hand--red rl-turn-card__note">{{note}}</div>{{/if}}
+    </div>
+  </div>
+  {{/if}}
+  {{#if result}}<div class="rl-chat-card__result">{{result}}</div>{{/if}}
+</div>

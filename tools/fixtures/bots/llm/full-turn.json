@@ -1,0 +1,74 @@
+{
+ "name": "full-turn",
+ "description": "Round 5, start of Khan's turn: 2 Red Stars, 5 cards (9 coins), a Mercenary scar card. Enclave (3 Red Stars, one from winning) holds its HQ Kamchatka with 5 next to Khan's Mongolia; Balkania pressed Afghanistan last round.",
+ "me": "khan",
+ "difficulty": "normal",
+ "factions": {
+  "khan": { "name": "Khan Industries", "key": "khan", "redStarTokens": 1, "startingTerritory": "china" },
+  "enclave": { "name": "Enclave of the Bear", "key": "enclave", "redStarTokens": 2, "startingTerritory": "kamchatka", "hand": { "count": 3, "coins": 5 } },
+  "balkania": { "name": "Imperial Balkania", "key": "balkania", "redStarTokens": 1, "startingTerritory": "russia", "hand": { "count": 2, "coins": 3 } },
+  "saharan": { "name": "Saharan Republic", "key": "saharan", "redStarTokens": 1, "startingTerritory": "egypt", "hand": { "count": 1, "coins": 2 } }
+ },
+ "pieces": {
+  "china": { "khan": { "troops": 6, "hq": true } },
+  "india": { "khan": 3 }, "afghanistan": { "khan": 3 }, "ural": { "khan": 2 }, "mongolia": { "khan": 4 },
+  "southeast_asia": { "khan": 2 }, "siberia": { "khan": 4 },
+  "kamchatka": { "enclave": { "troops": 5, "hq": true } },
+  "irkutsk": { "enclave": 3 }, "yakutsk": { "enclave": 2 }, "japan": { "enclave": 1 }, "alaska": { "enclave": 2 },
+  "russia": { "balkania": { "troops": 6, "hq": true } },
+  "middle_east": { "balkania": 3 }, "southern_europe": { "balkania": 3 }, "northern_europe": { "balkania": 2 }, "scandinavia": { "balkania": 2 },
+  "egypt": { "saharan": { "troops": 5, "hq": true } },
+  "east_africa": { "saharan": 2 }, "north_africa": { "saharan": 3 }, "brazil": { "saharan": 2 }
+ },
+ "turn": { "faction": "khan", "phase": "start", "log": {} },
+ "view": {
+  "round": 5,
+  "game": 4,
+  "hand": [
+   { "id": "h1", "kind": "coin", "territory": null, "coins": 1 },
+   { "id": "h2", "kind": "coin", "territory": null, "coins": 1 },
+   { "id": "h3", "kind": "territory", "territory": "india", "coins": 2 },
+   { "id": "h4", "kind": "territory", "territory": "peru", "coins": 2 },
+   { "id": "h5", "kind": "territory", "territory": "japan", "coins": 3 }
+  ],
+  "scarCards": [
+   { "id": "s1", "scar": "mercenary", "name": "Mercenary", "text": "At the end of its controller's turn, add 1 troop to this territory.", "target": "territory", "timing": "startOfAnyTurn" }
+  ],
+  "row": [
+   { "cardId": "r1", "territory": "india", "slot": 1, "coins": 2, "value": 2 },
+   { "cardId": "r2", "territory": "brazil", "slot": 2, "coins": 3, "value": 3 }
+  ],
+  "mission": { "name": "Imperial Might", "text": "Control continents with a total bonus of 7 or more.", "reward": "1" },
+  "missionStatus": { "status": "incomplete", "canComplete": false },
+  "recent": [
+   { "type": "battle", "by": "Imperial Balkania", "text": "Imperial Balkania attacked Afghanistan from Russia and lost 3 troops." },
+   { "type": "redStar", "by": "Enclave of the Bear", "text": "Enclave of the Bear bought a Red Star with 4 cards." }
+  ],
+  "campaign": {
+   "game": 4, "totalGames": 15, "board": "original",
+   "victors": [ { "game": 1, "faction": "enclave", "wasMe": false }, { "game": 2, "faction": "balkania", "wasMe": false }, { "game": 3, "faction": "khan", "wasMe": true } ],
+   "wins": { "user-enclave": 1, "user-balkania": 1, "user-khan": 1 },
+   "history": [ "game 2: eliminated", "game 3: won from China" ],
+   "scars": [ "Ammo Shortage in Japan" ],
+   "cities": [ "Major city in China (founded by you)" ],
+   "rewards": [ "The winner signs the board and picks a reward; every faction still on the board picks a minor city or a card upgrade." ]
+  }
+ },
+ "llm": {
+  "personality": "test_mathematician",
+  "memory": {
+   "notes": "Enclave of the Bear's player buys Red Stars fast. Balkania's bot attacks Asia early.",
+   "grudges": [ { "user": "user-balkania", "text": "took my HQ in game 2", "game": 2 } ],
+   "lessons": [ "Keep 4 troops in the HQ.", "Break the leader before they reach 3 stars." ],
+   "games": [ { "game": 3, "faction": "Khan Industries", "result": "won", "summary": "Won by taking Kamchatka late." } ],
+   "updated": 3
+  },
+  "bots": { "balkania": "Captain Rook Vandal" }
+ },
+ "calls": [
+  { "fn": "planStartOfTurn" },
+  { "fn": "planScars", "args": { "cards": "view", "targets": "auto" } },
+  { "fn": "planRecruit", "args": { "mustJoin": false, "legalJoin": [] } },
+  { "fn": "planPlacement", "args": { "reserve": 3 }, "phase": "recruit", "log": { "recruited": true }, "reserve": 3 }
+ ]
+}

@@ -1,0 +1,18 @@
+<div class="rl-prompt-body">
+  {{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/hot-seat.hbs"}}
+  {{#if data.content}}<div class="rl-callout">{{data.content}}</div>{{/if}}
+  <input type="hidden" name="choice" value="">
+  <div class="rl-camp-option-list">
+    {{#each options}}
+    <div class="rl-camp-option {{#if disabled}}is-disabled{{/if}}" data-action="choose" data-name="choice" data-value="{{value}}" tabindex="0">
+      {{#if img}}<img src="{{img}}" alt="">{{/if}}
+      <span class="rl-camp-option__label">{{label}}</span>
+      {{#if hint}}<span class="rl-camp-option__hint">{{hint}}</span>{{/if}}
+    </div>
+    {{/each}}
+  </div>
+  <footer class="rl-prompt-footer">
+    <button type="button" class="rl-btn" data-action="cancel">{{localize "RL.Wizard.Prompt.later"}}</button>
+    <button type="submit" class="rl-btn rl-btn--primary">{{localize "RL.Wizard.Prompt.confirm"}}</button>
+  </footer>
+</div>

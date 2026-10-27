@@ -1,0 +1,290 @@
+<div class="rl-wr{{#if busy}} is-busy{{/if}}">
+{{#if noWar}}
+  {{!-- ============ Between wars ============ --}}
+  <section class="rl-wr__idle">
+    <span class="rl-wr__idle-icon" aria-hidden="true"></span>
+    <p class="rl-wr__idle-title">{{localize "RL.UI.WarRoom.NoWar"}}</p>
+    {{#if campaign}}
+      <p class="rl-wr__idle-sub">{{localize "RL.UI.WarRoom.NextGame" game=campaign.nextGame}}{{#if campaign.worldName}} · <span class="rl-hand">{{campaign.worldName}}</span>{{/if}}</p>
+    {{else}}
+      <p class="rl-wr__idle-sub">{{localize "RL.Error.noCampaign"}}</p>
+    {{/if}}
+    <div class="rl-wr__buttons">
+      {{#if isGM}}
+      <button type="button" class="rl-btn rl-btn--primary" data-action="setupGame" {{disabled (not controls.setupGame)}}
+        {{#if tips.setupGame}}data-tooltip="{{tips.setupGame}}"{{/if}}>
+        <i class="fa-solid fa-flag-checkered" inert></i> {{localize "RL.UI.WarRoom.SetupGame"}}</button>
+      {{/if}}
+      <button type="button" class="rl-btn" data-action="reference"><i class="fa-solid fa-book-open" inert></i> {{localize "RL.UI.Reference.Title"}}</button>
+      {{#if canStickerSheet}}<button type="button" class="rl-btn" data-action="stickerSheet"><i class="fa-solid fa-note-sticky" inert></i> {{localize "RL.UI.WarRoom.StickerSheet"}}</button>{{/if}}
+      {{#if canBots}}<button type="button" class="rl-btn" data-action="bots" data-tooltip="RL.Bots.WarRoom.botsTip"><i class="fa-solid fa-robot" inert></i> {{localize "RL.Bots.WarRoom.bots"}}</button>{{/if}}
+    </div>
+  </section>
+{{else}}
+
+  {{!-- ============ Playing ============ --}}
+  {{#if current}}
+  <header class="rl-wr__current{{#if isOwnTurn}} is-mine{{/if}}" data-faction-id="{{current.id}}">
+    <img class="rl-wr__hq" src="{{current.hq}}" alt="">
+    <div class="rl-wr__who">
+      <span class="rl-wr__kickrow">
+        <span class="rl-wr__kicker">{{localize "RL.UI.WarRoom.Kicker" game=war.game round=war.round}}</span>
+        <span class="rl-ui-stars rl-ui-stars--sm" data-tooltip="{{localize "RL.UI.WarRoom.StarsTip" stars=current.stars}}">
+          {{#each current.starSlots as |s|}}<span class="rl-ui-star rl-ui-star--{{s.kind}}"></span>{{/each}}
+        </span>
+      </span>
+      <a class="rl-wr__name" data-action="openSheet">{{current.name}}</a>
+      {{#if current.player}}<span class="rl-hand rl-wr__player">{{current.player}}{{#if current.bot}} <span class="rl-bot-tag" data-tooltip="{{current.bot}}">{{current.bot}}</span>{{/if}}</span>{{/if}}
+    </div>
+  </header>
+
+  <ol class="rl-wr__steps" aria-label="{{localize "RL.UI.WarRoom.Steps"}}">
+    {{#each steps as |s|}}
+    <li class="rl-wr__step is-{{s.state}}" data-tooltip="{{s.label}}"{{#if (eq s.state "current")}} aria-current="step"{{/if}}>
+      <span class="rl-wr__disc">{{s.n}}</span>
+      <span class="rl-wr__steplabel">{{s.short}}</span>
+    </li>
+    {{/each}}
+  </ol>
+
+  <section class="rl-wr__panel">
+    <h3 class="rl-subhead rl-wr__phase">{{phaseLabel}}</h3>
+
+    {{#unless isMine}}<p class="rl-wr__waiting"><i class="fa-solid fa-hourglass-half" inert></i> {{waitingFor}}</p>{{/unless}}
+
+    {{!-- 1. Start of turn --}}
+    {{#if panel.start}}
+      <p class="rl-wr__hint">{{localize "RL.UI.WarRoom.StartHint"}}</p>
+      <div class="rl-wr__trade">
+        <span class="rl-wr__cards"><b>{{current.handCount}}</b> {{localize "RL.UI.WarRoom.Cards"}}</span>
+        <span class="rl-wr__eq">4 = <span class="rl-token rl-ui-mini"></span></span>
+        {{#if panel.start.bought}}<span class="rl-hand rl-hand--red">{{localize "RL.UI.WarRoom.Bought" count=panel.start.bought}}</span>{{/if}}
+      </div>
+      {{#if isMine}}
+      <div class="rl-wr__buttons">
+        <button type="button" class="rl-btn" data-action="buyStars" {{disabled (or (not canAct) (not controls.buyStars) (not legal.buyStars) (lt panel.start.affordable 1))}}
+          {{#if tips.buyStars}}data-tooltip="{{tips.buyStars}}"{{/if}}>
+          <span class="rl-token rl-ui-mini"></span> {{localize "RL.UI.WarRoom.BuyStar"}}</button>
+      </div>
+      {{/if}}
+    {{/if}}
+
+    {{!-- 2. Join the war or recruit --}}
+    {{#if panel.recruit}}
+      {{#if panel.recruit.joining}}
+        <div class="rl-callout rl-wr__callout">{{localize "RL.UI.WarRoom.JoinHint" troops=panel.recruit.joinTroops}}</div>
+        {{#if isMine}}
+        <div class="rl-wr__buttons">
+          <button type="button" class="rl-btn rl-btn--primary" data-action="joinWar" {{disabled (or (not canAct) (not controls.joinWar) (not legal.joinWar) panel.recruit.joined)}}
+            {{#if tips.joinWar}}data-tooltip="{{tips.joinWar}}"{{/if}}>
+            <i class="fa-solid fa-parachute-box" inert></i> {{localize "RL.UI.WarRoom.JoinWar"}}</button>
+        </div>
+        {{/if}}
+      {{else}}
+        {{#with panel.recruit.breakdown as |b|}}
+        <div class="rl-ui-sum rl-ui-sum--sm">
+          <span class="rl-ui-sum__term"><b>{{b.territories}}</b><small>{{localize "RL.Sheet.Stat.territories"}}</small></span>
+          <span class="rl-ui-sum__op">+</span>
+          <span class="rl-ui-sum__term"><b>{{b.population}}</b><small>{{localize "RL.Sheet.Stat.population"}}</small></span>
+          <span class="rl-ui-sum__op">÷3</span>
+          <span class="rl-ui-sum__term"><b>{{b.base}}</b><small>{{localize "RL.Sheet.Faction.Base"}}</small></span>
+          {{#if b.continentTotal}}<span class="rl-ui-sum__op">+</span>
+          <span class="rl-ui-sum__term"><b>{{b.continentTotal}}</b><small>{{localize "RL.UI.WarRoom.Continents"}}</small></span>{{/if}}
+          <span class="rl-ui-sum__op">=</span>
+          <span class="rl-ui-sum__term rl-ui-sum__total"><b>{{b.total}}</b><small>{{localize "RL.Sheet.Faction.Troops"}}</small></span>
+        </div>
+        {{/with}}
+        {{#if isMine}}
+        <div class="rl-wr__buttons">
+          <button type="button" class="rl-btn" data-action="tradeTroops" {{disabled (or (not canAct) (not controls.tradeTroops) (not legal.tradeTroops) panel.recruit.traded (lt panel.recruit.coins 2))}}
+            data-tooltip="{{#if tips.tradeTroops}}{{tips.tradeTroops}}{{else}}{{localize "RL.UI.WarRoom.TradeTip"}}{{/if}}">
+            <i class="fa-solid fa-coins" inert></i> {{localize "RL.UI.WarRoom.Trade"}}</button>
+          <button type="button" class="rl-btn{{#unless panel.recruit.recruited}} rl-btn--primary{{/unless}}" data-action="recruit" {{disabled (or (not canAct) (not controls.recruit) (not legal.recruit) panel.recruit.recruited)}}
+            {{#if tips.recruit}}data-tooltip="{{tips.recruit}}"{{/if}}>
+            <i class="fa-solid fa-person-rifle" inert></i>
+            {{#if panel.recruit.recruited}}{{localize "RL.UI.WarRoom.Recruited" count=panel.recruit.recruitTotal}}
+            {{else if panel.recruit.breakdown}}{{localize "RL.UI.WarRoom.RecruitN" count=panel.recruit.breakdown.total}}
+            {{else}}{{localize "RL.UI.WarRoom.Recruit"}}{{/if}}</button>
+        </div>
+        {{/if}}
+      {{/if}}
+      {{#if panel.recruit.reserve}}
+      <div class="rl-wr__reserve">
+        <span class="rl-wr__reserve-n">{{panel.recruit.reserve}}</span>
+        <span class="rl-wr__reserve-label">{{#if placing}}{{localize "RL.UI.WarRoom.PlacingHint"}}{{else}}{{localize "RL.UI.WarRoom.ToPlace"}}{{/if}}</span>
+        {{#if isMine}}
+        <button type="button" class="rl-btn{{#if (or placing panel.recruit.recruited panel.recruit.joined)}} rl-btn--primary{{/if}}{{#if placing}} is-placing{{/if}}" data-action="placeTroops" {{disabled (and (not placing) (or (not canAct) (not controls.placeTroops) (not legal.placeTroops)))}}
+          {{#if tips.placeTroops}}data-tooltip="{{tips.placeTroops}}"{{/if}}>
+          {{#if placing}}<i class="fa-solid fa-stop" inert></i> {{localize "RL.UI.WarRoom.StopPlacing"}}
+          {{else}}<i class="fa-solid fa-hand-pointer" inert></i> {{localize "RL.UI.WarRoom.PlaceTroops"}}{{/if}}</button>
+        {{/if}}
+      </div>
+      {{/if}}
+    {{/if}}
+
+    {{!-- 3. Expand & attack --}}
+    {{#if panel.attack}}
+      <p class="rl-wr__hint">{{localize "RL.UI.WarRoom.AttackHint"}}</p>
+      <dl class="rl-wr__counters">
+        <div><dd>{{panel.attack.conquered}}</dd><dt>{{localize "RL.UI.WarRoom.Conquered"}}</dt></div>
+        <div><dd>{{panel.attack.expanded}}</dd><dt>{{localize "RL.UI.WarRoom.Expanded"}}</dt></div>
+        <div><dd>{{panel.attack.attacks}}</dd><dt>{{localize "RL.UI.WarRoom.Attacks"}}</dt></div>
+      </dl>
+      {{#if panel.attack.reserve}}<p class="rl-wr__warn"><i class="fa-solid fa-triangle-exclamation" inert></i> {{localize "RL.UI.WarRoom.ReserveLeft" count=panel.attack.reserve}}</p>{{/if}}
+      {{#if isMine}}
+      <div class="rl-wr__buttons">
+        <button type="button" class="rl-btn" data-action="expand" {{disabled (or (not canAct) (not controls.expand) (not legal.expand))}}
+          {{#if tips.expand}}data-tooltip="{{tips.expand}}"{{/if}}>
+          <i class="fa-solid fa-person-walking-arrow-right" inert></i> {{localize "RL.UI.WarRoom.Expand"}}</button>
+        <button type="button" class="rl-btn rl-btn--primary" data-action="attack" {{disabled (or (not canAct) (not controls.attack) (not legal.attack))}}
+          {{#if tips.attack}}data-tooltip="{{tips.attack}}"{{/if}}>
+          <i class="fa-solid fa-crosshairs" inert></i> {{localize "RL.UI.WarRoom.Attack"}}</button>
+      </div>
+      {{/if}}
+    {{/if}}
+
+    {{!-- 4. Maneuver --}}
+    {{#if panel.maneuver}}
+      {{#if panel.maneuver.done}}
+        <p class="rl-wr__done"><i class="fa-solid fa-check" inert></i> {{localize "RL.UI.WarRoom.Maneuvered" from=panel.maneuver.from to=panel.maneuver.to}}</p>
+      {{else}}
+        <p class="rl-wr__hint">{{localize "RL.UI.WarRoom.ManeuverHint"}}</p>
+      {{/if}}
+      {{#if isMine}}
+      <div class="rl-wr__buttons">
+        <button type="button" class="rl-btn" data-action="maneuver" {{disabled (or (not canAct) (not controls.maneuver) (not legal.maneuver) panel.maneuver.done)}}
+          {{#if tips.maneuver}}data-tooltip="{{tips.maneuver}}"{{/if}}>
+          <i class="fa-solid fa-route" inert></i> {{localize "RL.UI.WarRoom.Maneuver"}}</button>
+      </div>
+      {{/if}}
+    {{/if}}
+
+    {{!-- 5. End of turn --}}
+    {{#if panel.end}}
+      {{#if panel.end.canDraw}}
+        <p class="rl-wr__done"><i class="fa-solid fa-layer-group" inert></i> {{localize "RL.UI.WarRoom.MayDraw"}}</p>
+      {{else}}
+        <p class="rl-wr__hint">{{localize "RL.UI.WarRoom.NoDraw"}}</p>
+      {{/if}}
+    {{/if}}
+  </section>
+
+  {{#if isMine}}
+  <footer class="rl-wr__actions">
+    {{#unless isLastStep}}
+    <button type="button" class="rl-btn" data-action="nextStep" {{disabled (or (not canAct) (not controls.nextStep) (not legal.nextStep))}}
+      {{#if tips.nextStep}}data-tooltip="{{tips.nextStep}}"{{/if}}>
+      {{localize "RL.UI.WarRoom.Next" step=nextLabel}} <i class="fa-solid fa-arrow-right" inert></i></button>
+    {{/unless}}
+    <button type="button" class="rl-btn{{#if isLastStep}} rl-btn--primary{{/if}} rl-wr__end" data-action="endTurn" {{disabled (or (not canAct) (not controls.endTurn) (not legal.endTurn))}}
+      {{#if tips.endTurn}}data-tooltip="{{tips.endTurn}}"{{/if}}>
+      <i class="fa-solid fa-flag-checkered" inert></i> {{localize "RL.UI.WarRoom.EndTurn"}}</button>
+  </footer>
+  {{/if}}
+  {{/if}}
+
+  {{!-- ============ Setup / placement / game over ============ --}}
+  {{#if setup}}
+  <section class="rl-wr__panel rl-wr__stage">
+    <h3 class="rl-subhead">{{war.stageLabel}}</h3>
+    <p class="rl-wr__hint">{{localize "RL.UI.WarRoom.SetupHint"}}</p>
+    {{#if isGM}}<div class="rl-wr__buttons"><button type="button" class="rl-btn rl-btn--primary" data-action="setupGame" {{disabled (not controls.setupGame)}}>
+      <i class="fa-solid fa-flag-checkered" inert></i> {{localize "RL.UI.WarRoom.ContinueSetup"}}</button></div>{{/if}}
+  </section>
+  {{/if}}
+
+  {{#if placement}}
+  <section class="rl-wr__panel rl-wr__stage">
+    <h3 class="rl-subhead">{{localize "RL.UI.WarRoom.Placement"}}</h3>
+    <p class="rl-wr__hint">{{localize "RL.UI.WarRoom.PlacementHint"}}</p>
+    <ol class="rl-wr__order">
+      {{#each placement.rows as |r|}}
+      <li class="{{#if r.current}}is-current{{/if}}{{#if r.placed}} is-placed{{/if}}" style="--rl-row: {{r.color}}">
+        <span class="rl-wr__chip"></span><span class="rl-wr__ordername">{{r.name}}</span>
+        {{#if r.territory}}<span class="rl-hand">{{r.territory}}</span>{{else if r.current}}<span class="rl-wr__choosing">{{localize "RL.UI.WarRoom.Choosing"}}</span>{{/if}}
+      </li>
+      {{/each}}
+    </ol>
+    {{#if placement.mine}}{{#if controls.placeStart}}
+    <div class="rl-wr__buttons"><button type="button" class="rl-btn rl-btn--primary" data-action="placeStart"><i class="fa-solid fa-location-dot" inert></i> {{localize "RL.UI.WarRoom.PlaceStart"}}</button></div>
+    {{/if}}{{/if}}
+  </section>
+  {{/if}}
+
+  {{#if ended}}
+  <section class="rl-wr__panel rl-wr__victory">
+    {{#if ended.winner}}
+    <img class="rl-wr__hq" src="{{ended.winner.hq}}" alt="">
+    <span class="rl-stamp rl-wr__stamp">{{localize "RL.UI.WarRoom.Victory"}}</span>
+    <p class="rl-wr__winner" style="--rl-row: {{ended.winner.color}}">{{ended.winner.name}}{{#if ended.winner.player}} · <span class="rl-hand">{{ended.winner.player}}</span>{{/if}}</p>
+    {{else}}<p class="rl-wr__hint">{{war.stageLabel}}</p>{{/if}}
+    {{#if isGM}}<div class="rl-wr__buttons"><button type="button" class="rl-btn rl-btn--primary" data-action="endGame" {{disabled (not controls.endGame)}}>
+      <i class="fa-solid fa-trophy" inert></i> {{localize "RL.UI.WarRoom.EndGame"}}</button></div>{{/if}}
+  </section>
+  {{/if}}
+
+  {{!-- ============ Scar cards in hand ============ --}}
+  {{#if scarHands.length}}
+  <section class="rl-wr__scars">
+    <h3 class="rl-subhead rl-wr__scars-head"><i class="fa-solid fa-burst" inert></i> {{localize "RL.UI.WarRoom.ScarCards"}}</h3>
+    {{#each scarHands as |h|}}
+    <div class="rl-wr__scarhand" data-faction-id="{{h.id}}" style="--rl-row: {{h.color}}">
+      {{#if @root.isGM}}<span class="rl-wr__scarfaction"><span class="rl-wr__chip"></span>{{h.name}}</span>{{/if}}
+      {{#each h.cards as |c|}}
+      <div class="rl-wr__scar">
+        <img class="rl-wr__scarimg" src="{{c.img}}" alt="" data-tooltip="{{c.text}}">
+        <span class="rl-wr__scarname" data-tooltip="{{c.text}}">{{c.name}}{{#if c.timing}}<small>{{c.timing}}</small>{{/if}}</span>
+        <button type="button" class="rl-btn" data-action="playScar" data-card-id="{{c.id}}" {{disabled (or @root.busy c.disabled)}}
+          {{#if c.tip}}data-tooltip="{{c.tip}}"{{/if}}><i class="fa-solid fa-burst" inert></i> {{localize "RL.UI.WarRoom.PlayScar"}}</button>
+      </div>
+      {{/each}}
+    </div>
+    {{/each}}
+  </section>
+  {{/if}}
+
+  {{!-- ============ Scoreboard ============ --}}
+  <section class="rl-wr__scoreboard{{#if scoreCollapsed}} is-collapsed{{/if}}">
+    <button type="button" class="rl-wr__scorehead" data-action="toggleScore" aria-expanded="{{not scoreCollapsed}}">
+      <span>{{localize "RL.UI.WarRoom.Scoreboard"}}</span>
+      <i class="fa-solid {{#if scoreCollapsed}}fa-chevron-down{{else}}fa-chevron-up{{/if}}" inert></i>
+    </button>
+    {{#unless scoreCollapsed}}
+    <table class="rl-wr__score">
+      <thead>
+        <tr>
+          <th class="c-name">{{localize "RL.UI.WarRoom.Faction"}}</th>
+          <th data-tooltip="RL.Sheet.Faction.RedStars"><span class="rl-token rl-ui-mini"></span></th>
+          <th data-tooltip="RL.Sheet.Stat.troops"><i class="fa-solid fa-person-rifle" inert></i></th>
+          <th data-tooltip="RL.Sheet.Stat.territories"><i class="fa-solid fa-flag" inert></i></th>
+          <th data-tooltip="RL.UI.WarRoom.Cards"><i class="fa-solid fa-layer-group" inert></i></th>
+          <th data-tooltip="RL.Sheet.Faction.Missiles"><span class="rl-token rl-token--missile rl-ui-mini"></span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each scoreboard as |r|}}
+        <tr class="{{#if r.current}}is-current{{/if}}{{#if r.out}} is-out{{/if}}{{#if r.mine}} is-mine{{/if}}" data-faction-id="{{r.id}}" style="--rl-row: {{r.color}}">
+          <td class="c-name">
+            <a data-action="openSheet" class="rl-wr__rowname"><span class="rl-wr__chip"></span>{{r.name}}</a>
+            {{#if r.out}}<span class="rl-wr__status">{{r.statusLabel}}</span>{{else if r.player}}<span class="rl-hand rl-wr__rowplayer">{{r.player}}{{#if r.bot}}<span class="rl-bot-tag" data-tooltip="{{r.bot}}">{{r.bot}}</span>{{/if}}</span>{{/if}}
+          </td>
+          <td class="c-stars"><b>{{r.stars}}</b></td>
+          <td>{{r.troops}}</td>
+          <td>{{r.territories}}</td>
+          <td>{{r.cards}}</td>
+          <td>{{r.missiles}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    {{/unless}}
+  </section>
+
+  <footer class="rl-wr__links">
+    {{#if controls.sideboard}}<button type="button" class="rl-ui-link" data-action="sideboard"><i class="fa-solid fa-table-cells-large" inert></i> {{localize "RL.UI.WarRoom.Sideboard"}}</button>{{/if}}
+    {{#if canStickerSheet}}<button type="button" class="rl-ui-link" data-action="stickerSheet"><i class="fa-solid fa-note-sticky" inert></i> {{localize "RL.UI.WarRoom.Stickers"}}</button>{{/if}}
+    <button type="button" class="rl-ui-link" data-action="reference"><i class="fa-solid fa-book-open" inert></i> {{localize "RL.UI.Reference.Short"}}</button>
+    {{#if canBots}}<button type="button" class="rl-ui-link" data-action="bots" data-tooltip="RL.Bots.WarRoom.botsTip"><i class="fa-solid fa-robot" inert></i> {{localize "RL.Bots.WarRoom.bots"}}</button>{{/if}}
+  </footer>
+{{/if}}
+</div>

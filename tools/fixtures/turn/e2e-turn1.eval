@@ -1,0 +1,63 @@
+// Turn area e2e, part 2 (after e2e-setup.js): Khan's first turn — recruit, place, expand (city cost), maneuver,
+// attack after maneuver refused, end of turn → Balkania's turn starts.
+const RL = game.risklegacy;
+const SYS = "fvtt-risklegacy-v5";
+const log = [];
+const step = (name, data) => log.push({ step: name, ...(data ?? {}) });
+const wait = ms => new Promise(r => setTimeout(r, ms));
+async function waitFor(fn, ms = 15000) {
+  const t0 = Date.now();
+  while ( Date.now() - t0 < ms ) {
+    try { if ( fn() ) return true; } catch(e) { /* keep waiting */ }
+    await wait(150);
+  }
+  return false;
+}
+await waitFor(() => RL.state.getCampaignBoard() && RL.state.buildSnapshot());
+const war = RL.state.getWar();
+const [khan, balk, sah] = ["khan", "balkania", "saharan"].map(k => RL.state.getFactionByKey(k));
+const snap = () => RL.turn.snapshot();
+const troops = (f, t) => snap().territories[t].pieces?.[f.id]?.troops ?? 0;
+
+await waitFor(() => war.system.turn.flags.startOfTurn);
+step("khanStart", { phase: war.system.phase, siberia: troops(khan, "siberia"), actions: Object.fromEntries(Object.entries(RL.turn.getTurnInfo().actions).filter(([k]) => k !== "powers").map(([k, v]) => [k, v.ok])) });
+
+// Attack before recruiting: refused
+step("attackTooEarly", { result: await RL.turn.attack({ faction: khan.id, from: "siberia", to: "ural", dice: 3 }) });
+
+// Recruit (hook) and place
+let hook = null;
+Hooks.once("risklegacy.recruited", (faction, total, breakdown) => hook = { faction: faction.name, total, base: breakdown.base, source: breakdown.source });
+const recruited = await RL.turn.recruit({ faction: khan.id });
+step("recruit", { total: recruited?.total, base: recruited?.base, reserve: khan.system.war.reserve, phase: war.system.phase, hook });
+step("recruitTwice", { result: await RL.turn.recruit({ faction: khan.id }) });
+step("expandWithReserve", { result: await RL.turn.expand({ faction: khan.id, from: "siberia", to: "ural", count: 2 }) });
+const placed = await RL.turn.placeReserve({ faction: khan.id, territory: "siberia", count: 3 });
+step("place", { placed, reserve: khan.system.war.reserve, siberia: troops(khan, "siberia") });
+step("placeNotOwned", { result: await RL.turn.placeReserve({ faction: khan.id, territory: "china", count: 1 }) });
+
+// A Minor City in Mongolia: expanding costs 1
+await RL.state.getCampaign().update({ "system.territories.mongolia.city": { type: "minor", name: "Testville", founder: "Ana", game: 0 } });
+step("expandCityTooFew", { result: await RL.turn.expand({ faction: khan.id, from: "siberia", to: "mongolia", count: 1 }) });
+const city = await RL.turn.expand({ faction: khan.id, from: "siberia", to: "mongolia", count: 3 });
+step("expandCity", { city, mongolia: troops(khan, "mongolia"), phase: war.system.phase, expanded: war.system.turn.expanded, intoCity: war.system.turn.expandedIntoCity });
+const plain = await RL.turn.expand({ faction: khan.id, from: "siberia", to: "ural", count: 3 });
+step("expand", { plain, ural: troops(khan, "ural"), lastAdvance: war.system.turn.flags.lastAdvance });
+// Follow-up: more troops from Siberia into Ural is an advance, not the maneuver
+const adv = await RL.turn.maneuver({ faction: khan.id, from: "siberia", to: "ural", count: 1 });
+step("advance", { adv, maneuverDone: war.system.turn.maneuver.done, ural: troops(khan, "ural") });
+
+// Maneuver Siberia → Mongolia, then attacking is refused
+const man = await RL.turn.maneuver({ faction: khan.id, from: "siberia", to: "mongolia", count: 2 });
+step("maneuver", { man, phase: war.system.phase, maneuver: war.system.turn.maneuver, mongolia: troops(khan, "mongolia") });
+step("secondManeuver", { result: await RL.turn.maneuver({ faction: khan.id, from: "siberia", to: "ural", count: 1 }) });
+step("expandAfterManeuver", { result: await RL.turn.expand({ faction: khan.id, from: "siberia", to: "yakutsk", count: 1 }) });
+step("drawEligible", { eligible: RL.rules.resourceDrawEligibility(snap(), khan.id).reason });
+
+// End of turn (not eligible for a card: no dialogs)
+const ended = await RL.turn.endTurn({ faction: khan.id });
+await waitFor(() => (war.combatant?.actorId === balk.id) && (war.system.turn.faction === balk.id));
+await waitFor(() => game.messages.contents.at(-1)?.flags?.[SYS]?.turn === "turnStarted");
+const info = RL.turn.getTurnInfo();
+step("endTurn", { ended, current: info.faction?.system.key, phase: info.phase, round: war.round, freshLog: war.system.turn.expanded === 0 && !war.system.turn.maneuver.done });
+return { log, chat: game.messages.contents.slice(-12).map(m => m.flags?.[SYS]?.turn ?? m.type) };

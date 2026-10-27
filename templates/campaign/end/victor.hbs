@@ -1,0 +1,8 @@
+<div class="rl-camp-step rl-camp-step--victor">
+  <h2 class="rl-title">{{localize "RL.Wizard.End.victorTitle"}}</h2>
+  <p class="rl-lead">{{localize "RL.Wizard.End.victorLead" name=winner.player faction=winner.factionName}}</p>
+  {{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/victors.hbs" lines=lines}}
+  {{#if signature}}
+  <p class="rl-hand rl-hand--red rl-camp-step__aside">{{localize "RL.Wizard.End.signedTimes" n=signatures}}</p>
+  {{/if}}
+</div>

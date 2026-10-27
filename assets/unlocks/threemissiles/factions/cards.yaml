@@ -1,0 +1,7 @@
+namespace: mutants.factions.threemissiles.risklegacy.spacemandev
+imgPath: mutant.png
+data:
+  troop_img: mutant_1.png
+  three_img: mutant_3.png
+  hq_img: mutant_hq.png
+  name: "Mutants"

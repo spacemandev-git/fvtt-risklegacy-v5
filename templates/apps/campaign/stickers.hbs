@@ -1,0 +1,25 @@
+<section class="tab rl-cs-tab-stickers {{tab.cssClass}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <p class="rl-cs-stickers__intro rl-hand">{{localize "RL.Sheet.Campaign.StickersIntro"}}</p>
+  <p class="rl-cs-stickers__open"><button type="button" class="rl-btn" data-action="openStickerSheet"><i class="fa-solid fa-note-sticky" inert></i> {{localize "RL.Legacy.Sheet.open"}}</button></p>
+  {{#each stickerGroups as |g|}}
+  <div class="rl-cs-stickersheet">
+    <h4 class="rl-cs-stickersheet__head">{{g.label}}</h4>
+    <div class="rl-cs-stickers">
+      {{#each g.tiles as |s|}}
+      <div class="rl-cs-stickertile{{#if s.empty}} is-empty{{/if}}" data-sticker="{{s.id}}"{{#if s.text}} data-tooltip="{{s.text}}"{{/if}}>
+        <div class="rl-cs-stickertile__art">{{#if s.img}}<img src="{{s.img}}" alt="">{{else}}<i class="fa-solid fa-note-sticky" inert></i>{{/if}}</div>
+        <div class="rl-cs-stickertile__label">{{s.label}}{{#if s.pack}}<small>{{s.pack}}</small>{{/if}}</div>
+        <div class="rl-cs-stickertile__count"><b>{{s.left}}</b>{{#if s.qty}}<span>/ {{s.qty}}</span>{{/if}}</div>
+        {{#if s.pips}}<div class="rl-cs-pips">{{#each s.pips}}<span class="rl-cs-pip{{#if used}} is-used{{/if}}"></span>{{/each}}</div>{{/if}}
+        {{#if @root.canManage}}
+        <div class="rl-cs-stickertile__gm">
+          <button type="button" class="rl-ui-icon" data-action="adjustSticker" data-delta="-1" aria-label="−1"><i class="fa-solid fa-minus" inert></i></button>
+          <button type="button" class="rl-ui-icon" data-action="adjustSticker" data-delta="1" aria-label="+1"><i class="fa-solid fa-plus" inert></i></button>
+        </div>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/each}}
+</section>

@@ -1,0 +1,19 @@
+<div class="risklegacy rl-chat-card rl-campaign-chat">
+  <div class="rl-chat-card__head">
+    <h3 class="rl-chat-card__title">{{localize "RL.Wizard.Setup.orderTitle"}}</h3>
+    <span class="rl-chat-card__sub">{{localize "RL.Wizard.Setup.gameN" n=game}}</span>
+  </div>
+  <div class="rl-chat-card__body">
+    {{#each rounds}}
+    <div class="rl-chat-card__row">
+      <span class="rl-label">{{#if tie}}{{localize "RL.Wizard.Setup.tieRoll" n=n}}{{else}}{{localize "RL.Wizard.Setup.roll"}}{{/if}}</span>
+      <span class="rl-dice">{{#each rolls}}<span class="rl-die rl-die--defend {{#unless top}}is-lost{{/unless}}" data-tooltip="{{name}}">{{value}}</span>{{/each}}</span>
+    </div>
+    <div class="rl-caption">{{#each rolls}}{{name}} {{value}}{{#unless @last}} · {{/unless}}{{/each}}</div>
+    {{/each}}
+  </div>
+  <div class="rl-chat-card__result">
+    <span class="rl-hand rl-hand--red">{{first}}</span> {{localize "RL.Wizard.Setup.choosesFirst"}}
+    <div class="rl-caption">{{#each order}}{{this}}{{#unless @last}} → {{/unless}}{{/each}}</div>
+  </div>
+</div>

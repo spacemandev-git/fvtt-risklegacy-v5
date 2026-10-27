@@ -1,0 +1,14 @@
+<div class="rl-camp-step rl-camp-step--world">
+  <h2 class="rl-title">{{localize "RL.Wizard.End.worldTitle"}}</h2>
+  <p class="rl-lead">{{localize "RL.Wizard.End.worldLead"}}</p>
+  <table class="rl-camp-table">
+    <thead><tr><th>{{localize "RL.Wizard.Setup.player"}}</th><th>{{localize "RL.Wizard.End.signatures"}}</th></tr></thead>
+    <tbody>{{#each totals}}<tr class="{{#if top}}is-top{{/if}}"><td class="rl-hand">{{player}}</td><td>{{count}}</td></tr>{{/each}}</tbody>
+  </table>
+  {{#if tied}}<p class="rl-hand rl-hand--red">{{localize "RL.Wizard.End.tiedNote"}}</p>{{/if}}
+  {{#if namer}}<p class="rl-lead"><span class="rl-circled rl-hand">{{namer.player}}</span> {{localize "RL.Wizard.End.namesIt"}}</p>{{/if}}
+  <div class="rl-camp-world-plate">
+    <span class="rl-label">{{localize "RL.Wizard.End.theWorldOf"}}</span>
+    {{#if world}}<span class="rl-hand rl-camp-world-plate__name">{{world.name}}</span>{{else}}<span class="rl-slot rl-camp-world-plate__empty"></span>{{/if}}
+  </div>
+</div>

@@ -1,0 +1,28 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Dependencies and build output
+node_modules/
+dist/
+*.log
+__pycache__/
+*.pyc
+# A local `npm i playwright` for the screenshot tools (the system itself has no packages)
+package.json
+package-lock.json
+
+# Regenerable board overlays (python3 tools/board/validate_board.py <board>)
+tools/board/out/
+
+# Compendium LevelDB lock files (keep the packs themselves)
+packs/**/LOCK
+
+# Secrets: API keys live outside the repo (~/.config/risklegacy/); never commit them
+.env
+.env.*
+*.key
+*-key
+*.pem

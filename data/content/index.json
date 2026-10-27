@@ -1,0 +1,197 @@
+{
+  "packs": [
+    {
+      "id": "base",
+      "label": "Base Game",
+      "order": 0,
+      "kind": "box",
+      "trigger": {
+        "key": "start",
+        "text": "Open this pack before the first game.",
+        "when": "beforeFirstGame"
+      },
+      "file": "data/content/base.json",
+      "counts": {
+        "warProgresses": 0,
+        "factions": 5,
+        "powers": 10,
+        "territoryCards": 42,
+        "scars": 2,
+        "stickers": 8,
+        "events": 0,
+        "missions": 0,
+        "draft": 0,
+        "rules": 0,
+        "marks": 0,
+        "secretPowers": 0,
+        "coinCards": 10
+      }
+    },
+    {
+      "id": "minorcities",
+      "label": "Pack 1: Minor Cities",
+      "order": 1,
+      "kind": "package",
+      "trigger": {
+        "key": "nineMinorCities",
+        "text": "Open when all 9 minor cities have been founded.",
+        "sealedText": "OPEN WHEN ALL 9 MINOR CITIES HAVE BEEN FOUNDED.",
+        "rulebook": "PACK 1: Open when the 9th Minor City is founded. Open this card as soon as the last Minor City is placed and named. This will be opened at the end of a game.",
+        "when": "endOfGame"
+      },
+      "file": "data/content/minorcities.json",
+      "counts": {
+        "warProgresses": 2,
+        "factions": 0,
+        "powers": 0,
+        "territoryCards": 0,
+        "scars": 1,
+        "stickers": 0,
+        "events": 4,
+        "missions": 0,
+        "draft": 20,
+        "rules": 4,
+        "marks": 0,
+        "secretPowers": 0
+      }
+    },
+    {
+      "id": "eliminated",
+      "label": "Pack 2: Faction Eliminated",
+      "order": 2,
+      "kind": "package",
+      "trigger": {
+        "key": "factionEliminated",
+        "text": "Open when a faction is eliminated from the game.",
+        "sealedText": "OPEN THE FIRST TIME A FACTION IS ELIMINATED FROM THE GAME.",
+        "rulebook": "PACK 2: Open when a player is eliminated. This envelope is opened the first time a Faction is wiped off the board and starts their turn with no way to come back into the game, or is knocked out or eliminated when the game ends. This could be opened mid-game or at the end of a game.",
+        "when": "midOrEndOfGame"
+      },
+      "file": "data/content/eliminated.json",
+      "counts": {
+        "warProgresses": 2,
+        "factions": 0,
+        "powers": 6,
+        "territoryCards": 0,
+        "scars": 1,
+        "stickers": 0,
+        "events": 0,
+        "missions": 0,
+        "draft": 0,
+        "rules": 2,
+        "marks": 0,
+        "secretPowers": 0
+      }
+    },
+    {
+      "id": "secondwin",
+      "label": "Pack 3: Second Win",
+      "order": 3,
+      "kind": "package",
+      "trigger": {
+        "key": "secondSignature",
+        "text": "Open when one person gets to sign the board for a second time.",
+        "sealedText": "OPEN WHEN ONE PERSON GETS TO SIGN THE BOARD FOR A SECOND TIME.",
+        "rulebook": "PACK 3: Open when a person gets to sign the board for the second time. After signing the victor's section of the board and picking their reward for their second victory on this world, this envelope should be opened. This will be opened at the end of a game.",
+        "when": "endOfGame"
+      },
+      "file": "data/content/secondwin.json",
+      "counts": {
+        "warProgresses": 1,
+        "factions": 0,
+        "powers": 0,
+        "territoryCards": 0,
+        "scars": 0,
+        "stickers": 2,
+        "events": 1,
+        "missions": 8,
+        "draft": 0,
+        "rules": 1,
+        "marks": 0,
+        "secretPowers": 0
+      }
+    },
+    {
+      "id": "worldcapital",
+      "label": "Pack 4: World Capital",
+      "order": 4,
+      "kind": "package",
+      "trigger": {
+        "key": "worldCapitalPlaced",
+        "text": "Open when the World Capital Mark is about to go on the board.",
+        "sealedText": "OPEN WHEN THE WORLD CAPITAL MARK IS ABOUT TO GO ON THE BOARD.",
+        "rulebook": "PACK 4: Open when the [World Capital] mark is placed on the board. When you first open the game, that mark isn't even available to you yet. So first you have to get it. Then you have to find a way to get it onto the board. Patience. This will be opened in the middle of a game.",
+        "when": "midGame"
+      },
+      "file": "data/content/worldcapital.json",
+      "counts": {
+        "warProgresses": 2,
+        "factions": 0,
+        "powers": 6,
+        "territoryCards": 0,
+        "scars": 0,
+        "stickers": 0,
+        "events": 0,
+        "missions": 6,
+        "draft": 0,
+        "rules": 3,
+        "marks": 1,
+        "secretPowers": 0
+      }
+    },
+    {
+      "id": "threemissiles",
+      "label": "Pocket 1: Three Missiles",
+      "order": 5,
+      "kind": "pocket",
+      "trigger": {
+        "key": "threeMissilesOneRoll",
+        "text": "Open when three missiles are used on the same combat roll.",
+        "rulebook": "POCKET 1: Open as soon as 3 Missiles are used during the same combat roll. Open this pocket as soon as the third missile is played and BEFORE resolving combat. The 3 Missiles can be played by the same person or multiple people. If there are multiple players trying to play the third Missile at the same time, priority as to who plays the third Missile goes to the attacker, then the defender, then each player clockwise around the table from the attacker. This will be opened in the middle of a game.",
+        "when": "midGame"
+      },
+      "file": "data/content/threemissiles.json",
+      "counts": {
+        "warProgresses": 6,
+        "factions": 1,
+        "powers": 12,
+        "territoryCards": 0,
+        "scars": 0,
+        "stickers": 1,
+        "events": 4,
+        "missions": 0,
+        "draft": 0,
+        "rules": 5,
+        "marks": 1,
+        "secretPowers": 4
+      }
+    },
+    {
+      "id": "thirtytroops",
+      "label": "Pocket 2: Thirty Troops",
+      "order": 6,
+      "kind": "pocket",
+      "trigger": {
+        "key": "thirtyTroopsWithMissile",
+        "text": "Open when someone is about to place 30+ troops on the board and has a missile.",
+        "rulebook": "POCKET 2: Open when a person is about to place 30+ troops on the board and has at least one Missile. These 30 troops can be from any combination of territories/cities held, continent bonuses, plus cards turned in. The person must also have a Missile in their possession - that is, they can't have used all of their Missiles earlier in the game. Open the pocket before placing the troops. This will be opened in the middle of a game.",
+        "when": "midGame"
+      },
+      "file": "data/content/thirtytroops.json",
+      "counts": {
+        "warProgresses": 5,
+        "factions": 1,
+        "powers": 11,
+        "territoryCards": 1,
+        "scars": 5,
+        "stickers": 3,
+        "events": 3,
+        "missions": 0,
+        "draft": 0,
+        "rules": 2,
+        "marks": 2,
+        "secretPowers": 0
+      }
+    }
+  ]
+}

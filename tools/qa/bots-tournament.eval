@@ -1,0 +1,207 @@
+// One tournament game: bot players only, through the real brain, driver and Jev (via the relay). Run it on a fresh
+// world, once per game, and vary the seats between games to compare the difficulty levels fairly.
+//
+//   node $S/fvtt-browser.mjs eval --port 30019 \
+//     --sandbox "$SB/sandbox-bots-int" --file tools/qa/bots-tournament.eval \
+//     --code-before 'globalThis.RL_T = { seats: ["hard", "easy", "normal"], factions: ["khan", "balkania", "enclave"] }'
+// (or prepend the RL_T assignment to the file). RL_T fields, all optional:
+//   seats     difficulties in seat order (seat 0 plays first)      default ["easy", "normal", "hard"]
+//   bots      instead of seats: one entry per seat, {engine: "jev"|"llm", difficulty, model?, personality?}, e.g.
+//             [{engine: "llm", difficulty: "hard", model: "z-ai/glm-5.3"}, {engine: "jev", difficulty: "hard"}]
+//             (chat bots: model null = bots.llmModel; personality an id, "random" or null = a random unused one)
+//   factions  faction keys in seat order                            default: random distinct base factions
+//   relay     relay URL                                             default http://127.0.0.1:30789
+//   llmBaseUrl chat-model API base                                  default <relay>/nous/v1 (the relay's Nous route)
+//   spendCap  bots.llmSpendLimit for this game (US$)                default 2
+//   onError   bots.onError for this game: "ask" (a failed call stops the game, reported) or "heuristic"  default ask
+//   budgetMs  game time budget                                      default 10 min (30 min with chat bots)
+//   variant   "original" | "advanced"                               default "original"
+//   trace     a difficulty whose decisions to return turn by turn (compact), e.g. "hard" (or a seat number)
+//   profilePatch  overrides merged into the difficulty profiles for this game only (tuning experiments), e.g.
+//             { hard: { chains: false, attack: { minChance: 0.55 } } }
+const RL = game.risklegacy;
+const B = RL.bots;
+const SYS = "fvtt-risklegacy-v5";
+const CFG = globalThis.RL_T ?? {};
+const BOTS = (CFG.bots ?? (CFG.seats ?? ["easy", "normal", "hard"]).map(difficulty => ({ engine: "jev", difficulty })))
+  .map(b => ({ engine: b.engine === "llm" ? "llm" : "jev", difficulty: b.difficulty ?? "normal", model: b.model ?? null, personality: b.personality ?? null }));
+const SEATS = BOTS.map(b => b.difficulty);
+const HAS_LLM = BOTS.some(b => b.engine === "llm");
+const HAS_JEV = BOTS.some(b => b.engine === "jev");
+const BUDGET_MS = CFG.budgetMs ?? (HAS_LLM ? 30 : 10) * 60 * 1000;
+const T0 = Date.now();
+const problems = [];
+const wait = ms => new Promise(r => setTimeout(r, ms));
+async function waitFor(fn, ms = 20000, every = 100) {
+  const t0 = Date.now();
+  while ( Date.now() - t0 < ms ) {
+    try { if ( fn() ) return true; } catch(e) { /* keep waiting */ }
+    await wait(every);
+  }
+  return false;
+}
+async function attempt(label, fn) {
+  try { return await fn(); }
+  catch(err) { problems.push({ label, error: err.message }); return undefined; }
+}
+const set = (key, value) => game.settings.set(SYS, key, value);
+
+await waitFor(() => RL.state.isLoaded());
+const RELAY = (CFG.relay ?? "http://127.0.0.1:30789").replace(/\/+$/, "");
+await set("bots.relayUrl", RELAY);
+await set("bots.llmBaseUrl", CFG.llmBaseUrl ?? `${RELAY}/nous/v1`);
+await set("bots.llmSpendLimit", CFG.spendCap ?? 2);
+await set("bots.tableTalk", "gm");
+await set("bots.pace", 0);
+await set("bots.reactionWindow", 0);
+await set("bots.onError", CFG.onError ?? "ask");  // "heuristic": a failed call is played with built-in judgment (counted) instead of stopping the game
+await set("bots.narration", "gm");
+await set("bots.paused", false);
+B.clearLog();
+if ( CFG.profilePatch ) {
+  // Same module URL as the brain's own import, so this patches the live profiles (this page only).
+  const { PROFILES } = await import(`/systems/${SYS}/module/bots/brain/profiles.mjs`);
+  for ( const [d, patch] of Object.entries(CFG.profilePatch) ) foundry.utils.mergeObject(PROFILES[d], patch);
+}
+if ( HAS_LLM ) await B.testing.resetSpend();
+const relay = HAS_JEV ? await B.checkRelay() : null;
+if ( relay && !relay.ok ) return { error: "relay not reachable", relay };
+const llm = {};
+for ( const model of [...new Set(BOTS.filter(b => b.engine === "llm").map(b => b.model ?? game.settings.get(SYS, "bots.llmModel")))] ) {
+  llm[model] = await B.checkLLM({ model });
+  if ( !llm[model].ok ) return { error: `chat model ${model} not usable`, check: llm[model] };
+}
+
+/* ---------- Campaign ---------- */
+await attempt("createCampaign", () => RL.campaign.createCampaign({ variant: CFG.variant ?? "original", date: "2026-10-27", signatures: [] }));
+for ( const app of [...foundry.applications.instances.values()] ) if ( app.options?.classes?.includes("risklegacy") ) await app.close?.({ animate: false }).catch(() => {});
+const scene = RL.state.getBoardScene();
+await waitFor(() => canvas.ready && (canvas.scene?.id === scene?.id), 30000);
+if ( scene && (canvas.scene?.id !== scene.id) ) { await scene.view(); await waitFor(() => canvas.ready && canvas.scene?.id === scene.id, 30000); }
+await wait(1000);
+// Starting powers: each faction keeps its first starter power (the same for every game, so seats are comparable)
+for ( const f of RL.state.getFactions() ) {
+  const options = game.items.filter(i => (i.type === "power") && (i.system.faction === f.system.key) && (i.system.slot === "starter"));
+  const pick = options.find(i => i.system.key.endsWith("_1")) ?? options[0];
+  if ( pick ) await f.createEmbeddedDocuments("Item", [pick.toObject()]);
+  for ( const i of options ) await i.delete();
+}
+await RL.state.getCampaign().update({ "system.firstGameReady": true });
+
+/* ---------- Seats ---------- */
+const all = RL.state.getFactions();
+let keys = CFG.factions;
+if ( !keys ) {
+  const pool = all.map(f => f.system.key);
+  keys = [];
+  while ( keys.length < SEATS.length ) keys.push(...pool.splice(Math.floor(Math.random() * pool.length), 1));
+}
+const seats = [];
+for ( const [i, b] of BOTS.entries() ) {
+  const difficulty = b.difficulty;
+  const user = b.engine === "llm"
+    ? await B.createBot({ engine: "llm", difficulty, model: b.model, personality: b.personality ?? "random" })
+    : await B.createBot({ difficulty, name: `Seat ${i} ${difficulty}` });
+  const faction = RL.state.getFactionByKey(keys[i]);
+  if ( !faction ) return { error: `unknown faction key ${keys[i]}`, keys: all.map(f => f.system.key) };
+  const info = B.botInfo(user);
+  seats.push({ seat: i, difficulty, user, faction, engine: info.engine, model: info.model, personality: info.personality });
+}
+const participants = seats.map(s => ({ faction: s.faction.id, userId: s.user.id, seat: s.seat }));
+await attempt("createWar", () => RL.turn.createWar({ participants }));
+await attempt("dealScars", () => RL.cards.dealScars({ factions: participants.map(p => p.faction) }));
+await attempt("setupSideboard", () => RL.cards.setupSideboard({}));
+await attempt("beginPlacement", () => RL.turn.beginPlacement({ order: participants.map(p => p.faction) }));
+const war = RL.state.getWar();
+for ( const s of seats ) {
+  const r = await attempt(`placeStart ${s.difficulty}`, () => B.placeStart(s.faction.id));
+  s.start = r?.territory ?? s.faction.system.war.startingTerritory;
+}
+if ( !(await waitFor(() => war.system.stage === "playing", 30000)) ) return { error: "never started playing", stage: war.system.stage, problems };
+
+/* ---------- Let the driver play ---------- */
+let lastDecisions = 0, lastProgress = Date.now(), stalled = false;
+while ( (war.system.stage === "playing") && (Date.now() - T0 < BUDGET_MS) ) {
+  await wait(1000);
+  const n = B.logStats().decisions;
+  if ( n !== lastDecisions ) { lastDecisions = n; lastProgress = Date.now(); }
+  if ( Date.now() - lastProgress > 120000 ) { stalled = true; break; }
+  const dialog = [...foundry.applications.instances.values()].find(a => a.options?.classes?.includes("rl-bot-error-dialog") && a.rendered);
+  if ( dialog ) { problems.push({ label: HAS_LLM ? "errorDialog" : "jevErrorDialog", status: B.status(), text: dialog.element?.textContent?.replace(/\s+/g, " ").trim().slice(0, 300) }); break; }
+}
+
+/* ---------- Result ---------- */
+const s = RL.turn.snapshot();
+const winnerId = war.system.winner;
+const byFaction = Object.fromEntries(seats.map(x => [x.faction.id, x]));
+const stats = B.logStats();
+const kindsJev = {};
+const kindsLlm = {};
+for ( const r of B.getLog({ limit: 500 }) ) {
+  if ( r.jev?.length ) kindsJev[r.kind] = (kindsJev[r.kind] ?? 0) + r.jev.length;
+  if ( r.llm?.length ) kindsLlm[r.kind] = (kindsLlm[r.kind] ?? 0) + r.llm.length;
+}
+return {
+  seconds: Math.round((Date.now() - T0) / 1000),
+  stage: war.system.stage, round: war.round, stalled,
+  winner: winnerId ? {
+    difficulty: byFaction[winnerId]?.difficulty, engine: byFaction[winnerId]?.engine, personality: byFaction[winnerId]?.personality ?? undefined,
+    faction: game.actors.get(winnerId)?.name, seat: byFaction[winnerId]?.seat
+  } : null,
+  seats: seats.map(x => {
+    const f = s.factions[x.faction.id];
+    return {
+      seat: x.seat, difficulty: x.difficulty, engine: x.engine, model: x.engine === "llm" ? (x.model ?? "default") : undefined,
+      personality: x.personality ?? undefined, faction: x.faction.name, start: x.start,
+      stars: f.redStars.total, territories: f.territories.length, troops: f.troops, status: f.status,
+      continents: f.continents, hand: f.hand.count, missiles: f.missiles
+    };
+  }),
+  stats: {
+    decisions: stats.decisions, requests: stats.requests, jevRequests: stats.jevRequests, llmRequests: stats.llmRequests,
+    inputTokens: stats.inputTokens, outputTokens: stats.outputTokens, cost: stats.cost, avgMs: stats.avgMs, errors: stats.errors,
+    heuristic: stats.heuristic, kinds: stats.kinds, jevByKind: kindsJev, llmByKind: HAS_LLM ? kindsLlm : undefined,
+    avgTurnMs: B.status().stats.turns ? Math.round(B.status().stats.turnMs / B.status().stats.turns) : 0
+  },
+  llm: HAS_LLM ? { checks: llm, spend: B.llmSpend(), perSeat: perSeatLlm() } : undefined,
+  problems: problems.slice(0, 20),
+  trace: (CFG.trace !== undefined) ? traceOf(CFG.trace) : undefined
+};
+
+/** Per seat: chat calls, failed attempts, built-in-judgment decisions, cost and time (comparing models). */
+function perSeatLlm() {
+  return seats.map(x => {
+    const recs = B.getLog({ limit: 5000 }).filter(r => r.faction === x.faction.id);
+    const ex = recs.flatMap(r => r.llm ?? []);
+    const ok = ex.filter(e => !e.error);
+    return {
+      seat: x.seat, model: x.model ?? "default", decisions: recs.length, calls: ex.length, failedAttempts: ex.length - ok.length,
+      heuristic: recs.filter(r => r.heuristic).length, cost: Math.round(ex.reduce((t, e) => t + (Number(e.response?.cost) || 0), 0) * 10000) / 10000,
+      avgMs: ok.length ? Math.round(ok.reduce((t, e) => t + (e.ms ?? 0), 0) / ok.length) : 0,
+      salvaged: ex.filter(e => e.response?.salvaged).length
+    };
+  });
+}
+
+/** A compact, oldest-first account of one difficulty's (or one seat's) decisions (for reading how a level plays). */
+function traceOf(which) {
+  const fids = new Set(seats.filter(x => (typeof which === "number" ? x.seat === which : x.difficulty === which)).map(x => x.faction.id));
+  const tn = id => s.territories[id]?.name ?? id;
+  return B.getLog({ limit: 500 }).filter(r => fids.has(r.faction)).reverse().map(r => {
+    const d = r.decision ?? {};
+    const w = d.why ?? {};
+    const parts = [r.kind];
+    if ( d.type ) parts.push(d.type);
+    if ( d.from || d.to ) parts.push(`${tn(d.from)}>${tn(d.to)}`);
+    if ( d.dice ) parts.push(`dice ${d.dice}`);
+    if ( d.count !== undefined ) parts.push(`n ${d.count}`);
+    if ( d.placements ) parts.push(d.placements.map(p => `${tn(p.territory)}+${p.count}`).join(","));
+    if ( d.territory ) parts.push(tn(d.territory));
+    if ( d.buyRedStars ) parts.push("buy star");
+    if ( d.fire ) parts.push(`missile ${d.side}`);
+    parts.push(`[${w.reason ?? "?"}${w.chance !== undefined ? ` ${Math.round(w.chance * 100)}%` : ""}${w.value ? ` ${w.value}` : ""}]`);
+    if ( r.kind === "situation" ) parts.push(`leader=${game.actors.get(d.leader)?.name ?? d.leader} hqDanger=${d.hqDanger}`);
+    if ( r.say ) parts.push(`says "${r.say}"`);
+    return `${r.jev?.length ? "J" : (r.llm?.length ? `L${r.llm.length}` : "-")} ${parts.join(" ")}`;
+  });
+}

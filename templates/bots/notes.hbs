@@ -1,0 +1,59 @@
+{{!-- A chat bot's notes between games (module/bots/ui/dialogs.mjs openNotes, BOTS-LLM.md §3 BotMemory). Strings arrive
+     localized; the bot's own words are escaped. Styled in styles/bots.css ("Notes"). --}}
+<div class="rl-bot-notes">
+  <div class="rl-bot-notes__who">
+    <span class="rl-bot-portrait"><img src="{{portrait}}" alt=""></span>
+    <span class="rl-bot-notes__id">
+      <span class="rl-bot-notes__name">{{name}}</span>
+      <span class="rl-bot-notes__sub">{{#if title}}{{title}} · {{/if}}{{level}}</span>
+    </span>
+    {{#if updated}}<span class="rl-bot-notes__updated">{{updated}}</span>{{/if}}
+  </div>
+
+  {{#if empty}}
+  <div class="rl-slot rl-bot-empty">{{#if easy}}{{localize "RL.Bots.Notes.emptyEasy"}}{{else}}{{localize "RL.Bots.Notes.empty"}}{{/if}}</div>
+  {{else}}
+  <div class="rl-bot-notes__sheet">
+    {{#if notes}}
+    <section class="rl-bot-notes__block">
+      <h3 class="rl-bot-notes__head">{{localize "RL.Bots.Notes.notes"}}</h3>
+      <p class="rl-bot-notes__text">{{notes}}</p>
+    </section>
+    {{/if}}
+    {{#if grudges.length}}
+    <section class="rl-bot-notes__block">
+      <h3 class="rl-bot-notes__head">{{localize "RL.Bots.Notes.grudges"}}</h3>
+      <ul class="rl-bot-notes__list">
+        {{#each grudges as |g|}}<li><b>{{g.who}}</b>{{#if g.game}} <span class="rl-bot-notes__game">{{g.game}}</span>{{/if}}: {{g.text}}</li>{{/each}}
+      </ul>
+    </section>
+    {{/if}}
+    {{#if lessons.length}}
+    <section class="rl-bot-notes__block">
+      <h3 class="rl-bot-notes__head">{{localize "RL.Bots.Notes.lessons"}}</h3>
+      <ul class="rl-bot-notes__list">
+        {{#each lessons as |l|}}<li>{{l}}</li>{{/each}}
+      </ul>
+    </section>
+    {{/if}}
+    {{#if games.length}}
+    <section class="rl-bot-notes__block">
+      <h3 class="rl-bot-notes__head">{{localize "RL.Bots.Notes.games"}}</h3>
+      <table class="rl-bot-notes__games">
+        <thead><tr><th>{{localize "RL.Bots.Notes.gameCol"}}</th><th>{{localize "RL.Bots.Notes.factionCol"}}</th><th>{{localize "RL.Bots.Notes.resultCol"}}</th></tr></thead>
+        <tbody>
+          {{#each games as |g|}}
+          <tr><td class="is-num">{{g.game}}</td><td>{{g.faction}}</td><td>{{g.result}}</td></tr>
+          {{#if g.summary}}<tr class="rl-bot-notes__summary"><td></td><td colspan="2">{{g.summary}}</td></tr>{{/if}}
+          {{/each}}
+        </tbody>
+      </table>
+    </section>
+    {{/if}}
+  </div>
+  <details class="rl-bot-state rl-bot-notes__raw">
+    <summary>{{localize "RL.Bots.Notes.raw"}}</summary>
+    <pre class="rl-bot-pre">{{raw}}</pre>
+  </details>
+  {{/if}}
+</div>

@@ -1,0 +1,64 @@
+<header class="rl-board-tooltip__head">
+  <span class="rl-board-tooltip__name">{{name}}</span>
+  {{#if continent}}<span class="rl-board-tooltip__continent">{{continent}}</span>{{/if}}
+</header>
+<div class="rl-board-tooltip__body">
+  {{#if owner}}
+  <div class="rl-board-tooltip__row rl-board-tooltip__force" style="--rl-faction: {{owner.color}}">
+    <i class="rl-board-tooltip__swatch" aria-hidden="true"></i>
+    <span class="rl-board-tooltip__who">{{owner.name}}</span>
+    <b class="rl-board-tooltip__num">{{owner.troops}}</b>
+    {{#if owner.hq}}<span class="rl-board-tooltip__hq">{{localize "RL.Canvas.Tooltip.hq"}}</span>{{/if}}
+  </div>
+  {{else}}
+  <div class="rl-board-tooltip__row rl-board-tooltip__empty">{{localize "RL.Canvas.Tooltip.unoccupied"}}</div>
+  {{/if}}
+  {{#each others}}
+  <div class="rl-board-tooltip__row rl-board-tooltip__force is-other" style="--rl-faction: {{color}}">
+    <i class="rl-board-tooltip__swatch" aria-hidden="true"></i>
+    <span class="rl-board-tooltip__who">{{name}}</span>
+    <b class="rl-board-tooltip__num">{{troops}}</b>
+    {{#if hq}}<span class="rl-board-tooltip__hq">{{localize "RL.Canvas.Tooltip.hq"}}</span>{{/if}}
+  </div>
+  {{/each}}
+  {{#if city}}
+  <div class="rl-board-tooltip__row">
+    <span class="rl-board-tooltip__label">{{city.label}}</span>
+    <span class="rl-hand rl-board-tooltip__city">{{city.name}}</span>
+    <span class="rl-board-tooltip__pop">{{localize "RL.Canvas.Tooltip.population" n=city.population}}</span>
+  </div>
+  {{#if city.founder}}<div class="rl-board-tooltip__row rl-board-tooltip__sub">{{localize "RL.Canvas.Tooltip.founder" name=city.founder}}</div>{{/if}}
+  {{/if}}
+  {{#if fortification}}
+  <div class="rl-board-tooltip__row">
+    <span class="rl-board-tooltip__label">{{localize "RL.Canvas.Tooltip.fortification"}}</span>
+    {{#if fortification.depleted}}
+    <span>{{localize "RL.Canvas.Tooltip.depleted"}}</span>
+    {{else}}
+    <span>{{localize "RL.Canvas.Tooltip.usesLeft" left=fortification.left total=fortification.total}}</span>
+    {{/if}}
+  </div>
+  {{/if}}
+  {{#if scar}}
+  <div class="rl-board-tooltip__row">
+    <span class="rl-board-tooltip__label">{{localize "RL.Canvas.Tooltip.scar"}}</span>
+    <span>{{scar}}</span>
+  </div>
+  {{#if scarText}}<div class="rl-board-tooltip__row rl-board-tooltip__sub">{{scarText}}</div>{{/if}}
+  {{/if}}
+  {{#each marks}}
+  <div class="rl-board-tooltip__row">
+    <span class="rl-board-tooltip__label">{{localize "RL.Canvas.Tooltip.mark"}}</span>
+    <span>{{this}}</span>
+  </div>
+  {{/each}}
+  {{#if seaLines}}
+  <div class="rl-board-tooltip__row">
+    <span class="rl-board-tooltip__label">{{localize "RL.Canvas.Tooltip.seaLines"}}</span>
+    <span class="rl-board-tooltip__sealines">{{seaLines}}</span>
+  </div>
+  {{/if}}
+  {{#if cardDestroyed}}
+  <div class="rl-board-tooltip__row rl-board-tooltip__destroyed">{{localize "RL.Canvas.Tooltip.cardDestroyed"}}</div>
+  {{/if}}
+</div>

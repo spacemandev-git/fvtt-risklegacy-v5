@@ -1,0 +1,38 @@
+<section class="tab rl-fs-tab-card {{tab.cssClass}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <div class="rl-fs-card{{#if canPlaceStickers}} is-droppable{{/if}}">
+    <div class="rl-fs-card__scene" aria-hidden="true"></div>
+    <img class="rl-fs-card__figure" src="{{art}}" alt="">
+    <span class="rl-tab-plate rl-fs-card__plate">{{actor.name}}</span>
+    <ol class="rl-fs-card__slots">
+      {{#each slots as |s|}}{{#unless s.extra}}
+      <li class="rl-fs-slot rl-slot rl-slot--power rl-power--{{s.slot}} rl-fs-slot--{{s.slot}}{{#if s.item}} is-filled{{/if}}" data-slot="{{s.slot}}">
+        {{#if s.item}}
+        <div class="rl-sticker{{#if s.item.used}} is-used{{/if}}{{#if s.item.isScar}} rl-fs-sticker--scar{{/if}}" data-item-id="{{s.item.id}}"
+             data-action="openPower" data-tooltip="{{s.item.name}}" role="button" tabindex="0">
+          {{#if s.item.isScar}}<img class="rl-fs-sticker-art" src="{{s.item.icon}}" alt="">{{/if}}
+          <span class="rl-fs-sticker-text">{{s.item.text}}</span>
+          {{#if s.item.used}}<span class="rl-hand rl-hand--red rl-fs-sticker-used">{{localize "RL.Sheet.Power.Used"}}</span>{{/if}}
+          {{#if @root.canPlaceStickers}}
+          <button type="button" class="rl-fs-sticker-peel" data-action="removePower" data-tooltip="RL.Sheet.Power.Remove"
+                  aria-label="{{localize "RL.Sheet.Power.Remove"}}"><i class="fa-solid fa-xmark" inert></i></button>
+          {{/if}}
+        </div>
+        {{else}}
+        <span class="rl-fs-slot__empty">{{s.empty}}</span>
+        {{/if}}
+      </li>
+      {{/unless}}{{/each}}
+    </ol>
+  </div>
+  {{#each slots as |s|}}{{#if s.extra}}
+  <div class="rl-fs-card__extra">
+    <h4 class="rl-subhead">{{s.label}}</h4>
+    {{#each s.extra as |p|}}
+    <div class="rl-sticker rl-power--other" data-item-id="{{p.id}}" data-action="openPower" role="button" tabindex="0">{{p.text}}</div>
+    {{/each}}
+  </div>
+  {{/if}}{{/each}}
+  <p class="rl-fs-card__hint rl-caption">
+    {{#if canPlaceStickers}}{{localize "RL.Sheet.Faction.CardHintEdit"}}{{else}}{{localize "RL.Sheet.Faction.CardHint"}}{{/if}}
+  </p>
+</section>

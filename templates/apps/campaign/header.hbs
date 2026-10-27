@@ -1,0 +1,17 @@
+<header class="rl-cs-header">
+  <div class="rl-cs-title">
+    <span class="rl-cs-title__label">{{localize "RL.Sheet.Campaign.TheWorldOf"}}</span>
+    {{#if system.worldName}}
+      <span class="rl-hand rl-cs-title__name">{{system.worldName}}</span>
+    {{else}}
+      <span class="rl-slot rl-cs-title__slot">{{#if worldComplete}}{{localize "RL.Sheet.Campaign.WorldReady"}}{{else}}{{localize "RL.Sheet.Campaign.WorldUnnamed" games=legacyGames}}{{/if}}</span>
+    {{/if}}
+    {{#if canManage}}<button type="button" class="rl-ui-icon" data-action="nameWorld" data-tooltip="RL.Sheet.Campaign.NameWorldTitle" aria-label="{{localize "RL.Sheet.Campaign.NameWorldTitle"}}"><i class="fa-solid fa-pen-nib" inert></i></button>{{/if}}
+  </div>
+  <dl class="rl-cs-facts">
+    <div class="rl-plate"><dt>{{localize "RL.Sheet.Campaign.GamesPlayed"}}</dt><dd>{{gamesPlayed}}</dd></div>
+    <div class="rl-plate"><dt>{{localize "RL.Sheet.Campaign.NextGame"}}</dt><dd>{{nextGame}}</dd></div>
+    <div class="rl-plate"><dt>{{localize "RL.Sheet.Campaign.LegacyLeft"}}</dt><dd>{{legacyLeft}}</dd></div>
+    <div class="rl-plate rl-cs-facts__board"><dt>{{localize "RL.Campaign.Data.FIELDS.boardVariant.label"}}</dt><dd>{{boardLabel}}</dd></div>
+  </dl>
+</header>

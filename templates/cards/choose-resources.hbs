@@ -1,0 +1,27 @@
+<div class="rl-choose">
+  <p class="rl-lead">
+    {{#if isStars}}{{localize "RL.CardsUI.pick.ruleStars" per=per}}{{else}}{{localize "RL.CardsUI.pick.ruleTroops"}}{{/if}}
+  </p>
+  <div class="rl-choose__body">
+    <div class="rl-choose__cards">
+      {{#each cards}}
+      <label class="rl-pick rl-pick--portrait" data-tooltip="{{name}}">
+        <input type="checkbox" name="card" value="{{id}}">
+        <img src="{{img}}" alt="{{name}}">
+        <span class="rl-pick__value">{{coins}}</span>
+      </label>
+      {{else}}
+      <p class="rl-choose__empty">{{localize "RL.CardsUI.handEmpty"}}</p>
+      {{/each}}
+    </div>
+    {{#unless isStars}}
+    <table class="rl-trade-chart">
+      <thead><tr><th>{{localize "RL.CardsUI.pick.coins"}}</th><th>{{localize "RL.CardsUI.pick.troops"}}</th></tr></thead>
+      <tbody>
+        {{#each chart}}<tr data-coins="{{coins}}"><td>{{coins}}</td><td>{{troops}}</td></tr>{{/each}}
+      </tbody>
+    </table>
+    {{/unless}}
+  </div>
+  <div class="rl-pick-summary">&nbsp;</div>
+</div>

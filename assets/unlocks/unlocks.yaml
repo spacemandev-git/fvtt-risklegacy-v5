@@ -1,0 +1,15 @@
+packs:
+  base:
+    description: Open this pack before the first game.
+  minorcities:
+    description: Open when all 9 minor cities have been founded.
+  eliminated:
+    description: Open when a faction is eliminated from the game.
+  secondwin:
+    description: Open when one person gets to sign the board for a second time.
+  worldcapital:
+    description: Open when the World Capital Mark is about to go on the board.
+  threemissiles:
+    description: Open when three missiles are used on the same combat roll.
+  thirtytroops:
+    description: Open when someone is about to place 30+ troops on the board and has a missile.

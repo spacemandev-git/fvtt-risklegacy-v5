@@ -1,0 +1,111 @@
+{
+ "name": "control-the-people",
+ "description": "Control the People: Enclave (largest population) gets 5 troops in one city it controls, or an immediate maneuver. Khan has 11 troops next to Enclave's HQ in Kamchatka (3 troops); Japan is a city.",
+ "me": "enclave",
+ "difficulty": "normal",
+ "factions": {
+  "enclave": {
+   "name": "Enclave of the Bear",
+   "key": "enclave",
+   "redStarTokens": 1,
+   "startingTerritory": "kamchatka"
+  },
+  "khan": {
+   "name": "Khan Industries",
+   "key": "khan",
+   "redStarTokens": 1,
+   "startingTerritory": "china",
+   "hand": {
+    "count": 3,
+    "coins": 6
+   }
+  },
+  "balkania": {
+   "name": "Imperial Balkania",
+   "key": "balkania",
+   "redStarTokens": 1,
+   "startingTerritory": "northern_europe"
+  }
+ },
+ "marks": {
+  "japan": {
+   "city": "minor"
+  },
+  "kamchatka": {
+   "city": "major",
+   "founder": "Player enclave",
+   "founderId": "user-enclave"
+  }
+ },
+ "pieces": {
+  "kamchatka": {
+   "enclave": {
+    "troops": 3,
+    "hq": true
+   }
+  },
+  "japan": {
+   "enclave": {
+    "troops": 2
+   }
+  },
+  "yakutsk": {
+   "enclave": 2
+  },
+  "irkutsk": {
+   "enclave": 4
+  },
+  "alaska": {
+   "enclave": 2
+  },
+  "mongolia": {
+   "khan": 11
+  },
+  "china": {
+   "khan": {
+    "troops": 5,
+    "hq": true
+   }
+  },
+  "siberia": {
+   "khan": 3
+  },
+  "alberta": {
+   "balkania": 4
+  },
+  "northern_europe": {
+   "balkania": {
+    "troops": 5,
+    "hq": true
+   }
+  }
+ },
+ "turn": {
+  "faction": "balkania",
+  "phase": "end",
+  "log": {
+   "recruited": true,
+   "conquered": 1
+  }
+ },
+ "calls": [
+  {
+   "fn": "chooseOption",
+   "args": {
+    "kind": "event",
+    "title": "Control the People",
+    "text": "Whomever has the largest population either gains 5 troops in any one city he controls, or he may make an immediate maneuver.",
+    "options": [
+     {
+      "value": "troops",
+      "label": "Gain 5 troops in one of your cities"
+     },
+     {
+      "value": "maneuver",
+      "label": "Make an immediate maneuver"
+     }
+    ]
+   }
+  }
+ ]
+}

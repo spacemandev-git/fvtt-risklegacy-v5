@@ -1,0 +1,63 @@
+<section class="risklegacy rl-hand-view rl-faction--{{faction.key}} {{#if compact}}is-compact{{/if}}" data-rl-hand="{{faction.id}}">
+  <header class="rl-hand-view__head">
+    <span class="rl-label">{{localize "RL.CardsUI.hand.title"}}</span>
+    <span class="rl-hand-view__count">{{#if (eq count 1)}}{{localize "RL.CardsUI.hand.countOne"}}{{else}}{{#if (eq count 1)}}{{localize "RL.CardsUI.hand.countOne"}}{{else}}{{localize "RL.CardsUI.hand.count" n=count}}{{/if}}{{/if}}</span>
+    {{#if reveal}}
+    <span class="rl-hand-view__coins" data-tooltip="{{localize 'RL.CardsUI.hand.coinsHint'}}"><span class="rl-coin is-filled"></span><b>{{coins}}</b></span>
+    {{/if}}
+  </header>
+
+  <div class="rl-hand-view__cards">
+    {{#each cards}}
+    <figure class="rl-hand-card {{#if hidden}}is-hidden{{/if}}" data-card-id="{{id}}" data-tooltip="{{#unless hidden}}{{name}}{{/unless}}">
+      {{#if img}}
+      <img src="{{img}}" alt="{{name}}" {{#unless hidden}}data-zoom{{/unless}}>
+      {{else}}
+      <div class="rl-cardback rl-cardback--{{type}}"><span>{{backLabel}}</span></div>
+      {{/if}}
+      {{#unless hidden}}<span class="rl-hand-card__value">{{coins}}</span>{{/unless}}
+    </figure>
+    {{else}}
+    <p class="rl-hand-view__empty">{{#if exists}}{{localize "RL.CardsUI.handEmpty"}}{{else}}{{localize "RL.CardsUI.hand.none"}}{{/if}}</p>
+    {{/each}}
+  </div>
+
+  {{#if scars.length}}
+  <div class="rl-hand-view__scars">
+    {{#each scars}}
+    <figure class="rl-hand-card rl-hand-card--landscape {{#if hidden}}is-hidden{{/if}}" data-card-id="{{id}}">
+      {{#if hidden}}
+      <div class="rl-cardback rl-cardback--scar"><span>{{backLabel}}</span></div>
+      {{else}}
+      <img src="{{img}}" alt="{{name}}" data-zoom data-orientation="landscape">
+      {{#if canPlay}}
+      {{#if @root.interactive}}<button type="button" class="rl-btn rl-btn--icon rl-hand-card__play" data-rl-hand-action="playScar">{{localize "RL.CardsUI.scar.play"}}</button>{{/if}}
+      {{/if}}
+      {{/if}}
+    </figure>
+    {{/each}}
+  </div>
+  {{/if}}
+
+  {{#if others.length}}
+  <div class="rl-hand-view__others">
+    {{#each others}}
+    <figure class="rl-hand-card {{#if landscape}}rl-hand-card--landscape{{/if}} {{#if hidden}}is-hidden{{/if}}">
+      {{#if hidden}}<div class="rl-cardback rl-cardback--{{type}}"><span>{{backLabel}}</span></div>
+      {{else}}<img src="{{img}}" alt="{{name}}" data-zoom data-orientation="{{orientation}}">{{/if}}
+    </figure>
+    {{/each}}
+  </div>
+  {{/if}}
+
+  {{#if interactive}}
+  <footer class="rl-hand-view__actions">
+    <button type="button" class="rl-btn" data-rl-hand-action="redStar" data-tooltip="{{starHint}}" {{disabled (not canBuyStar)}}>
+      <span class="rl-token"></span>{{localize "RL.CardsUI.hand.tradeStar"}}
+    </button>
+    <button type="button" class="rl-btn" data-rl-hand-action="troops" data-tooltip="{{troopHint}}" {{disabled (not canTrade)}}>
+      <i class="fa-solid fa-person-military-rifle" inert></i>{{localize "RL.CardsUI.hand.tradeTroops"}}
+    </button>
+  </footer>
+  {{/if}}
+</section>

@@ -1,0 +1,97 @@
+<div class="rl-ref">
+  <div class="rl-ref__col">
+    <div class="rl-panel rl-panel--gold rl-ref__goal">
+      <h3 class="rl-title rl-title--sm rl-title--ink">{{localize "RL.UI.Reference.Goal"}}</h3>
+      <p class="rl-lead">{{localize "RL.UI.Reference.GoalText" goal=goal}}</p>
+      <ul class="rl-ref__ways">
+        <li><span class="rl-token rl-ui-mini"></span>{{localize "RL.UI.Reference.WayToken"}}</li>
+        <li><i class="fa-solid fa-house-flag" inert></i>{{localize "RL.UI.Reference.WayHQ"}}</li>
+        <li><i class="fa-solid fa-layer-group" inert></i>{{localize "RL.UI.Reference.WayBuy"}}</li>
+      </ul>
+    </div>
+
+    <section class="rl-ref__section">
+      <h3 class="rl-title rl-title--sm">{{localize "RL.UI.Reference.TurnOverview"}}</h3>
+      <ol class="rl-steps rl-ref__steps">
+        {{#each steps as |s|}}
+        <li><span class="rl-ref__step"><span class="rl-ref__steplabel">{{s.label}}</span><span class="rl-ref__steptext">{{s.text}}</span></span></li>
+        {{/each}}
+      </ol>
+    </section>
+
+    <div class="rl-note rl-ref__timing">
+      <span class="rl-label">{{localize "RL.UI.Reference.TimingTitle"}}</span>
+      {{localize "RL.UI.Reference.TimingText"}}
+    </div>
+  </div>
+
+  <div class="rl-ref__col">
+    <div class="rl-ref__charts">
+      <div class="rl-ref__chart">
+        <h4 class="rl-ref__charthead">{{localize "RL.UI.Reference.TroopChart"}}</h4>
+        <table class="rl-ref-chart">
+          <thead><tr><th>{{localize "RL.UI.Reference.TerrPop"}}</th><th>{{localize "RL.UI.Reference.Troops"}}</th></tr></thead>
+          <tbody>{{#each troopChart as |r|}}<tr><td>{{r.range}}</td><td><b>{{r.troops}}</b></td></tr>{{/each}}</tbody>
+        </table>
+      </div>
+      <div class="rl-ref__chart">
+        <h4 class="rl-ref__charthead">{{localize "RL.UI.Reference.TradeChart"}}</h4>
+        <table class="rl-ref-chart rl-ref-chart--coins">
+          <thead><tr><th>{{localize "RL.UI.Reference.Coins"}}</th><th>{{localize "RL.UI.Reference.Troops"}}</th></tr></thead>
+          <tbody>{{#each tradeChart as |r|}}<tr><td><span class="rl-coin is-filled"></span>{{r.coins}}</td><td><b>{{r.troops}}</b></td></tr>{{/each}}</tbody>
+        </table>
+        <div class="rl-ref__star">
+          <span class="rl-ref__backs">{{#each cardBacks}}<span class="rl-ref__back"></span>{{/each}}</span>
+          <span class="rl-ref__eq">=</span>
+          <span class="rl-token"></span>
+        </div>
+        <p class="rl-caption">{{localize "RL.UI.Reference.StarNote" count=cardsPerStar}}</p>
+      </div>
+    </div>
+
+    <section class="rl-panel rl-panel--lavender rl-ref__world">
+      <h4 class="rl-subhead rl-ref__worldhead">{{localize "RL.UI.Reference.OnThisWorld"}}</h4>
+      {{#if world}}
+        {{#if world.scars.length}}
+        <h5 class="rl-label">{{localize "RL.UI.Reference.Scars"}}</h5>
+        <ul class="rl-ref__list">
+          {{#each world.scars as |s|}}
+          <li>{{#if s.img}}<img src="{{s.img}}" alt="">{{/if}}<span><b>{{s.label}}</b>{{#if s.text}}: {{s.text}}{{/if}}<small>{{s.where}}</small></span></li>
+          {{/each}}
+        </ul>
+        {{/if}}
+        {{#if world.fortified.length}}
+        <h5 class="rl-label">{{localize "RL.UI.Reference.Fortified"}}</h5>
+        <ul class="rl-ref__list">
+          {{#each world.fortified as |f|}}<li><i class="fa-solid fa-shield-halved" inert></i><span><span class="rl-hand">{{f.name}}</span> · {{f.territory}}<small>{{localize "RL.Sheet.Campaign.FortLeft" left=f.left}}</small></span></li>{{/each}}
+        </ul>
+        <p class="rl-caption">{{localize "RL.UI.Reference.FortRule"}}</p>
+        {{/if}}
+        {{#if world.cities.length}}
+        <h5 class="rl-label">{{localize "RL.UI.Reference.Cities"}}</h5>
+        <ul class="rl-ref__cities">
+          {{#each world.cities as |c|}}<li><img src="{{c.art}}" alt=""><span class="rl-hand">{{#if c.name}}{{c.name}}{{else}}?{{/if}}</span><small>{{c.territory}} · {{c.population}}</small></li>{{/each}}
+        </ul>
+        {{/if}}
+        {{#if world.marks.length}}
+        <h5 class="rl-label">{{localize "RL.UI.Reference.Marks"}}</h5>
+        <ul class="rl-ref__list">
+          {{#each world.marks as |m|}}<li>{{#if m.img}}<img src="{{m.img}}" alt="">{{/if}}<span><b>{{m.label}}</b>{{#if m.text}}: {{m.text}}{{/if}}<small>{{m.where}}</small></span></li>{{/each}}
+        </ul>
+        {{/if}}
+        {{#if world.continents.length}}
+        <h5 class="rl-label">{{localize "RL.UI.Reference.Continents"}}</h5>
+        <ul class="rl-ref__continents">
+          {{#each world.continents as |c|}}
+          <li><span>{{#if c.name}}<span class="rl-hand">{{c.name}}</span> <small>({{c.label}})</small>{{else}}{{c.label}}{{/if}}</span>
+            <b>{{c.value}}</b>{{#if c.modifier}}<span class="rl-hand rl-hand--red">{{#if (gt c.modifier 0)}}+1{{else}}−1{{/if}}</span>{{/if}}</li>
+          {{/each}}
+        </ul>
+        {{/if}}
+        {{#if world.empty}}<p class="rl-ref__pristine">{{localize "RL.UI.Reference.Pristine"}} <span class="rl-hand rl-hand--red">{{localize "RL.UI.Reference.PristineNote"}}</span></p>{{/if}}
+      {{else}}
+        <p class="rl-caption">{{localize "RL.Error.noCampaign"}}</p>
+      {{/if}}
+    </section>
+  </div>
+</div>

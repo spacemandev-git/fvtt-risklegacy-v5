@@ -1,0 +1,674 @@
+{
+ "id": "threemissiles",
+ "label": "Pocket 1: Three Missiles",
+ "order": 5,
+ "kind": "pocket",
+ "trigger": {
+  "key": "threeMissilesOneRoll",
+  "text": "Open when three missiles are used on the same combat roll.",
+  "rulebook": "POCKET 1: Open as soon as 3 Missiles are used during the same combat roll. Open this pocket as soon as the third missile is played and BEFORE resolving combat. The 3 Missiles can be played by the same person or multiple people. If there are multiple players trying to play the third Missile at the same time, priority as to who plays the third Missile goes to the attacker, then the defender, then each player clockwise around the table from the attacker. This will be opened in the middle of a game.",
+  "when": "midGame"
+ },
+ "warProgresses": [
+  {
+   "id": "threemissiles_evolution_1",
+   "code": "J161s",
+   "order": 1,
+   "title": "The War Progresses: Three Missiles (1)",
+   "img": "assets/unlocks/threemissiles/rules/images/evolution_1.jpg",
+   "text": "The Unthinkable has happened. The factions pushed the war until someone unleashed a nuclear device. There will be consequences.\n\nPlace the Fallout Zone reference sticker onto the gameboard now.",
+   "sticker": {
+    "kind": "boardReference",
+    "ref": "rules:fallout_zone_reference",
+    "text": "Remove half your troops (round up) when entering this territory. If you control this territory at the end of your turn, remove one troop from it."
+   },
+   "textSource": "card",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/rules/cards.yaml",
+    "key": "evolution_1"
+   }
+  },
+  {
+   "id": "threemissiles_evolution_2",
+   "code": "J162s",
+   "order": 2,
+   "title": "The War Progresses: Three Missiles (2)",
+   "img": "assets/unlocks/threemissiles/rules/images/evolution_2.jpg",
+   "text": "The player that played the third missile gets to choose whether it is the attacking or defending territory has been nuked and changed forever.\n\nPlace the Fallout Zone mark on the chosen territory. This mark covers any city and scar on the territory. Find the territory card for the fallout territory and DESTROY it, even if it is currently in a player's hand. Reshuffle the territory deck.",
+   "sticker": {
+    "kind": "mark",
+    "ref": "marks:fallout_zone"
+   },
+   "textSource": "card",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/rules/cards.yaml",
+    "key": "evolution_2"
+   }
+  },
+  {
+   "id": "threemissiles_evolution_3",
+   "code": "J163",
+   "order": 3,
+   "title": "The War Progresses: Three Missiles (3)",
+   "img": "assets/unlocks/threemissiles/rules/images/evolution_3.jpg",
+   "text": "Remove the 1, 2, or 3 attacking troops and the 1, or 2 defending troops in the battle. Then, remove all troops and DEMOLISH any HQ in the fallout territory.\n\nEach territory connected to the fallout territory by land loses 1 die worth of troops. If a player is knocked out or eliminated, he discards any resource cards.\n\nPut the 8 Mutant Event Cards aside. They will go into (or create) the event deck for the next game.",
+   "textSource": "card",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/rules/cards.yaml",
+    "key": "evolution_3"
+   }
+  },
+  {
+   "id": "threemissiles_evolution_4",
+   "code": "J164s",
+   "order": 4,
+   "title": "The War Progresses: Three Missiles (4)",
+   "img": "assets/unlocks/threemissiles/rules/images/evolution_4.jpg",
+   "text": "Place the 'Bringer of Nuclear Fire' scar on the faction card that played the third missile, just below the faction's name.",
+   "sticker": {
+    "kind": "factionScar",
+    "ref": "powers:bringer_of_nuclear_fire",
+    "text": "BRINGER OF NUCLEAR FIRE"
+   },
+   "textSource": "card",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/rules/cards.yaml",
+    "key": "evolution_4"
+   }
+  },
+  {
+   "id": "threemissiles_evolution_5",
+   "code": "J165",
+   "order": 5,
+   "title": "The War Progresses: Three Missiles (5)",
+   "img": "assets/unlocks/threemissiles/rules/images/evolution_5.jpg",
+   "text": "Starting next game there will be a mutant faction, who want revenge, especially against the Bringer of Nuclear Fire. Mutants are drafted like any other faction but have a unique way of evolving (through their event cards). Their faction card includes a private mission (in red) that can earn them one Red Star token once per game.\n\nDo not scratch off the covered area on the mutant faction until instructed.",
+   "textSource": "card",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/rules/cards.yaml",
+    "key": "evolution_5"
+   }
+  },
+  {
+   "id": "threemissiles_evolution_6",
+   "code": "J166",
+   "order": 6,
+   "title": "The War Progresses: Three Missiles (6)",
+   "img": "assets/unlocks/threemissiles/rules/images/evolution_6.jpg",
+   "text": "After the devastation of the nuclear attack, the other factions begin researching alternative weapons. From that research, comes Missile Powers, included in this pack.\n\nThese powers can be activated by discarding a Missile. Each faction with an empty brown slot will get one Missile power, although not at the same time. See the Missile rules in this pack for more info.",
+   "textSource": "card",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/rules/cards.yaml",
+    "key": "evolution_6"
+   }
+  }
+ ],
+ "factions": [
+  {
+   "id": "mutants",
+   "name": "Mutants",
+   "img": "assets/unlocks/threemissiles/factions/images/mutant.png",
+   "color": "#c8862a",
+   "pieces": {
+    "troop": "assets/unlocks/threemissiles/factions/images/mutant_1.png",
+    "triple": "assets/unlocks/threemissiles/factions/images/mutant_3.png",
+    "hq": "assets/unlocks/threemissiles/factions/images/mutant_hq.png"
+   },
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/factions/cards.yaml",
+    "key": "mutants"
+   }
+  }
+ ],
+ "powers": [
+  {
+   "id": "emp",
+   "faction": null,
+   "slot": "missile",
+   "name": "EMP",
+   "text": "Activate before a combat roll. Dice rolled for combat in that territory can't be modified for the rest of the turn.",
+   "img": "assets/unlocks/threemissiles/powers/images/missile.png",
+   "timing": "anytime",
+   "automation": "emp",
+   "cost": {
+    "missiles": 1,
+    "perTurn": 1
+   },
+   "effect": null,
+   "textSource": "yaml",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/powers/cards.yaml",
+    "key": "emp"
+   },
+   "trigger": "beforeCombatRoll"
+  },
+  {
+   "id": "interference",
+   "faction": null,
+   "slot": "missile",
+   "name": "Interference",
+   "text": "Activate as a player draws a resource card. That card cannot be drawn. The player can draw any other eligible card.",
+   "img": "assets/unlocks/threemissiles/powers/images/missile.png",
+   "timing": "anytime",
+   "automation": "interference",
+   "cost": {
+    "missiles": 1,
+    "perTurn": 1
+   },
+   "effect": null,
+   "textSource": "yaml",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/powers/cards.yaml",
+    "key": "interference"
+   },
+   "trigger": "playerDrawsResourceCard"
+  },
+  {
+   "id": "recon",
+   "faction": null,
+   "slot": "missile",
+   "name": "Recon",
+   "text": "Activate before you would draw a coin card. You may take any one face up territory card instead.",
+   "img": "assets/unlocks/threemissiles/powers/images/missile.png",
+   "timing": "drawCard",
+   "automation": "recon",
+   "cost": {
+    "missiles": 1,
+    "perTurn": 1
+   },
+   "effect": null,
+   "textSource": "yaml",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/powers/cards.yaml",
+    "key": "recon"
+   }
+  },
+  {
+   "id": "bad_intel",
+   "faction": null,
+   "slot": "missile",
+   "name": "Bad Intel",
+   "text": "Activate at the start of another player's turn. Deny that player one continent bonus, your choice.",
+   "img": "assets/unlocks/threemissiles/powers/images/missile.png",
+   "timing": "anytime",
+   "automation": "bad_intel",
+   "cost": {
+    "missiles": 1,
+    "perTurn": 1
+   },
+   "effect": null,
+   "textSource": "yaml",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/powers/cards.yaml",
+    "key": "bad_intel"
+   },
+   "trigger": "startOfOtherPlayersTurn"
+  },
+  {
+   "id": "rally",
+   "faction": null,
+   "slot": "missile",
+   "name": "Rally",
+   "text": "Activate at the start of your turn. Place 2 troops in every HQ you control.",
+   "img": "assets/unlocks/threemissiles/powers/images/missile.png",
+   "timing": "startOfTurn",
+   "automation": "rally",
+   "cost": {
+    "missiles": 1,
+    "perTurn": 1
+   },
+   "effect": {
+    "type": "placeTroops",
+    "where": "eachControlledHQ",
+    "count": 2
+   },
+   "textSource": "yaml",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/powers/cards.yaml",
+    "key": "rally"
+   }
+  },
+  {
+   "id": "bringer_of_nuclear_fire",
+   "faction": null,
+   "slot": "scar",
+   "name": "Bringer of Nuclear Fire",
+   "code": "J164s",
+   "text": "At the start of the game, the Bringer of Nuclear Fire faction receives 2 Missile tokens as long as the mutant faction is also playing. These are in addition to any tokens received by the player.",
+   "img": "assets/unlocks/threemissiles/powers/images/nuclear.png",
+   "cardImg": "assets/unlocks/threemissiles/rules/images/evolution_4.jpg",
+   "timing": "setup",
+   "automation": "bringer_of_nuclear_fire",
+   "effect": {
+    "type": "gainMissiles",
+    "count": 2,
+    "condition": "mutantsInPlay"
+   },
+   "textSource": "card"
+  },
+  {
+   "id": "mutants_starter",
+   "faction": "mutants",
+   "slot": "starter",
+   "name": "Mutants: Starting Power",
+   "text": "You don't lose troops in the fallout territory or from Mutant Event Cards",
+   "img": "assets/unlocks/base/powers/starter.png",
+   "timing": "passive",
+   "automation": "mutants_starter",
+   "effect": null,
+   "textSource": "init.js"
+  },
+  {
+   "id": "mutants_mission",
+   "faction": "mutants",
+   "slot": "mission",
+   "name": "Mutants: Private Mission",
+   "text": "Controlling all bio-hazard territories and the fallout territory earns you 1 Red Star",
+   "img": "assets/unlocks/worldcapital/powers/images/mission.png",
+   "timing": "endOfTurn",
+   "automation": "mutants_mission",
+   "effect": null,
+   "check": {
+    "type": "all",
+    "checks": [
+     {
+      "type": "controlAllScarred",
+      "scars": [
+       "biohazard"
+      ]
+     },
+     {
+      "type": "controlMarked",
+      "mark": "fallout_zone"
+     }
+    ]
+   },
+   "textSource": "init.js"
+  },
+  {
+   "id": "mutants_knockout_1",
+   "faction": "mutants",
+   "slot": "knockout",
+   "name": "Mutants: Revenge",
+   "text": "When attacking the Bringer of Nuclear Fire's troops, you may re-roll 1's on all attack dice until they are no longer 1's",
+   "img": "assets/unlocks/eliminated/powers/images/knockout.png",
+   "timing": "attack",
+   "automation": "mutants_knockout_1",
+   "effect": null,
+   "textSource": "init.js"
+  },
+  {
+   "id": "mutants_knockout_2",
+   "faction": "mutants",
+   "slot": "knockout",
+   "name": "Mutants: Scar Reversal",
+   "text": "Bio-hazard and mercenary scar effects are reversed for you",
+   "img": "assets/unlocks/eliminated/powers/images/knockout.png",
+   "timing": "endOfTurn",
+   "automation": "mutants_knockout_2",
+   "effect": {
+    "type": "reverseScar",
+    "scars": [
+     "biohazard",
+     "mercenary"
+    ]
+   },
+   "textSource": "init.js"
+  },
+  {
+   "id": "mutants_no_missile_power",
+   "faction": "mutants",
+   "slot": "missile",
+   "name": "Mutants: Limitation (missile)",
+   "text": "Cannot take a missile power",
+   "img": "assets/unlocks/threemissiles/powers/images/missile.png",
+   "timing": "passive",
+   "automation": "mutants_no_missile_power",
+   "effect": null,
+   "limitation": true,
+   "textSource": "init.js"
+  },
+  {
+   "id": "mutants_no_knockout_power",
+   "faction": "mutants",
+   "slot": "knockout",
+   "name": "Mutants: Limitation (knockout)",
+   "text": "Cannot take additional knockout powers",
+   "img": "assets/unlocks/eliminated/powers/images/knockout.png",
+   "timing": "passive",
+   "automation": "mutants_no_knockout_power",
+   "effect": null,
+   "limitation": true,
+   "textSource": "init.js"
+  }
+ ],
+ "territoryCards": [],
+ "coinCards": null,
+ "scars": [],
+ "stickers": [
+  {
+   "id": "fallout_zone",
+   "name": "Fallout Zone mark",
+   "code": "J162s",
+   "qty": 1,
+   "img": "assets/unlocks/threemissiles/rules/images/nuclear.png",
+   "group": "other",
+   "text": "Place the Fallout Zone mark on the chosen territory. This mark covers any city and scar on the territory. Find the territory card for the fallout territory and DESTROY it, even if it is currently in a player's hand. Reshuffle the territory deck.",
+   "effect": {
+    "type": "mark",
+    "mark": "fallout_zone"
+   },
+   "textSource": "card"
+  }
+ ],
+ "events": [
+  {
+   "id": "agent_of_chaos",
+   "name": "Agent of Chaos",
+   "code": "J175",
+   "qty": 3,
+   "img": "assets/unlocks/threemissiles/events/images/agent_of_chaos.jpg",
+   "text": "If no human faction has a continent bonus, the mutant faction collects one red star token.\n\nDISCARD this card.",
+   "afterResolve": "box",
+   "effect": {
+    "type": "gainRedStar",
+    "who": "mutantPlayer",
+    "count": 1,
+    "condition": "noHumanFactionHasContinentBonus"
+   },
+   "textSource": "card",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/events/cards.yaml",
+    "key": "agent_of_chaos"
+   }
+  },
+  {
+   "id": "fallout",
+   "name": "Fallout",
+   "code": "J172",
+   "qty": 3,
+   "img": "assets/unlocks/threemissiles/events/images/fallout.jpg",
+   "text": "Roll 1 die for each territory connected to the fallout territory by land and remove that many troops from it.\n\nDESTROY this card.",
+   "afterResolve": "destroy",
+   "effect": {
+    "type": "removeTroops",
+    "who": "everyPlayer",
+    "where": {
+     "adjacentByLandTo": "fallout_zone"
+    },
+    "count": "1d6",
+    "perTarget": true
+   },
+   "textSource": "card",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/events/cards.yaml",
+    "key": "fallout"
+   }
+  },
+  {
+   "id": "mutants_evolve_1",
+   "name": "The Mutants Evolve",
+   "code": "J178",
+   "qty": 1,
+   "img": "assets/unlocks/threemissiles/events/images/mutants_evolve_1.jpg",
+   "text": "Do the mutants evolve OFFENSIVELY or DEFENSIVELY?\n\nThe mutant player chooses and scratches off his choice. Keep this card in the game box. Once both Mutants Evolve cards have been scratched, scratch off the box on the mutant faction card that matches the code to reveal the mutant's evolved power.\n\n[Scratch-off boxes: OFFENSIVE, DEFENSIVE]",
+   "afterResolve": "keep",
+   "effect": {
+    "type": "chooseEvolution",
+    "who": "mutantPlayer",
+    "axis": "approach",
+    "options": [
+     "offensive",
+     "defensive"
+    ]
+   },
+   "textSource": "card",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/events/cards.yaml",
+    "key": "mutants_evolve_1"
+   }
+  },
+  {
+   "id": "mutants_evolve_2",
+   "name": "The Mutants Evolve",
+   "code": "J179",
+   "qty": 1,
+   "img": "assets/unlocks/threemissiles/events/images/mutants_evolve_2.jpg",
+   "text": "What evolves on the mutants: their BODIES or their BRAINS?\n\nThe mutant player chooses and scratches off his choice. Keep this card in the game box. Once both Mutants Evolve cards have been scratched, scratch off the box on the mutant faction card that matches the code to reveal the mutant's evolved power.\n\n[Scratch-off boxes: BODIES, BRAINS]",
+   "afterResolve": "keep",
+   "effect": {
+    "type": "chooseEvolution",
+    "who": "mutantPlayer",
+    "axis": "target",
+    "options": [
+     "bodies",
+     "brains"
+    ]
+   },
+   "textSource": "card",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/events/cards.yaml",
+    "key": "mutants_evolve_2"
+   }
+  }
+ ],
+ "missions": [],
+ "draft": [],
+ "rules": [
+  {
+   "id": "fallout_zone_reference",
+   "kind": "reference",
+   "code": "J161s",
+   "title": "Fallout Zone reference sticker (game board)",
+   "img": "assets/unlocks/threemissiles/rules/images/evolution_1.jpg",
+   "text": "Remove half your troops (round up) when entering this territory. If you control this territory at the end of your turn, remove one troop from it.",
+   "mark": "fallout_zone",
+   "textSource": "card"
+  },
+  {
+   "id": "missile_power_rules",
+   "kind": "addition",
+   "addition": "J",
+   "page": 13,
+   "inferred": true,
+   "inferredFrom": "Card-code order of the remaining stickers (E124s, E125s, E126s, J167s, J168s, J169s, K185s x2) over G-N; first of the two stickers on J167s.",
+   "code": "J167s",
+   "title": "Missile Power Rules: Missile Powers",
+   "img": "assets/unlocks/threemissiles/rules/images/missile_power_rules.jpg",
+   "text": "Missile Powers: A faction with an empty brown slot gains a Missile power (player's choice) the next time it earns a red star token during a game (starting tokens do not count). Once per turn, you may discard 1 Missile to use the power. Players may still use Missiles in combat.",
+   "replaces": null,
+   "textSource": "card",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/rules/cards.yaml",
+    "key": "missile_power_rules"
+   },
+   "stickerIndex": 1
+  },
+  {
+   "id": "bringer_of_nuclear_fire_rules",
+   "kind": "addition",
+   "addition": "A",
+   "page": 7,
+   "inferred": true,
+   "inferredFrom": "Box A sits in PLAYER SET UP right after the Red Star / Missile token rules, and this sticker adds Missile tokens at the start of the game 'in addition to any tokens received by the player'. Second of the two stickers on J167s.",
+   "code": "J167s",
+   "title": "Missile Power Rules: Bringer of Nuclear Fire",
+   "img": "assets/unlocks/threemissiles/rules/images/missile_power_rules.jpg",
+   "text": "Bringer of Nuclear Fire: At the start of the game, the Bringer of Nuclear Fire faction receives 2 Missile tokens as long as the mutant faction is also playing. These are in addition to any tokens received by the player.",
+   "replaces": null,
+   "textSource": "card",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/rules/cards.yaml",
+    "key": "missile_power_rules"
+   },
+   "stickerIndex": 2
+  },
+  {
+   "id": "fallout_territory_part1",
+   "kind": "addition",
+   "addition": "K",
+   "page": 13,
+   "inferred": true,
+   "inferredFrom": "Card-code order (see missile_power_rules); 'Part 1' and 'Part 2' take adjacent boxes.",
+   "code": "J168s",
+   "title": "Fallout Territory Rules: Part 1",
+   "img": "assets/unlocks/threemissiles/rules/images/fallout_territory_part1.jpg",
+   "text": "FALLOUT TERRITORY Whenever a faction expands into, or conquers, the fallout territory, it immediately loses half its troops (round up).\n\nThis does not affect troops you are sending into battle while fighting for the territory, only the troops you eventually send into the territory when/if you conquer it.",
+   "replaces": null,
+   "mark": "fallout_zone",
+   "textSource": "card",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/rules/cards.yaml",
+    "key": "fallout_territory_part1"
+   }
+  },
+  {
+   "id": "fallout_territory_part2",
+   "kind": "addition",
+   "addition": "L",
+   "page": 13,
+   "inferred": true,
+   "inferredFrom": "Card-code order (see missile_power_rules).",
+   "code": "J169s",
+   "title": "Fallout Territory Rules: Part 2",
+   "img": "assets/unlocks/threemissiles/rules/images/fallout_territory_part2.jpg",
+   "text": "You cannot place troops into nor maneuver troops through the fallout territory. Remove 1 troop from the fallout territory at the end of your turn if you control it.\n\nMutants are unaffected by the fallout territory rules, and should treat it like a bio-hazard territory.\n\nNote: The fallout territory can no longer be marked, scarred, or modified in any way.",
+   "replaces": null,
+   "mark": "fallout_zone",
+   "textSource": "card",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/rules/cards.yaml",
+    "key": "fallout_territory_part2"
+   }
+  }
+ ],
+ "marks": [
+  {
+   "id": "fallout_zone",
+   "name": "Fallout Zone",
+   "code": "J162s",
+   "img": "assets/unlocks/threemissiles/rules/images/nuclear.png",
+   "cardImg": "assets/unlocks/threemissiles/rules/images/evolution_2.jpg",
+   "text": "Remove half your troops (round up) when entering this territory. If you control this territory at the end of your turn, remove one troop from it.",
+   "effect": {
+    "type": "all",
+    "exempt": [
+     "mutants"
+    ],
+    "effects": [
+     {
+      "type": "enterLoss",
+      "fraction": 0.5,
+      "round": "up"
+     },
+     {
+      "type": "endOfTurnTroops",
+      "delta": -1
+     },
+     {
+      "type": "noPlaceTroops"
+     },
+     {
+      "type": "noManeuverThrough"
+     },
+     {
+      "type": "unmodifiable"
+     },
+     {
+      "type": "destroyTerritoryCard"
+     }
+    ]
+   },
+   "rules": [
+    "fallout_zone_reference",
+    "fallout_territory_part1",
+    "fallout_territory_part2"
+   ],
+   "textSource": "card",
+   "source": {
+    "yaml": "assets/unlocks/threemissiles/rules/cards.yaml",
+    "key": "nuclear"
+   }
+  }
+ ],
+ "secretPowers": [
+  {
+   "id": "mass_hypnosis",
+   "faction": "mutants",
+   "slot": "other",
+   "name": "Mass Hypnosis",
+   "evolution": {
+    "approach": "defensive",
+    "target": "brains"
+   },
+   "text": "When turning in cards, you may pick one of those territories. Until the beginning of your next turn, that territory cannot be attacked.",
+   "img": "assets/unlocks/threemissiles/secretmutantpowers/images/mutant.png",
+   "timing": "recruit",
+   "automation": "mass_hypnosis",
+   "effect": null,
+   "textSource": "yaml"
+  },
+  {
+   "id": "unstable_cloning",
+   "faction": "mutants",
+   "slot": "other",
+   "name": "Unstable Cloning",
+   "evolution": {
+    "approach": "defensive",
+    "target": "bodies"
+   },
+   "text": "When defending, if you roll natural doubles, add 1 additional defending troop to the territory if you still own it after the battle.",
+   "img": "assets/unlocks/threemissiles/secretmutantpowers/images/mutant.png",
+   "timing": "defend",
+   "automation": "unstable_cloning",
+   "effect": null,
+   "textSource": "yaml"
+  },
+  {
+   "id": "mindshackle",
+   "faction": "mutants",
+   "slot": "other",
+   "name": "Mindshackle",
+   "evolution": {
+    "approach": "offensive",
+    "target": "brains"
+   },
+   "text": "After collecting a resource card, you may trade it for a random card from the hand of a player whose territory you conquered this turn.",
+   "img": "assets/unlocks/threemissiles/secretmutantpowers/images/mutant.png",
+   "timing": "drawCard",
+   "automation": "mindshackle",
+   "effect": null,
+   "textSource": "yaml"
+  },
+  {
+   "id": "unnatural_strength",
+   "faction": "mutants",
+   "slot": "other",
+   "name": "Unnatural Strength",
+   "evolution": {
+    "approach": "offensive",
+    "target": "bodies"
+   },
+   "text": "When attacking, your 6's beat the defender's 6's.",
+   "img": "assets/unlocks/threemissiles/secretmutantpowers/images/mutant.png",
+   "timing": "attack",
+   "automation": "unnatural_strength",
+   "effect": {
+    "type": "winTies",
+    "side": "attacker",
+    "value": 6
+   },
+   "textSource": "yaml"
+  }
+ ],
+ "notes": [
+  "rules/images/evolution_1..6.jpg (J161s-J166) are \"THE WAR PROGRESSES\" cards, read in code order. Three of them carry a sticker - J161s the Fallout Zone board reference sticker (also listed as rules/fallout_zone_reference), J162s the Fallout Zone mark (marks/fallout_zone, stickers/fallout_zone), J164s the \"Bringer of Nuclear Fire\" faction-card scar (powers/bringer_of_nuclear_fire).",
+  "missile_power_rules.jpg (J167s) carries TWO rulebook stickers: \"Missile Powers\" and \"Bringer of Nuclear Fire\". They are separate rules entries. Their boxes (J and A) are inferred - see data/content/README.md.",
+  "rules/images/nuclear.png (in rules/cards.yaml) is the Fallout Zone mark artwork; it is listed under marks and stickers, not rules.",
+  "The mutant faction card was not scanned (factions/images/mutant.png is character art). Its printed powers are taken from the old threemissiles/init.js (textSource \"init.js\", unverified; obvious typo \"terriotories\" corrected). The Bringer of Nuclear Fire power text is the J167s rulebook sticker (the J164s faction sticker itself only says \"BRINGER OF NUCLEAR FIRE\").",
+  "Missile powers (powers/cards.yaml, no scans) cost 1 Missile per use, once per turn (J167s). Their names are the YAML ids.",
+  "Secret mutant powers (secretmutantpowers/cards.yaml) are under scratch-off boxes on the mutant faction card; no scans exist. `evolution` records which Mutants Evolve choices (J178 offensive/defensive, J179 bodies/brains) reveal each one.",
+  "Event copies - Fallout x3 (one scan, J172), Agent of Chaos x3 (one scan, J175), The Mutants Evolve x1 each (J178, J179); 8 Mutant Event Cards in total, as J163 says.",
+  "factions/images/mutants_3_old.png is unused older art. Mutant colour \"#c8862a\" (ochre) was sampled from the mutant HQ token art (factions/images/mutant_hq.png, median"
+ ]
+}

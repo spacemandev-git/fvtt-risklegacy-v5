@@ -1,0 +1,20 @@
+<div class="rl-camp-step rl-camp-step--reward">
+  <h2 class="rl-title">{{localize "RL.Wizard.End.rewardTitle"}}</h2>
+  <p class="rl-lead">{{localize "RL.Wizard.End.rewardLead" name=winner.player}}</p>
+  {{#if reward}}
+  <div class="rl-panel rl-panel--gold rl-camp-reward-done">
+    <span class="rl-stamp">{{localize "RL.Wizard.End.done"}}</span>
+    <p class="rl-hand">{{rewardText}}</p>
+  </div>
+  {{/if}}
+  <div class="rl-camp-reward-grid">
+    {{#each rewards}}
+    <div class="rl-camp-reward {{#unless ok}}is-disabled{{/unless}} {{#if chosen}}is-selected{{/if}}" data-reward="{{key}}">
+      <span class="rl-camp-reward__art">{{#if img}}<img src="{{img}}" alt="">{{else}}<i class="fa-solid fa-pen-nib" inert></i>{{/if}}</span>
+      <span class="rl-camp-reward__label">{{label}}</span>
+      <span class="rl-camp-reward__hint">{{hint}}</span>
+      {{#unless ok}}<span class="rl-hand rl-hand--red">{{why}}</span>{{/unless}}
+    </div>
+    {{/each}}
+  </div>
+</div>

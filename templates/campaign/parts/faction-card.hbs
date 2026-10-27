@@ -1,0 +1,17 @@
+<article class="rl-camp-faction rl-faction--{{key}} {{#if disabled}}is-disabled{{/if}} {{#if selected}}is-selected{{/if}}"
+  style="--rl-faction: {{color}}" {{#if choose}}data-action="choose" data-name="{{choose}}" data-value="{{#if value}}{{value}}{{else}}{{id}}{{/if}}"{{/if}}
+  data-faction="{{id}}" tabindex="0">
+  <div class="rl-camp-faction__art"><img src="{{img}}" alt=""></div>
+  <div class="rl-tab-plate rl-camp-faction__name">{{name}}</div>
+  <ul class="rl-camp-faction__powers">
+    {{#each powers}}
+    <li class="rl-power--{{slot}}"><span class="rl-sticker">{{text}}</span></li>
+    {{else}}
+    <li><div class="rl-slot">{{localize "RL.Wizard.noPowers"}}</div></li>
+    {{/each}}
+  </ul>
+  <footer class="rl-camp-faction__meta">
+    <span>{{localize "RL.Wizard.wins" count=wins}}</span>
+    {{#if note}}<span class="rl-hand rl-hand--red">{{note}}</span>{{/if}}
+  </footer>
+</article>

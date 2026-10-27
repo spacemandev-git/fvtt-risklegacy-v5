@@ -1,0 +1,27 @@
+<div class="rl-camp-step rl-camp-step--heldon">
+  <h2 class="rl-title">{{localize "RL.Wizard.End.heldOnTitle"}}</h2>
+  <p class="rl-lead">{{localize "RL.Wizard.End.heldOnLead"}}</p>
+  <div class="rl-camp-heldon-stock">
+    <span class="rl-plate"><img src="{{minorImg}}" alt=""> <span class="rl-counter__value">{{stickers.minor}}</span> <span class="rl-label">{{localize "RL.Sticker.minor_city"}}</span></span>
+    <span class="rl-plate"><img src="{{coinImg}}" alt=""> <span class="rl-counter__value">{{stickers.coins}}</span> <span class="rl-label">{{localize "RL.Sticker.coin_heldon"}}</span></span>
+  </div>
+  {{#if noneHeld}}
+  <div class="rl-slot">{{localize "RL.Wizard.End.noneHeld"}}</div>
+  {{else}}
+  <ol class="rl-camp-pick-list">
+    {{#each rows}}
+    <li class="rl-camp-pick {{#if current}}is-current{{/if}} {{#if done}}is-done{{/if}}">
+      <span class="rl-num">{{n}}</span>
+      <span class="rl-camp-pick__faction rl-faction--{{key}}"><img src="{{img}}" alt=""> <b>{{factionName}}</b></span>
+      <span class="rl-camp-pick__player">{{player}}</span>
+      {{#if done}}
+        {{#if skipped}}<span class="rl-caption">{{localize "RL.Wizard.End.skipped"}}</span>{{else}}<span class="rl-hand">{{text}}</span>{{/if}}
+      {{else}}
+        {{#if none}}<span class="rl-hand rl-hand--red">{{localize "RL.Wizard.End.noReward"}}</span>{{/if}}
+        <button type="button" class="rl-btn rl-btn--icon" data-action="skipHeldOn" data-faction="{{faction}}" data-tooltip="RL.Wizard.End.skip" aria-label="{{localize "RL.Wizard.End.skip"}}"><i class="fa-solid fa-forward" inert></i></button>
+      {{/if}}
+    </li>
+    {{/each}}
+  </ol>
+  {{/if}}
+</div>

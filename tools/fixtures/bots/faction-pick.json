@@ -1,0 +1,45 @@
+{
+ "name": "faction-pick",
+ "description": "Setting up the next game: the bot's player picks a faction.",
+ "me": null,
+ "difficulty": "normal",
+ "factions": {},
+ "pieces": {},
+ "turn": null,
+ "calls": [
+  {
+   "fn": "chooseOption",
+   "args": {
+    "kind": "faction",
+    "title": "Choose your faction",
+    "options": [
+     {
+      "value": "a-balkania",
+      "label": "Imperial Balkania",
+      "hint": "Round up when dividing territories and population by 3 when recruiting."
+     },
+     {
+      "value": "a-enclave",
+      "label": "Enclave of the Bear",
+      "hint": "The defender subtracts 1 from their lower die in the first territory you attack each turn."
+     },
+     {
+      "value": "a-khan",
+      "label": "Khan Industries",
+      "hint": "At the start of your turn, place one troop in each territory with an HQ you control."
+     },
+     {
+      "value": "a-mechaniker",
+      "label": "Die Mechaniker",
+      "hint": "Your starting HQ is always treated as fortified when you defend it."
+     },
+     {
+      "value": "a-saharan",
+      "label": "Saharan Republic",
+      "hint": "You can make your maneuver at any point during your turn."
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,109 @@
+# PACK 2 - opened the first time a faction is eliminated. Card codes C100-C108.
+pack:
+  label: "Pack 2: Faction Eliminated"
+  order: 2
+  kind: package
+  trigger:
+    key: factionEliminated
+    text: Open when a faction is eliminated from the game.
+    sealedText: OPEN THE FIRST TIME A FACTION IS ELIMINATED FROM THE GAME.
+    rulebook: "PACK 2: Open when a player is eliminated. This envelope is opened the first time a Faction is wiped off the board and starts their turn with no way to come back into the game, or is knocked out or eliminated when the game ends. This could be opened mid-game or at the end of a game."
+    when: midOrEndOfGame
+
+notes:
+  - rules/images/evolution_1.jpg (C100) and evolution_2.jpg (C101) are "THE WAR PROGRESSES" narrative cards; they are listed under warProgresses. The Evolution sticker card is pg12PanelE (C103s).
+  - rules/images/mercenary_rules.jpg is the Mercenary reference sticker for the board's reference-sticker space. It has no entry in rules/cards.yaml (the old init.js loaded it directly); its card code is cropped off (probably C102s).
+  - The six knockout ("blue comeback") powers have no card scans; their text comes from powers/cards.yaml (textSource "yaml") and their names are the YAML ids. They are probably printed on the unscanned cards C104-C105.
+  - Mercenary scars presumably C106s-C108s (one face scanned, qty 3 from scars/cards.yaml).
+
+warProgresses:
+  - yaml: rules:evolution_1
+    id: eliminated_evolution_1
+    code: C100
+    order: 1
+    title: "The War Progresses: Faction Eliminated (1)"
+    text: |-
+      War is hell. Sometimes a faction finds itself driven to the brink of extinction. That's when they find a way to rebuild.
+
+      In this package are blue comeback powers that are to be used on a faction the next time it is knocked out or eliminated from a game. Each faction can have only one comeback power.
+    textSource: card
+  - yaml: rules:evolution_2
+    id: eliminated_evolution_2
+    code: C101
+    order: 2
+    title: "The War Progresses: Faction Eliminated (2)"
+    text: |-
+      The player controlling the eliminated faction chooses a comeback power and places it onto the blue slot on his faction card.
+
+      From now on, whenever a faction with an empty blue slot is knocked out or eliminated, the controlling player chooses a comeback power and places it onto the blue slot on his faction card.
+
+      Place the sticker from the Evolution card onto the rulebook in the matching box.
+
+      There are also new scar cards to be used in future games.
+    textSource: card
+
+rules:
+  - yaml: rules:pg12PanelE
+    id: pg12_panel_e
+    kind: addition
+    addition: E
+    page: 12
+    inferred: false
+    inferredFrom: file name pg12PanelE + rules/07-turn-step-3-expand-and-attack.md comment
+    code: C103s
+    title: "Comeback powers (Rules addition E)"
+    text: |-
+      When a faction with an empty blue slot is knocked out or eliminated, the player controlling that faction chooses its comeback power.
+    replaces: null
+    textSource: card
+  - id: mercenary_reference
+    kind: reference
+    title: Mercenary reference sticker (game board)
+    img: assets/unlocks/eliminated/rules/images/mercenary_rules.jpg
+    text: |-
+      If you control this territory at the end of your turn, add one troop to it.
+    scar: mercenary
+    textSource: card
+
+powers:
+  - yaml: powers:resourceful
+    name: Resourceful
+    timing: drawCard
+    effect: null
+  - yaml: powers:stealthy
+    name: Stealthy
+    timing: recruit
+    effect: null
+  - yaml: powers:well-armed
+    id: well_armed
+    name: Well-Armed
+    timing: attack
+    effect: {type: dieMod, side: attacker, die: all, delta: 1, condition: defendingTerritoryHasHQ}
+  - yaml: powers:mobile
+    name: Mobile
+    timing: startOfTurn
+    effect: null
+  - yaml: powers:convincing
+    name: Convincing
+    timing: endOfTurn
+    effect: {type: scarModifier, scar: mercenary, delta: 1}
+  - yaml: powers:well-supplied
+    id: well_supplied
+    name: Well-Supplied
+    timing: defend
+    effect: {type: ignoreScar, scar: ammo_shortage, side: defender}
+
+scars:
+  - yaml: scars:mercenary
+    name: Mercenary
+    code: C106s
+    target: territory
+    text: |-
+      You may play this card at the start of any player's turn
+
+      Place the mercenary scar onto any unscarred territory.
+
+      The player that controls that territory will gain 1 troop in that territory at the end of his turn.
+    play: {timing: startOfAnyTurn, where: anyUnscarredTerritory, requires: unscarred}
+    effect: {type: endOfTurnTroops, delta: 1}
+    textSource: card

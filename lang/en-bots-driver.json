@@ -1,0 +1,34 @@
+{
+  "RL": {
+    "Bots": {
+      "Driver": {
+        "Error": {
+          "title": "Bots: Jev can't be reached",
+          "lead": "{bot} could not get Jev's judgment for a decision ({kind}). The bot is waiting.",
+          "hint": "Start the Jev relay (tools/jev-proxy/start-jev-relay.command) or check the relay URL in the settings, then retry. Built-in judgment plays on without Jev; those decisions are marked in the Bot Log.",
+          "retry": "Retry",
+          "heuristic": "Built-in (this decision)",
+          "session": "Built-in (this session)",
+          "pause": "Pause bots",
+          "notBot": "That faction isn't played by a bot.",
+          "notPlacement": "Starting forces can only be placed while the war is in its placement stage.",
+          "noStart": "{faction} has no legal starting territory.",
+          "LLM": {
+            "title": "Bots: a chat-model call failed",
+            "titleSpend": "Bots: the chat-model spending cap is reached",
+            "lead": "{bot} could not get a decision ({kind}) from the chat model {model}. The bot is waiting.",
+            "hint": "Check the chat-model API URL and key in the Bot Manager (or start the relay, if the URL points at it), then retry. Built-in judgment plays on without the chat model; those decisions are marked in the Bot Log.",
+            "hintSpend": "This war's chat-model spending reached the cap (${spent} of ${limit}). Raise the cap (Bot Manager, or the setting \"Chat-model spending cap\") and retry, or play on with built-in judgment.",
+            "hintBlocked": "Choose another model for this bot (or another default model) in the Bot Manager, then retry. The model list there shows only the models your key's organisation allows.",
+            "hintAuth": "The API rejected the key. Paste a valid key in the Bot Manager (Chat models), then retry.",
+            "hintBadOutput": "The model answered twice without a usable answer. Retry, choose a stronger model for this bot, or play this decision with built-in judgment."
+          }
+        },
+        "Notify": {
+          "stalled": "Bot {faction} could not finish its turn. Use game.risklegacy.bots.playTurn() to retry, or finish the turn by hand.",
+          "endRefused": "The game refused to end {faction}'s turn."
+        }
+      }
+    }
+  }
+}

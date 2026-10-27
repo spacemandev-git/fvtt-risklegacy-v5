@@ -1,0 +1,39 @@
+<div class="rl-camp-step rl-camp-step--begin">
+  {{#if result}}
+  <div class="rl-panel rl-panel--gold rl-camp-step__printed">
+    <h2 class="rl-hero rl-camp-step__hero">{{localize "RL.Wizard.New.itsYourWorld"}}</h2>
+    <p class="rl-lead">{{localize "RL.Wizard.New.created"}}</p>
+    <ul class="rl-camp-checklist">
+      <li class="is-done">{{localize "RL.Wizard.New.listCampaign"}}</li>
+      <li class="is-done">{{localize "RL.Wizard.New.listFactions" count=result.factions.length}}</li>
+      <li class="is-done">{{localize "RL.Wizard.New.listPowers" count=result.powers.length}}</li>
+      <li class="{{#if result.decks}}is-done{{else}}is-missing{{/if}}">{{localize "RL.Wizard.New.listDecks"}}</li>
+      <li class="{{#if result.scene}}is-done{{else}}is-missing{{/if}}">{{localize "RL.Wizard.New.listScene"}}</li>
+      <li class="{{#if result.rulebook}}is-done{{else}}is-missing{{/if}}">{{localize "RL.Wizard.New.listRulebook"}}</li>
+    </ul>
+  </div>
+  {{#if result.missing.length}}
+  <div class="rl-note"><span class="rl-label">{{localize "RL.Wizard.notYet"}}</span>
+    {{#each result.missing}}<code>{{this}}</code> {{/each}}
+    <p>{{localize "RL.Wizard.New.missingHint"}}</p>
+  </div>
+  {{/if}}
+  {{else}}
+  <h2 class="rl-title">{{localize "RL.Wizard.New.beginTitle"}}</h2>
+  <div class="rl-callout">{{localize "RL.Wizard.New.beginCallout"}}</div>
+  <dl class="rl-camp-summary">
+    <dt>{{localize "RL.Wizard.New.board"}}</dt><dd>{{variantLabel}}{{#unless boardReady}} <span class="rl-hand rl-hand--red">{{localize "RL.Wizard.New.boardNotReady"}}</span>{{/unless}}</dd>
+    <dt>{{localize "RL.Wizard.New.signedBy"}}</dt><dd class="rl-hand">{{signatureList}}</dd>
+    <dt>{{localize "RL.Wizard.New.date"}}</dt><dd class="rl-hand">{{date}}</dd>
+  </dl>
+  <ul class="rl-camp-checklist">
+    <li>{{localize "RL.Wizard.New.listCampaign"}}</li>
+    <li>{{localize "RL.Wizard.New.listFactions" count=5}}</li>
+    <li>{{localize "RL.Wizard.New.listPowers" count=10}}</li>
+    <li>{{localize "RL.Wizard.New.listDecks"}}</li>
+    <li>{{localize "RL.Wizard.New.listScene"}}</li>
+    <li>{{localize "RL.Wizard.New.listRulebook"}}</li>
+  </ul>
+  {{#if exists}}<div class="rl-note"><span class="rl-label">{{localize "RL.Wizard.noteLabel"}}</span> {{localize "RL.Wizard.New.exists"}}</div>{{/if}}
+  {{/if}}
+</div>

@@ -1,0 +1,109 @@
+{
+ "name": "join-the-war",
+ "description": "Die Mechaniker was knocked out and must rejoin with 4 troops in an unoccupied, unmarked territory. Khan's HQ in Peru holds 2 troops; Argentina next to it is empty.",
+ "me": "mechaniker",
+ "difficulty": "normal",
+ "factions": {
+  "mechaniker": {
+   "name": "Die Mechaniker",
+   "key": "mechaniker",
+   "redStarTokens": 1,
+   "status": "knockedOut",
+   "startingTerritory": "iceland"
+  },
+  "khan": {
+   "name": "Khan Industries",
+   "key": "khan",
+   "redStarTokens": 1,
+   "startingTerritory": "peru",
+   "hand": {
+    "count": 3,
+    "coins": 6
+   }
+  },
+  "balkania": {
+   "name": "Imperial Balkania",
+   "key": "balkania",
+   "redStarTokens": 1,
+   "startingTerritory": "northern_europe"
+  },
+  "enclave": {
+   "name": "Enclave of the Bear",
+   "key": "enclave",
+   "redStarTokens": 1,
+   "startingTerritory": "kamchatka"
+  },
+  "saharan": {
+   "name": "Saharan Republic",
+   "key": "saharan",
+   "redStarTokens": 1,
+   "startingTerritory": "egypt"
+  }
+ },
+ "pieces": {
+  "peru": {
+   "khan": {
+    "troops": 2,
+    "hq": true
+   }
+  },
+  "brazil": {
+   "khan": 5
+  },
+  "venezuela": {
+   "khan": 3
+  },
+  "northern_europe": {
+   "balkania": {
+    "troops": 6,
+    "hq": true
+   }
+  },
+  "western_europe": {
+   "balkania": 7
+  },
+  "great_britain": {
+   "balkania": 4
+  },
+  "scandinavia": {
+   "balkania": 3
+  },
+  "kamchatka": {
+   "enclave": {
+    "troops": 5,
+    "hq": true
+   }
+  },
+  "alaska": {
+   "enclave": 4
+  },
+  "japan": {
+   "enclave": 2
+  },
+  "egypt": {
+   "saharan": {
+    "troops": 4,
+    "hq": true
+   }
+  },
+  "north_africa": {
+   "saharan": 6
+  },
+  "east_africa": {
+   "saharan": 3
+  }
+ },
+ "turn": {
+  "faction": "mechaniker",
+  "phase": "recruit"
+ },
+ "calls": [
+  {
+   "fn": "planRecruit",
+   "args": {
+    "mustJoin": true,
+    "legalJoin": "auto"
+   }
+  }
+ ]
+}

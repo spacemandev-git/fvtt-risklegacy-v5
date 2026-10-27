@@ -1,0 +1,109 @@
+<div class="rl-sideboard {{#if draw.active}}is-drawing{{/if}} {{#if draw.faction}}rl-faction--{{draw.faction.key}}{{/if}}">
+  <div class="rl-sb-board" style="background-image:url('{{board}}')">
+
+    {{!-- DRAW --}}
+    <div class="rl-sb-slot rl-sb-slot--draw" style="{{drawPile.style}}">
+      {{#if drawPile.count}}
+      <div class="rl-sb-stack" style="--depth:{{drawPile.count}}">
+        <img class="rl-sb-card" src="{{drawPile.img}}" alt="{{localize 'RL.Sideboard.draw'}}">
+      </div>
+      {{/if}}
+      <span class="rl-sb-tag">{{localize "RL.Sideboard.draw"}} <b>{{drawPile.count}}</b></span>
+    </div>
+
+    {{!-- COIN PILE --}}
+    <div class="rl-sb-slot rl-sb-slot--coin {{#if coin.allowed}}is-allowed{{/if}} {{#if coin.dimmed}}is-dimmed{{/if}}" style="{{coin.style}}">
+      {{#if coin.count}}
+      <div class="rl-sb-stack" style="--depth:{{coin.count}}">
+        <img class="rl-sb-card" src="{{coin.img}}" alt="{{localize 'RL.CardsUI.coinCard'}}" data-zoom>
+      </div>
+      {{/if}}
+      <div class="rl-sb-coinnote {{#if coin.depleted}}is-spent{{/if}}" data-tooltip="{{localize 'RL.Sideboard.coinNote'}}">
+        <span class="rl-sb-coinnote__text">{{localize "RL.Sideboard.coinNoteShort"}}</span>
+        <span class="rl-token"></span>
+        {{#if coin.depleted}}<span class="rl-hand rl-hand--red rl-sb-coinnote__spent">{{localize "RL.Sideboard.coinNoteSpent"}}</span>{{/if}}
+      </div>
+      {{#if coin.allowed}}
+      <button type="button" class="rl-btn rl-btn--primary rl-sb-take" data-action="takeCoin">{{localize "RL.Sideboard.takeCoin"}}</button>
+      {{/if}}
+      <span class="rl-sb-tag">{{localize "RL.Sideboard.coins"}} <b>{{coin.count}}</b></span>
+    </div>
+
+    {{!-- MISSION --}}
+    <div class="rl-sb-slot rl-sb-slot--mission" style="{{mission.style}}">
+      {{#if mission.card}}
+      <img class="rl-sb-card rl-sb-card--landscape" src="{{mission.card.img}}" alt="{{mission.card.name}}" data-zoom data-orientation="landscape">
+      {{#if mission.status}}
+      <span class="rl-sb-status rl-sb-status--{{mission.status}}" data-tooltip="{{mission.progress}}">{{mission.statusLabel}}{{#if mission.progress}} · {{mission.progress}}{{/if}}</span>
+      {{/if}}
+      {{#if mission.canComplete}}
+      <button type="button" class="rl-btn rl-btn--primary rl-sb-take" data-action="completeMission">{{localize "RL.Sideboard.completeMission"}}</button>
+      {{/if}}
+      {{/if}}
+      <span class="rl-sb-tag">{{localize "RL.Sideboard.mission"}}{{#if mission.exists}} <b>{{mission.deckCount}}</b>{{/if}}</span>
+    </div>
+
+    {{!-- EVENT --}}
+    <div class="rl-sb-slot rl-sb-slot--event" style="{{event.style}}">
+      {{#if event.count}}
+      <div class="rl-sb-stack" style="--depth:{{event.count}}">
+        <div class="rl-cardback rl-cardback--event rl-sb-card"><span>{{localize "RL.CardsUI.back.event"}}</span></div>
+      </div>
+      {{/if}}
+      {{#if event.inPlay}}
+      <button type="button" class="rl-sb-chip {{#if event.pending}}is-pending{{/if}}" data-action="browse" data-role="eventDiscard">
+        {{localize "RL.Sideboard.eventsInPlay" n=event.inPlay}}
+      </button>
+      {{/if}}
+      <span class="rl-sb-tag">{{localize "RL.Sideboard.event"}}{{#if event.exists}} <b>{{event.count}}</b>{{/if}}</span>
+    </div>
+
+    {{!-- DISCARD --}}
+    <div class="rl-sb-slot rl-sb-slot--discard" style="{{discard.style}}" data-role="discard">
+      {{#if discard.top}}
+      <div class="rl-sb-stack" style="--depth:{{discard.count}}">
+        <img class="rl-sb-card" src="{{discard.top.img}}" alt="{{discard.top.name}}" data-zoom>
+      </div>
+      {{/if}}
+      <button type="button" class="rl-sb-tag rl-sb-tag--button" data-action="browse" data-role="discard" {{disabled (not discard.count)}}>
+        {{localize "RL.Sideboard.discard"}} <b>{{discard.count}}</b>
+      </button>
+    </div>
+
+    {{!-- ROW 1 → 4 --}}
+    {{#each slots}}
+    <div class="rl-sb-slot rl-sb-slot--row {{#if allowed}}is-allowed{{/if}} {{#if dimmed}}is-dimmed{{/if}}" style="{{style}}" data-card-id="{{card.id}}">
+      {{#if card}}
+      <img class="rl-sb-card" src="{{card.img}}" alt="{{card.name}}" data-zoom>
+      <span class="rl-sb-value {{#if card.even}}is-even{{/if}}" data-tooltip="{{#if card.even}}{{localize 'RL.Sideboard.even'}}{{else}}{{localize 'RL.Sideboard.odd'}}{{/if}}">{{card.value}}</span>
+      {{#if controlled}}<span class="rl-sb-yours rl-hand rl-hand--red">{{localize "RL.CardsUI.prompt.yours"}}</span>{{/if}}
+      {{#if allowed}}
+      <button type="button" class="rl-btn rl-btn--primary rl-sb-take" data-action="take">{{localize "RL.Sideboard.take"}}</button>
+      {{/if}}
+      {{/if}}
+      <span class="rl-sb-tag">{{slot}}{{#if territory}} · {{territory}}{{/if}}</span>
+    </div>
+    {{/each}}
+
+    {{!-- Marker notes --}}
+    {{#if evenHint}}
+    <div class="rl-sb-hint rl-hand {{#if slot1Even}}is-hot{{/if}}">{{localize "RL.Sideboard.evenHint"}}</div>
+    {{/if}}
+  </div>
+
+  <footer class="rl-sb-status-bar">
+    {{#if ready}}
+      {{#if draw.active}}
+      <span class="rl-label">{{draw.faction.name}}</span>
+      <span>{{#if (eq draw.mode "prompt")}}{{localize "RL.Sideboard.statusPrompt"}}{{else}}{{localize "RL.Sideboard.statusDraw"}}{{/if}}</span>
+      {{else if draw.faction}}
+      <span class="rl-label">{{draw.faction.name}}</span>
+      <span>{{#if draw.eligible}}{{#if draw.canDraw}}{{localize "RL.Sideboard.statusEligible"}}{{else}}{{localize "RL.CardsUI.prompt.nothing"}}{{/if}}{{else}}{{draw.reason}}{{/if}}</span>
+      {{else}}
+      <span>{{localize "RL.Sideboard.statusIdle"}}</span>
+      {{/if}}
+    {{else}}
+      <span>{{localize "RL.Sideboard.notBuilt"}}</span>
+    {{/if}}
+  </footer>
+</div>

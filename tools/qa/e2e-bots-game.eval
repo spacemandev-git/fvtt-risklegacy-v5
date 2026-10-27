@@ -1,0 +1,472 @@
+// End-to-end: a game of Risk Legacy played by three bot players (Recruit / Commander / Warlord) and one hot-seat
+// person (driven by this script on the GM's screen), through the bots driver (module/bots/driver, BOTS.md §8).
+//
+// Fresh world → campaign → bots created with createBot → faction picks asked of the bots through campaign ask() →
+// war → placeStart for each bot → the driver plays every bot turn by itself. Also covered: the person attacking a bot
+// (the bot chooses its defence dice and decides on missiles), an event choice routed to a bot (runEvent), campaign
+// ask() kinds routed to bots (faction, option, signature, sea line, world name), pause/resume, and the Jev error path
+// (dead relay with bots.onError = heuristic, then the GM dialog with bots.onError = ask).
+//
+//   node $S/fvtt-browser.mjs eval --port 30017 \
+//     --sandbox "$SB/sandbox-bots" --file tools/qa/e2e-bots-game.eval
+// Globals you may set first: RL_E2E_RELAY (default http://127.0.0.1:30787), RL_E2E_BUDGET_MS (game budget, 8 min).
+const RL = game.risklegacy;
+const B = RL.bots;
+const SYS = "fvtt-risklegacy-v5";
+const T0 = Date.now();
+const BUDGET_MS = Number(globalThis.RL_E2E_BUDGET_MS ?? 8 * 60 * 1000);
+const RELAY = globalThis.RL_E2E_RELAY ?? "http://127.0.0.1:30787";
+const DEAD_RELAY = "http://127.0.0.1:30797"; // nothing listens here: a relay that isn't running
+const log = [];
+const problems = [];
+const checks = {};
+const human = { turns: 0, battles: 0, conquests: 0 };
+const step = (name, data) => log.push({ t: Math.round((Date.now() - T0) / 1000), step: name, ...(data ?? {}) });
+const wait = ms => new Promise(r => setTimeout(r, ms));
+async function waitFor(fn, ms = 20000, every = 100) {
+  const t0 = Date.now();
+  while ( Date.now() - t0 < ms ) {
+    try { if ( fn() ) return true; } catch(e) { /* keep waiting */ }
+    await wait(every);
+  }
+  return false;
+}
+async function attempt(label, fn, ms = 120000) {
+  try {
+    let timer;
+    const r = await Promise.race([fn(), new Promise((_, rej) => { timer = setTimeout(() => rej(new Error(`TIMEOUT after ${ms / 1000}s`)), ms); })]);
+    clearTimeout(timer);
+    return r;
+  } catch(err) {
+    problems.push({ label, error: err.message, stack: err.stack?.split("\n").slice(0, 3).join(" | ") });
+    return undefined;
+  }
+}
+const closeWindows = async () => { for ( const app of [...foundry.applications.instances.values()] ) { if ( app.options?.classes?.includes("risklegacy") ) await app.close?.({ animate: false }).catch(() => {}); } };
+const set = (key, value) => game.settings.set(SYS, key, value);
+const errorDialog = () => [...foundry.applications.instances.values()].find(a => a.options?.classes?.includes("rl-bot-error-dialog") && a.rendered);
+
+await waitFor(() => RL.state.isLoaded());
+
+/* ---------- Settings: fast bots, defenders choose (so bot defenders answer through the hook) ---------- */
+await set("bots.relayUrl", RELAY);
+await set("bots.pace", 0);
+await set("bots.reactionWindow", 0);
+await set("bots.onError", "ask");
+await set("bots.paused", false);
+await game.settings.set(SYS, "defenderChoice", "prompt");
+B.clearLog();
+B.testing.resetStats();
+B.testing.setSessionHeuristic(false);
+const relay = await B.checkRelay();
+step("relay", relay);
+
+/* ---------- The brain: the real one, or (while it hasn't landed) a minimal attacking stand-in ---------- */
+const brainSrc = await fetch(`/systems/${SYS}/module/bots/brain/index.mjs`).then(r => r.text()).catch(() => "");
+const placeholderBrain = /placeholder/i.test(brainSrc);
+if ( placeholderBrain ) {
+  // Stand-in decisions for the driver test only (the placeholder brain never attacks). chooseOption asks Jev one
+  // Choice so the Jev path (records, errors, dialog) is exercised.
+  B.testing.setBrainOverrides({
+    async nextMove(ctx) {
+      const s = ctx.state;
+      const fid = ctx.me;
+      const tl = s.turn?.log ?? {};
+      if ( (tl.attacks ?? 0) >= 6 ) return { type: "stop", why: { reason: "stopEnough" } };
+      let best = null;
+      for ( const id of s.factions[fid].territories ) {
+        const t = s.territories[id];
+        if ( t.troops < 3 ) continue;
+        for ( const n of t.neighbors ) {
+          const target = s.territories[n];
+          if ( !target ) continue;
+          if ( !target.owner && !target.hq && !target.city && ((tl.expanded ?? 0) < 2) && !ctx.excluded?.has(`expand:${id}>${n}`) ) {
+            best ??= { type: "expand", from: id, to: n, count: Math.max(1, Math.floor(t.troops / 2)), ratio: 0 };
+            continue;
+          }
+          if ( !target.owner || (target.owner === fid) || (tl.protected ?? []).includes(n) || ctx.excluded?.has(`attack:${id}>${n}`) ) continue;
+          const ratio = (t.troops - 1) / Math.max(1, target.troops);
+          if ( (ratio >= 1.5) && (!best || (best.type !== "attack") || (ratio > best.ratio)) ) best = { type: "attack", from: id, to: n, dice: Math.min(3, t.troops - 1), ratio };
+        }
+      }
+      if ( !best ) return { type: "stop", why: { reason: "stopEnough" } };
+      return { ...best, why: { reason: best.type === "attack" ? "opportunity" : "expand", from: best.from, to: best.to } };
+    },
+    async moveIn(ctx, { max }) {
+      return { count: Math.floor(max / 2), why: { reason: "pressOn" } };
+    },
+    async missileDecision(ctx, { battle }) {
+      if ( (battle.defender === ctx.me) && !(battle.rules?.unmodifiable ?? []).includes("defend") ) {
+        const die = [...(battle.defend ?? [])].filter(d => !d.missile).sort((a, b) => a.value - b.value)[0];
+        if ( die && (die.value < 6) ) return { fire: true, side: "defend", index: die.slot, why: { reason: "missileSaveHq" } };
+      }
+      return { fire: false, why: { reason: "missileHold" } };
+    },
+    async chooseOption(ctx, { kind, title, options }) {
+      const ok = options.filter(o => !o.disabled);
+      if ( !ok.length ) return { value: null, why: { reason: "choiceBest" } };
+      if ( ctx.ask && (ok.length > 1) ) {
+        const criteria = Object.fromEntries(ok.slice(0, 20).map((o, i) => [`option_${String(o.value).replace(/[^a-z0-9_]/gi, "_").slice(0, 40)}_${i}`, String(o.label ?? o.value)]));
+        const res = await ctx.ask(`test.${kind}`, {
+          state: { prompt: title || kind, options: Object.values(criteria) },
+          questions: { pick: { type: "choice", instructions: "Which option in `options` sounds best for a player trying to win?", criteria } }
+        });
+        const i = Object.keys(criteria).indexOf(res.answers.pick.choice);
+        if ( i >= 0 ) return { value: ok[i].value, why: { reason: "choiceBest", label: ok[i].label } };
+      }
+      return { value: ok[0].value, why: { reason: "choiceBest", label: ok[0].label } };
+    }
+  });
+}
+else B.testing.setBrainOverrides({});
+step("brain", { placeholder: placeholderBrain });
+
+/* ---------- Campaign ---------- */
+await attempt("createCampaign", () => RL.campaign.createCampaign({ variant: "original", date: "2026-10-27", signatures: ["Ana", "Ben", "Cy"] }));
+await closeWindows();
+const campaign = RL.state.getCampaign();
+const scene = RL.state.getBoardScene();
+await waitFor(() => canvas.ready && (canvas.scene?.id === scene?.id), 30000);
+if ( scene && (canvas.scene?.id !== scene.id) ) { await scene.view(); await waitFor(() => canvas.ready && canvas.scene?.id === scene.id, 30000); }
+await wait(1500);
+for ( const f of RL.state.getFactions() ) {
+  const options = game.items.filter(i => (i.type === "power") && (i.system.faction === f.system.key) && (i.system.slot === "starter"));
+  const pick = options.find(i => i.system.key.endsWith("_1")) ?? options[0];
+  if ( pick ) await f.createEmbeddedDocuments("Item", [pick.toObject()]);
+  for ( const i of options ) await i.delete();
+}
+await campaign.update({ "system.firstGameReady": true });
+
+/* ---------- Players: three bots and one hot-seat person ---------- */
+const bots = [];
+for ( const difficulty of ["easy", "normal", "hard"] ) bots.push(await B.createBot({ difficulty }));
+const ana = game.users.getName("Ana") ?? await User.create({ name: "Ana", role: 1 });
+step("users", { bots: bots.map(u => `${u.name}(${B.botDifficulty(u)})`), botUsers: B.botUsers().length });
+
+/* ---------- Campaign ask() routed to bots: the faction pick (S3) ---------- */
+const askMod = await import(`/systems/${SYS}/module/campaign/ask.mjs`);
+let available = RL.state.getFactions().map(f => f.id);
+const picks = {};
+for ( const u of bots ) {
+  const t = Date.now();
+  const pick = await attempt(`faction pick ${u.name}`, () => askMod.ask(u, "faction", { factions: available, title: `Choose a faction for ${u.name}` }));
+  picks[u.id] = pick;
+  if ( !available.includes(pick) ) problems.push({ label: "factionPick", error: `${u.name} picked ${pick}` });
+  available = available.filter(id => id !== pick);
+  step("factionPick", { bot: u.name, faction: game.actors.get(pick)?.name, ms: Date.now() - t });
+}
+checks.factionPick = { ok: bots.every(u => !!game.actors.get(picks[u.id])), picks: bots.map(u => game.actors.get(picks[u.id])?.name) };
+const humanFaction = game.actors.get(available[0]);
+const botFaction = u => game.actors.get(picks[u.id]);
+const [easyF, normalF, hardF] = bots.map(botFaction);
+
+/* ---------- War ---------- */
+const participants = [
+  { faction: humanFaction.id, userId: ana.id, seat: 0 },
+  ...bots.map((u, i) => ({ faction: picks[u.id], userId: u.id, seat: i + 1 }))
+];
+await attempt("createWar", () => RL.turn.createWar({ participants }));
+// Missiles for the Commander and the Warlord (two in the war, so a third missile on one roll can't happen)
+await normalF.update({ "system.war.missiles": 1 });
+await hardF.update({ "system.war.missiles": 1 });
+await attempt("dealScars", () => RL.cards.dealScars({ factions: participants.map(p => p.faction) }));
+await attempt("setupSideboard", () => RL.cards.setupSideboard({}));
+await attempt("beginPlacement", () => RL.turn.beginPlacement({ order: participants.map(p => p.faction) }));
+const war = RL.state.getWar();
+{
+  const legal = RL.rules.legalStartingTerritories(RL.turn.snapshot(), humanFaction.id, {});
+  await attempt("placeStart human", () => RL.turn.placeStartingForces({ faction: humanFaction.id, territory: legal[Math.floor(Math.random() * legal.length)] }));
+}
+for ( const u of bots ) {
+  const r = await attempt(`placeStart ${u.name}`, () => B.placeStart(picks[u.id]));
+  step("placeStart", { bot: u.name, territory: r?.territory });
+}
+await waitFor(() => war.system.stage === "playing", 20000);
+step("placed", {
+  stage: war.system.stage,
+  starts: participants.map(p => `${game.actors.get(p.faction).name}@${game.actors.get(p.faction).system.war.startingTerritory}`),
+  scars: participants.map(p => RL.cards.getScarCards(p.faction).length)
+});
+
+/* ---------- Helpers for the person's turns ---------- */
+const snap = () => RL.turn.snapshot();
+const ready = fid => (war.combatant?.actorId === fid) && (war.system.turn.faction === fid) && (war.system.stage === "playing");
+function bestPlacement(s, fid) {
+  let best = s.factions[fid].territories[0];
+  let score = -Infinity;
+  for ( const id of s.factions[fid].territories ) {
+    const t = s.territories[id];
+    const enemies = t.neighbors.map(n => s.territories[n]).filter(n => n.owner && (n.owner !== fid));
+    const sc = (enemies.length ? 10 - Math.min(...enemies.map(e => e.troops)) : 0) + (t.hq === fid ? 2 : 0);
+    if ( sc > score ) { score = sc; best = id; }
+  }
+  return best;
+}
+/** A battle the person started: wait for the dice, give the bots time for their missile decisions, then resolve. */
+async function personBattle(id) {
+  human.battles++;
+  await waitFor(() => game.messages.get(id)?.system.status !== "declared" || game.messages.get(id)?.system.preRoll, 5000);
+  if ( game.messages.get(id)?.system.preRoll ) {
+    await wait(1500); // bot scar decisions
+    await attempt("rollBattle", () => RL.battle.rollBattle({ message: id }));
+  }
+  await waitFor(() => ["rolled", "resolved", "cancelled"].includes(game.messages.get(id)?.system.status), 45000);
+  if ( game.messages.get(id)?.system.status === "rolled" ) {
+    const holders = participants.filter(p => B.isBotFaction(p.faction) && (game.actors.get(p.faction).system.war.missiles > 0)).length;
+    const before = B.getLog({ kind: "missile", limit: 500 }).length;
+    if ( holders ) await waitFor(() => B.getLog({ kind: "missile", limit: 500 }).length >= before + holders, 20000);
+    await wait(500);
+    await waitFor(() => !game.messages.get(id)?.system.hold, 20000);
+    if ( game.messages.get(id)?.system.status === "rolled" ) await attempt("resolve", () => RL.battle.resolve({ message: id }));
+  }
+  await waitFor(() => ["resolved", "cancelled"].includes(game.messages.get(id)?.system.status), 10000);
+  const msg = game.messages.get(id);
+  if ( msg?.system.result?.conquered ) human.conquests++;
+  if ( msg && !msg.system.closed ) await attempt("stopBattle", () => RL.battle.stopBattle({ message: id }));
+  return msg;
+}
+async function personRecruitAndPlace(fid) {
+  const actor = game.actors.get(fid);
+  if ( (actor.system.war.status === "knockedOut") || !snap().factions[fid].territories.length ) {
+    const legal = RL.rules.legalStartingTerritories(snap(), fid, { joining: true });
+    if ( legal.length ) await attempt("person joinWar", () => RL.actions.run("turn.joinWar", { faction: fid, territory: legal[0] }));
+    return;
+  }
+  await attempt("person recruit", () => RL.actions.run("turn.recruit", { faction: fid }));
+  for ( let g = 0; (actor.system.war.reserve > 0) && (g < 4); g++ ) {
+    await attempt("person place", () => RL.actions.run("turn.placeReserve", { faction: fid, territory: bestPlacement(snap(), fid), count: actor.system.war.reserve }));
+  }
+}
+async function personEnd(fid) {
+  const o = RL.cards.drawOptions(fid);
+  const draw = o.canDraw ? (o.territoryCardIds[0] ? { cardId: o.territoryCardIds[0] } : (o.coinAllowed ? { coin: true } : null)) : null;
+  await attempt("person turn.end", () => RL.actions.run("turn.end", { faction: fid, draw, completeMission: false }));
+  human.turns++;
+}
+
+/* ---------- Scenario: the person attacks the Commander (defence dice + missile decisions) ---------- */
+await waitFor(() => ready(humanFaction.id), 20000);
+await personRecruitAndPlace(humanFaction.id);
+{
+  const s = snap();
+  const target = normalF.system.war.startingTerritory;
+  // A staging stack next to the Commander's HQ (GM correction: spawn the person's troops in an empty neighbour)
+  const stage = s.territories[target].neighbors.find(n => !s.territories[n].owner && !s.territories[n].hq)
+    ?? s.territories[target].neighbors.find(n => s.territories[n].owner === humanFaction.id);
+  if ( stage ) await attempt("spawn staging", () => RL.board.spawnPieces({ faction: humanFaction.id, territory: stage, troops: 10 }));
+  await waitFor(() => (snap().territories[stage]?.pieces?.[humanFaction.id]?.troops ?? 0) >= 10, 5000);
+  const defenseBefore = B.getLog({ kind: "defense", limit: 500 }).length;
+  const missileBefore = B.getLog({ kind: "missile", limit: 500 }).length;
+  const firedBefore = B.status().stats.missilesFired;
+  const r = await attempt("person attack", () => RL.actions.run("turn.attack", { faction: humanFaction.id, from: stage, to: target, dice: 3 }));
+  const msg = r?.messageId ? await personBattle(r.messageId) : null;
+  const defense = B.getLog({ kind: "defense", limit: 500 }).slice(0, B.getLog({ kind: "defense", limit: 500 }).length - defenseBefore);
+  const missiles = B.getLog({ kind: "missile", limit: 500 }).slice(0, B.getLog({ kind: "missile", limit: 500 }).length - missileBefore);
+  checks.personAttacksBot = {
+    ok: !!msg && (defense.length >= 1) && (missiles.length >= 1),
+    from: stage, to: target, defendDice: msg?.system.defendDice, status: msg?.system.status,
+    defenseDecisions: defense.map(d => ({ bot: d.factionName, dice: d.decision?.dice, why: d.decision?.why?.reason })),
+    missileDecisions: missiles.map(d => ({ bot: d.factionName, fire: !!d.decision?.fire, why: d.decision?.why?.reason, jev: d.jev.length })),
+    missilesFired: B.status().stats.missilesFired - firedBefore, result: msg?.system.result && { conquered: msg.system.result.conquered, attackerLosses: msg.system.result.attackerLosses, defenderLosses: msg.system.result.defenderLosses }
+  };
+  step("personAttacksBot", checks.personAttacksBot);
+}
+
+/* ---------- Scenario: an event choice routed to a bot (Control the People: the largest population chooses) ---------- */
+{
+  const s = snap();
+  const where = s.factions[hardF.id].territories.find(id => !s.territories[id].city) ?? s.factions[hardF.id].territories[0];
+  await attempt("foundCity", () => RL.campaign.foundCity({ territory: where, type: "minor", name: "Jevtown", founder: bots[2].name, founderId: bots[2].id, force: true }));
+  await waitFor(() => snap().factions[hardF.id].population > 0, 5000);
+  const before = B.getLog({ limit: 500 }).length;
+  const t = Date.now();
+  const ev = await attempt("runEvent control_the_people", () => RL.cards.runEvent({ catalogId: "control_the_people", dryRun: true }), 90000);
+  const records = B.getLog({ limit: 500 }).slice(0, B.getLog({ limit: 500 }).length - before).filter(r => r.kind.startsWith("event."));
+  checks.eventToBot = {
+    ok: !!ev?.occurred && (records.length >= 1) && (ev.result.chosenBy === bots[2].name),
+    occurred: ev?.occurred, chosenBy: ev?.result?.chosenBy, rows: ev?.result?.rows?.map(r => `${r.label}: ${r.value}`),
+    steps: records.reverse().map(r => ({ kind: r.kind, value: r.decision?.value, jev: r.jev.length })), ms: Date.now() - t
+  };
+  step("eventToBot", checks.eventToBot);
+}
+
+/* ---------- Scenario: more campaign ask() kinds routed to bots ---------- */
+{
+  const u = bots[1];
+  const option = await attempt("ask option", () => askMod.ask(u, "option", {
+    title: "Choose a power", content: "Pick one",
+    options: [{ value: "alpha", label: "Alpha: +1 troop" }, { value: "beta", label: "Beta (taken)", disabled: true }, { value: "gamma", label: "Gamma: one more card" }]
+  }));
+  const signature = await attempt("ask signature", () => askMod.ask(u, "signature", { line: 1, player: u.name, date: "2026-10-27", victors: [] }));
+  const world = await attempt("ask worldName", () => askMod.ask(u, "worldName", { title: "Name the world" }));
+  const sea = await attempt("ask seaLine", () => askMod.ask(u, "seaLine", { faction: normalF.id, sticker: "sea_line_start", title: "Draw a sea line" }));
+  const adjacent = sea ? RL.state.getCampaignBoard().areAdjacent(sea.a, sea.b) : null;
+  const person = askMod.ask; // a person's prompt still opens normally (not answered by a bot): not exercised here
+  checks.campaignAsk = {
+    ok: ["alpha", "gamma"].includes(option) && !!signature?.player && !!world?.name && !!sea?.a && !!sea?.b && (adjacent === false),
+    option, signature, world, seaLine: sea && { a: sea.a, b: sea.b, clean: sea.clean, points: sea.points?.length }
+  };
+  step("campaignAsk", checks.campaignAsk);
+}
+
+/* ---------- Scenario: pause, end the person's turn, the next bot waits; resume, it plays ---------- */
+{
+  await B.pause();
+  await personEnd(humanFaction.id);
+  const next = war.combatant?.actorId;
+  await waitFor(() => ready(next), 10000);
+  const actionsBefore = B.status().stats.actions;
+  await wait(4000);
+  const idle = (B.status().stats.actions === actionsBefore) && !war.system.turn.recruited && ready(next);
+  await B.resume();
+  const resumed = await waitFor(() => war.system.turn.recruited || !ready(next) || war.system.turn.joinedWar, 60000);
+  checks.pauseResume = { ok: idle && resumed, bot: game.actors.get(next)?.name, idleWhilePaused: idle, playedAfterResume: resumed };
+  step("pauseResume", checks.pauseResume);
+}
+
+/* ---------- The game: bots play by themselves; this script plays the person's turns ---------- */
+const GAME_T0 = Date.now();
+let lastKey = "";
+let lastChange = Date.now();
+let lastRecords = 0;
+const stalls = [];
+while ( (war.system.stage === "playing") && (Date.now() - GAME_T0 < BUDGET_MS) ) {
+  const fid = war.combatant?.actorId;
+  if ( (fid === humanFaction.id) && ready(fid) ) {
+    await personRecruitAndPlace(fid);
+    // One attack when it looks good
+    const s = snap();
+    let best = null;
+    for ( const id of s.factions[fid].territories ) {
+      const t = s.territories[id];
+      for ( const n of t.neighbors ) {
+        const o = s.territories[n];
+        if ( !o?.owner || (o.owner === fid) ) continue;
+        const ratio = (t.troops - 1) / Math.max(1, o.troops);
+        if ( (t.troops >= 4) && (ratio >= 2) && (!best || ratio > best.ratio) ) best = { from: id, to: n, ratio };
+      }
+    }
+    if ( best ) {
+      const r = await attempt("person attack", () => RL.actions.run("turn.attack", { faction: fid, from: best.from, to: best.to, dice: 3 }));
+      if ( r?.messageId ) await personBattle(r.messageId);
+    }
+    if ( war.system.stage === "playing" ) await personEnd(fid);
+    continue;
+  }
+  // Watch for stalls: a bot's turn that shows no progress for 90 s
+  const key = `${war.round}:${war.turn}`;
+  const records = B.logStats().decisions;
+  if ( (key !== lastKey) || (records !== lastRecords) ) { lastKey = key; lastRecords = records; lastChange = Date.now(); }
+  else if ( (Date.now() - lastChange > 90000) && !B.status().errorDialog ) {
+    stalls.push({ key, faction: game.actors.get(fid)?.name, status: B.status() });
+    problems.push({ label: "stall", key, status: B.status() });
+    await B.playTurn(fid).catch(() => null);
+    lastChange = Date.now();
+  }
+  await wait(500);
+}
+const gameSeconds = Math.round((Date.now() - GAME_T0) / 1000);
+const statsAtEnd = B.logStats();
+const driverAtEnd = B.status();
+const s = snap();
+step("end", {
+  stage: war.system.stage, round: war.round, winner: game.actors.get(war.system.winner)?.name ?? null,
+  standings: Object.fromEntries(participants.map(p => [game.actors.get(p.faction).name, `${s.factions[p.faction].territories.length}t/${s.factions[p.faction].troops}tr/${s.factions[p.faction].redStars.total}★ ${game.actors.get(p.faction).system.war.status}`]))
+});
+
+/* ---------- Scenario: end of game (G2–G4). A bot won: drive the real end-of-game wizard; else ask the bots directly ---------- */
+{
+  const winnerId = war.system.winner;
+  const wiz = [...foundry.applications.instances.values()].find(a => a.constructor.name === "EndGameWizard");
+  if ( (war.system.stage === "ended") && B.isBotFaction(winnerId) && wiz ) {
+    const A = wiz.options.actions;
+    await waitFor(() => wiz.end, 10000);
+    await attempt("end confirmResults", () => A.confirmResults.call(wiz), 60000);
+    await attempt("end sign", () => A.sign.call(wiz), 60000);
+    await attempt("end reward", () => A.reward.call(wiz), 60000);
+    // The hot-seat person's held-on reward would open on the GM's screen: skip it, then the bots choose theirs.
+    for ( const r of (wiz.end.results ?? []).filter(x => (x.result === "heldOn") && !B.isBotUser(x.playerId)) ) {
+      await attempt("end skipHeldOn", () => A.skipHeldOn.call(wiz, null, { dataset: { faction: r.faction } }), 30000);
+    }
+    await attempt("end heldOn", () => A.heldOn.call(wiz), 120000);
+    const botHeldOn = (wiz.end.results ?? []).filter(x => (x.result === "heldOn") && B.isBotUser(x.playerId));
+    checks.endGame = {
+      ok: !!wiz.end.signature?.player && !!wiz.end.reward?.reward && botHeldOn.every(r => wiz.end.heldOn?.[r.faction]),
+      via: "EndGameWizard", winner: game.actors.get(winnerId)?.name, signature: wiz.end.signature, reward: wiz.end.reward,
+      heldOn: Object.fromEntries(Object.entries(wiz.end.heldOn ?? {}).map(([k, v]) => [game.actors.get(k)?.name ?? k, v]))
+    };
+  }
+  else {
+    const u = bots[2];
+    const T = RL.campaign.placementTargets;
+    const winnerAvail = {
+      nameContinent: { ok: T.unnamedContinents().length > 0, continents: T.unnamedContinents() },
+      foundMajorCity: { ok: true, territories: T.city() },
+      cancelScar: { ok: T.cancelScar().length > 0, territories: T.cancelScar() },
+      changeContinentBonus: { ok: true, continents: T.unmodifiedContinents(), plus: true, minus: true },
+      fortifyCity: { ok: T.fortify().length > 0, territories: T.fortify() },
+      destroyTerritoryCard: { ok: true, territories: T.destroyCard() }
+    };
+    const reward = await attempt("ask winnerReward", () => askMod.ask(u, "winnerReward", { title: "Winner's reward", available: winnerAvail, stickers: {} }));
+    const heldOn = await attempt("ask heldOnReward", () => askMod.ask(u, "heldOnReward", {
+      title: "Held on", factionName: hardF.name, stickers: {},
+      available: { foundMinorCity: { ok: true, territories: T.city().slice(0, 6) }, upgradeCard: { ok: true, territories: T.upgrade().slice(0, 6), values: {} } }
+    }));
+    const rewardOk = !!reward?.reward && winnerAvail[reward.reward]?.ok
+      && (reward.territory ? winnerAvail[reward.reward].territories.includes(reward.territory) : !!reward.continent);
+    checks.endGame = { ok: rewardOk && !!heldOn?.reward && !!heldOn?.territory, via: "ask()", reward, heldOn };
+  }
+  step("endGame", checks.endGame);
+}
+
+/* ---------- Scenario: the Jev error path ---------- */
+{
+  const u = bots[0];
+  const options = [{ value: "attack", label: "Attack the leader" }, { value: "defend", label: "Defend the capital" }];
+  // 1. Dead relay, onError = heuristic: the decision is made with the built-in judgment and marked.
+  await set("bots.relayUrl", DEAD_RELAY);
+  await set("bots.onError", "heuristic");
+  const h = await attempt("error heuristic", () => askMod.ask(u, "option", { title: "Error path (heuristic)", options }), 60000);
+  const hRec = B.getLog({ kind: "option", limit: 1 })[0];
+  // 2. onError = ask: the GM gets the dialog; restore the relay and click Retry.
+  await set("bots.onError", "ask");
+  const pending = askMod.ask(u, "option", { title: "Error path (ask)", options });
+  const shown = await waitFor(() => !!errorDialog(), 30000);
+  const statusWhileOpen = B.status();
+  await set("bots.relayUrl", RELAY);
+  errorDialog()?.element.querySelector('button[data-action="retry"]')?.click();
+  const a = await attempt("error ask", () => pending, 60000);
+  const aRec = B.getLog({ kind: "option", limit: 1 })[0];
+  const needsJev = (hRec?.jev?.length ?? 0) > 0;
+  checks.jevErrorPath = {
+    ok: (!needsJev || (hRec.heuristic && hRec.jev.some(x => x.error))) && ["attack", "defend"].includes(h)
+      && (!needsJev || (shown && !aRec.heuristic && aRec.jev.some(x => !x.error))) && ["attack", "defend"].includes(a),
+    heuristicAnswer: h, heuristicRecord: { heuristic: hRec?.heuristic, errors: hRec?.jev.filter(x => x.error).map(x => x.error.slice(0, 120)) },
+    dialogShown: shown, waitingWhileOpen: statusWhileOpen.waiting, askAnswer: a, afterRetry: { heuristic: aRec?.heuristic, exchanges: aRec?.jev.length, errors: aRec?.jev.filter(x => x.error).length }
+  };
+  step("jevErrorPath", checks.jevErrorPath);
+}
+await set("bots.relayUrl", RELAY);
+await set("bots.onError", "ask");
+B.testing.setBrainOverrides({});
+
+const openApps = [...foundry.applications.instances.values()].filter(a => a.rendered && a.options?.classes?.includes("risklegacy")).map(a => a.constructor.name);
+const kinds = B.logStats().kinds;
+return {
+  seconds: Math.round((Date.now() - T0) / 1000),
+  brain: placeholderBrain ? "placeholder + e2e stand-in (nextMove/moveIn/missileDecision/chooseOption)" : "real",
+  relay,
+  game: {
+    seconds: gameSeconds, stage: war.system.stage, rounds: war.round, winner: game.actors.get(war.system.winner)?.name ?? null,
+    bots: {
+      turns: driverAtEnd.stats.turns, battles: driverAtEnd.stats.battles, conquests: driverAtEnd.stats.conquests, expansions: driverAtEnd.stats.expansions,
+      maneuvers: driverAtEnd.stats.maneuvers, starsBought: driverAtEnd.stats.starsBought, cardsDrawn: driverAtEnd.stats.cardsDrawn, joins: driverAtEnd.stats.joins,
+      missilesFired: driverAtEnd.stats.missilesFired, actions: driverAtEnd.stats.actions, refusals: driverAtEnd.stats.refusals, guards: driverAtEnd.stats.guards,
+      answers: driverAtEnd.stats.answers, errors: driverAtEnd.stats.errors, stalls: driverAtEnd.stats.stalls + stalls.length
+    },
+    person: human,
+    decisions: statsAtEnd.decisions, jevRequests: statsAtEnd.requests, jevInputTokens: statsAtEnd.inputTokens, jevAvgMs: statsAtEnd.avgMs,
+    jevErrors: statsAtEnd.errors, heuristicFallbacks: statsAtEnd.heuristic, lastError: driverAtEnd.lastError
+  },
+  checks, decisionKinds: kinds, openApps, problems: problems.slice(0, 40), log
+};

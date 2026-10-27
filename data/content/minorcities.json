@@ -1,0 +1,556 @@
+{
+  "id": "minorcities",
+  "label": "Pack 1: Minor Cities",
+  "order": 1,
+  "kind": "package",
+  "trigger": {
+    "key": "nineMinorCities",
+    "text": "Open when all 9 minor cities have been founded.",
+    "sealedText": "OPEN WHEN ALL 9 MINOR CITIES HAVE BEEN FOUNDED.",
+    "rulebook": "PACK 1: Open when the 9th Minor City is founded. Open this card as soon as the last Minor City is placed and named. This will be opened at the end of a game.",
+    "when": "endOfGame"
+  },
+  "warProgresses": [
+    {
+      "id": "minorcities_evolution_1",
+      "code": "B64",
+      "order": 1,
+      "title": "The War Progresses: Minor Cities (1)",
+      "img": "assets/unlocks/minorcities/rules/images/evolution_1.jpg",
+      "text": "With cities come politics. Things aren't as easy as they once were. The world is changing and, as a result, the way the game starts is changing.\n\nIn this pack are 20 draft cards that will be used to start all future games.\n\nThere are also new scar cards to be used in future games.",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/rules/cards.yaml",
+        "key": "evolution_1"
+      }
+    },
+    {
+      "id": "minorcities_evolution_2",
+      "code": "B65",
+      "order": 2,
+      "title": "The War Progresses: Minor Cities (2)",
+      "img": "assets/unlocks/minorcities/rules/images/evolution_2.jpg",
+      "text": "Place the stickers from the Evolution cards onto the rulebook in the matching boxes.\n\nThese new draft rules overwrite the previous starting rules.\n\nFinally, take the event cards and shuffle them into (or create) the event deck.",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/rules/cards.yaml",
+        "key": "evolution_2"
+      }
+    }
+  ],
+  "factions": [],
+  "powers": [],
+  "territoryCards": [],
+  "coinCards": null,
+  "scars": [
+    {
+      "id": "biohazard",
+      "name": "Bio-Hazard",
+      "code": "B70s",
+      "qty": 3,
+      "target": "territory",
+      "cardImg": "assets/unlocks/minorcities/scars/images/biohazard.jpg",
+      "stickerImg": "assets/unlocks/minorcities/scars/images/scar_biohazard.png",
+      "text": "You may play this card at the start of any player's turn.\n\nPlace the bio-hazard scar onto any unscarred territory.\n\nThe player that controls that territory will lose 1 troop from that territory at the end of his turn.",
+      "play": {
+        "timing": "startOfAnyTurn",
+        "where": "anyUnscarredTerritory",
+        "requires": "unscarred"
+      },
+      "effect": {
+        "type": "endOfTurnTroops",
+        "delta": -1
+      },
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/scars/cards.yaml",
+        "key": "biohazard"
+      }
+    }
+  ],
+  "stickers": [],
+  "events": [
+    {
+      "id": "control_the_people",
+      "name": "Control the People",
+      "code": "B75",
+      "qty": 2,
+      "img": "assets/unlocks/minorcities/events/images/control_the_people.jpg",
+      "text": "Whomever has the largest population either gains 5 troops in any one city he controls, or he may make an immediate maneuver.\n\nDISCARD this card.",
+      "afterResolve": "box",
+      "effect": {
+        "type": "choice",
+        "who": "largestPopulation",
+        "options": [
+          {
+            "type": "placeTroops",
+            "where": "oneControlledCity",
+            "count": 5
+          },
+          {
+            "type": "maneuver",
+            "count": 1
+          }
+        ]
+      },
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/events/cards.yaml",
+        "key": "control_the_people"
+      }
+    },
+    {
+      "id": "fortify",
+      "name": "Fortify",
+      "code": "B73",
+      "qty": 2,
+      "img": "assets/unlocks/minorcities/events/images/fortify.jpg",
+      "text": "Whomever has the largest population may either fortify one of his cities (if there are still fortification marks left) OR may select up to two cities he controls. Add 2 troops to each of those cities.\n\nDESTROY this card if the fortify option is chosen, otherwise DISCARD it after it is played.",
+      "afterResolve": "other",
+      "afterResolveText": "DESTROY this card if the fortify option is chosen, otherwise DISCARD it after it is played.",
+      "effect": {
+        "type": "choice",
+        "who": "largestPopulation",
+        "options": [
+          {
+            "type": "placeMark",
+            "mark": "fortification",
+            "where": "oneControlledCity",
+            "requiresSupply": true,
+            "afterResolve": "destroy"
+          },
+          {
+            "type": "placeTroops",
+            "where": "upToTwoControlledCities",
+            "count": 2,
+            "perTarget": true,
+            "afterResolve": "box"
+          }
+        ]
+      },
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/events/cards.yaml",
+        "key": "fortify"
+      }
+    },
+    {
+      "id": "resistance",
+      "name": "Resistance",
+      "code": "B78",
+      "qty": 2,
+      "img": "assets/unlocks/minorcities/events/images/resistance.jpg",
+      "text": "All Minor Cities containing 1 or 2 troops lose 1 troop.\n\nDISCARD this card.",
+      "afterResolve": "box",
+      "effect": {
+        "type": "removeTroops",
+        "who": "everyPlayer",
+        "where": {
+          "cityType": "minor",
+          "troopsMin": 1,
+          "troopsMax": 2
+        },
+        "count": 1,
+        "perTarget": true
+      },
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/events/cards.yaml",
+        "key": "resistance"
+      }
+    },
+    {
+      "id": "riots",
+      "name": "Riots",
+      "code": "B77",
+      "qty": 1,
+      "img": "assets/unlocks/minorcities/events/images/riots.jpg",
+      "text": "Every player who controls a major city must roll a die, adding 1 to the roll for each troop and HQ in that territory. If your modified roll is lower than 6, remove troops equal to your natural die roll and DEMOLISH any HQs in that territory.\n\nDISCARD this card.",
+      "afterResolve": "box",
+      "effect": null,
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/events/cards.yaml",
+        "key": "riots"
+      }
+    }
+  ],
+  "missions": [],
+  "draft": [
+    {
+      "id": "coin_1",
+      "name": "2 Coin Cards",
+      "code": "B82",
+      "img": "assets/unlocks/minorcities/draft/images/coin_1.jpg",
+      "type": "coin",
+      "players": 3,
+      "value": 2,
+      "text": "STARTING COIN CARDS\n\n2 Coin Cards",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "coin_1"
+      }
+    },
+    {
+      "id": "coin_2",
+      "name": "1 Coin Cards",
+      "code": "B81",
+      "img": "assets/unlocks/minorcities/draft/images/coin_2.jpg",
+      "type": "coin",
+      "players": 3,
+      "value": 1,
+      "text": "STARTING COIN CARDS\n\n1 Coin Cards",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "coin_2"
+      }
+    },
+    {
+      "id": "coin_3",
+      "name": "1 Coin Cards",
+      "code": "B84",
+      "img": "assets/unlocks/minorcities/draft/images/coin_3.jpg",
+      "type": "coin",
+      "players": 5,
+      "value": 1,
+      "text": "STARTING COIN CARDS\n\n1 Coin Cards",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "coin_3"
+      }
+    },
+    {
+      "id": "coin_4",
+      "name": "0 Coin Cards",
+      "code": "B80",
+      "img": "assets/unlocks/minorcities/draft/images/coin_4.jpg",
+      "type": "coin",
+      "players": 3,
+      "value": 0,
+      "text": "STARTING COIN CARDS\n\n0 Coin Cards",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "coin_4"
+      }
+    },
+    {
+      "id": "coin_5",
+      "name": "0 Coin Cards",
+      "code": "B83",
+      "img": "assets/unlocks/minorcities/draft/images/coin_5.jpg",
+      "type": "coin",
+      "players": 4,
+      "value": 0,
+      "text": "STARTING COIN CARDS\n\n0 Coin Cards",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "coin_5"
+      }
+    },
+    {
+      "id": "placement_1",
+      "name": "First Placement",
+      "code": "B85",
+      "img": "assets/unlocks/minorcities/draft/images/placement_1.jpg",
+      "type": "placement",
+      "players": 3,
+      "value": 1,
+      "text": "STARTING PLACEMENT\n\nFirst Placement",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "placement_1"
+      }
+    },
+    {
+      "id": "placement_2",
+      "name": "Second Placement",
+      "code": "B86",
+      "img": "assets/unlocks/minorcities/draft/images/placement_2.jpg",
+      "type": "placement",
+      "players": 3,
+      "value": 2,
+      "text": "STARTING PLACEMENT\n\nSecond Placement",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "placement_2"
+      }
+    },
+    {
+      "id": "placement_3",
+      "name": "Third Placement",
+      "code": "B87",
+      "img": "assets/unlocks/minorcities/draft/images/placement_3.jpg",
+      "type": "placement",
+      "players": 3,
+      "value": 3,
+      "text": "STARTING PLACEMENT\n\nThird Placement",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "placement_3"
+      }
+    },
+    {
+      "id": "placement_4",
+      "name": "Fourth Placement",
+      "code": "B88",
+      "img": "assets/unlocks/minorcities/draft/images/placement_4.jpg",
+      "type": "placement",
+      "players": 4,
+      "value": 4,
+      "text": "STARTING PLACEMENT\n\nFourth Placement",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "placement_4"
+      }
+    },
+    {
+      "id": "placement_5",
+      "name": "Fifth Placement",
+      "code": "B89",
+      "img": "assets/unlocks/minorcities/draft/images/placement_5.jpg",
+      "type": "placement",
+      "players": 5,
+      "value": 5,
+      "text": "STARTING PLACEMENT\n\nFifth Placement",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "placement_5"
+      }
+    },
+    {
+      "id": "troops_1",
+      "name": "10 Troops",
+      "code": "B97",
+      "img": "assets/unlocks/minorcities/draft/images/troops_1.jpg",
+      "type": "troops",
+      "players": 3,
+      "value": 10,
+      "text": "STARTING TROOPS\n\n10 Troops",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "troops_1"
+      }
+    },
+    {
+      "id": "troops_2",
+      "name": "10 Troops",
+      "code": "B99",
+      "img": "assets/unlocks/minorcities/draft/images/troops_2.jpg",
+      "type": "troops",
+      "players": 5,
+      "value": 10,
+      "text": "STARTING TROOPS\n\n10 Troops",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "troops_2"
+      }
+    },
+    {
+      "id": "troops_3",
+      "name": "8 Troops",
+      "code": "B96",
+      "img": "assets/unlocks/minorcities/draft/images/troops_3.jpg",
+      "type": "troops",
+      "players": 3,
+      "value": 8,
+      "text": "STARTING TROOPS\n\n8 Troops",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "troops_3"
+      }
+    },
+    {
+      "id": "troops_4",
+      "name": "8 Troops",
+      "code": "B98",
+      "img": "assets/unlocks/minorcities/draft/images/troops_4.jpg",
+      "type": "troops",
+      "players": 4,
+      "value": 8,
+      "text": "STARTING TROOPS\n\n8 Troops",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "troops_4"
+      }
+    },
+    {
+      "id": "troops_5",
+      "name": "6 Troops",
+      "code": "B95",
+      "img": "assets/unlocks/minorcities/draft/images/troops_5.jpg",
+      "type": "troops",
+      "players": 3,
+      "value": 6,
+      "text": "STARTING TROOPS\n\n6 Troops",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "troops_5"
+      }
+    },
+    {
+      "id": "turn_1",
+      "name": "First Turn",
+      "code": "B90",
+      "img": "assets/unlocks/minorcities/draft/images/turn_1.jpg",
+      "type": "turnOrder",
+      "players": 3,
+      "value": 1,
+      "text": "TURN ORDER\n\nFirst Turn",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "turn_1"
+      }
+    },
+    {
+      "id": "turn_2",
+      "name": "Second Turn",
+      "code": "B91",
+      "img": "assets/unlocks/minorcities/draft/images/turn_2.jpg",
+      "type": "turnOrder",
+      "players": 3,
+      "value": 2,
+      "text": "TURN ORDER\n\nSecond Turn",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "turn_2"
+      }
+    },
+    {
+      "id": "turn_3",
+      "name": "Third Turn",
+      "code": "B92",
+      "img": "assets/unlocks/minorcities/draft/images/turn_3.jpg",
+      "type": "turnOrder",
+      "players": 3,
+      "value": 3,
+      "text": "TURN ORDER\n\nThird Turn",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "turn_3"
+      }
+    },
+    {
+      "id": "turn_4",
+      "name": "Fourth Turn",
+      "code": "B93",
+      "img": "assets/unlocks/minorcities/draft/images/turn_4.jpg",
+      "type": "turnOrder",
+      "players": 4,
+      "value": 4,
+      "text": "TURN ORDER\n\nFourth Turn",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "turn_4"
+      }
+    },
+    {
+      "id": "turn_5",
+      "name": "Fifth Turn",
+      "code": "B94",
+      "img": "assets/unlocks/minorcities/draft/images/turn_5.jpg",
+      "type": "turnOrder",
+      "players": 5,
+      "value": 5,
+      "text": "TURN ORDER\n\nFifth Turn",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/draft/cards.yaml",
+        "key": "turn_5"
+      }
+    }
+  ],
+  "rules": [
+    {
+      "id": "pg7_panel_b",
+      "kind": "addition",
+      "addition": "B",
+      "page": 7,
+      "inferred": false,
+      "inferredFrom": "file name pg7panelB + rules/04-setup-before-every-game.md comment",
+      "code": "B67s",
+      "title": "Draft: laying out the cards (Rules addition B)",
+      "img": "assets/unlocks/minorcities/rules/images/pg7panelB.jpg",
+      "text": "Lay out all draft and faction cards, face-up. If there are three players, use only the draft cards that have a \"3\" in the corner. Add in the \"4\" cards if there are four players and the \"4\" and \"5\" cards if there are five players.\n\nThese cards are drafted by players before each game to determine each player's starting troops, starting coin cards, turn order, faction, and the order of choosing starting location.\n\nAll players roll to see who picks first. Starting clockwise from the high roller, each player chooses a faction or a draft card of a type he hasn't already chosen.",
+      "replaces": "Lay out the Faction cards, face up on the table and roll dice to determine who will get to choose first.\n\nThe player with the highest roll goes first, choosing a faction card and taking the troops and HQ of that faction. Place your faction's troops in front of you. At the start of the game, you get your full starting troop total, which is 8. Take 8 troops from your faction's color along with your HQ and place them in a legal starting territory.",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/rules/cards.yaml",
+        "key": "pg7panelB"
+      }
+    },
+    {
+      "id": "pg7_panel_c",
+      "kind": "addition",
+      "addition": "C",
+      "page": 7,
+      "inferred": false,
+      "inferredFrom": "file name pg7panelC + rules/04-setup-before-every-game.md comment",
+      "code": "B68s",
+      "title": "Draft: snake order and placement (Rules addition C)",
+      "img": "assets/unlocks/minorcities/rules/images/pg7panelC.jpg",
+      "text": "So a player that has a turn order card cannot take another turn order card but may take a card of a different type.\n\nAfter each player has chosen a card, reverse the selection order and each player, now going counter-clockwise, chooses a card.\n\nIn a 4-player game, the draft order would be Player 1, Player 2, Player 3, Player 4, Player 4, Player 3, Player 2, Player 1, repeating this sequence until each player has a faction and a draft card of each color.\n\nIn order of starting placement, each player places his starting troops and HQ on a legal starting territory (starting troops are determined by the starting troops card).",
+      "replaces": "Selection then proceeds clockwise around the table, with each player choosing a faction and a legal starting territory.",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/rules/cards.yaml",
+        "key": "pg7panelC"
+      }
+    },
+    {
+      "id": "pg7_panel_d",
+      "kind": "addition",
+      "addition": "D",
+      "page": 7,
+      "inferred": false,
+      "inferredFrom": "file name pg7panelD + rules/04-setup-before-every-game.md comment",
+      "code": "B69s",
+      "title": "Draft: first turn (Rules addition D)",
+      "img": "assets/unlocks/minorcities/rules/images/pg7panelD.jpg",
+      "text": "After all starting territories have been claimed, the player with the first turn order card takes the first turn. Play goes in order of the turn order cards (you may wish to change seats so that play moves clockwise).",
+      "replaces": "The player who placed first takes the first turn, with play proceeding clockwise.",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/minorcities/rules/cards.yaml",
+        "key": "pg7panelD"
+      }
+    },
+    {
+      "id": "biohazard_reference",
+      "kind": "reference",
+      "title": "Bio-hazard reference sticker (game board)",
+      "img": "assets/unlocks/minorcities/rules/images/biohazard_rules.jpg",
+      "text": "If you control this territory at the end of your turn, remove one troop from it.",
+      "scar": "biohazard",
+      "textSource": "card"
+    }
+  ],
+  "marks": [],
+  "secretPowers": [],
+  "notes": [
+    "rules/images/evolution_1.jpg (B64) and evolution_2.jpg (B65) are \"THE WAR PROGRESSES\" narrative cards, not Evolution sticker cards; they are listed under warProgresses. The Evolution (rulebook sticker) cards are pg7panelB/C/D (B67s-B69s).",
+    "rules/images/biohazard_rules.jpg is the Bio-hazard reference sticker for the board's reference-sticker space. It has no entry in rules/cards.yaml (the old init.js loaded it directly) and its card code is cropped off (probably B66s).",
+    "Draft `players`: the number in the card corner. Use the \"3\" cards with three players, add the \"4\" cards with four and the \"4\" and \"5\" cards with five (rules addition B). The scans show troops_2 = 5 players, troops_3 = 3 players, troops_4 = 4 players; draft/cards.yaml had 4/5/3 (the cards win).",
+    "Draft card `value`- coin = number of starting coin cards, placement = position in the starting-placement order, troops = starting troops, turnOrder = position in turn order.",
+    "Event copies - Fortify B73-B74, Control the People B75-B76, Riots B77, Resistance B78-B79 (only one face of each is scanned; qty from events/cards.yaml). Bio-hazard scars presumably B70s-B72s.",
+    "minorcities/macros/draftSetup.js is an old macro and is ignored."
+  ]
+}

@@ -1,0 +1,204 @@
+{
+ "name": "leader-one-star",
+ "description": "Balkania holds its own HQ and Saharan's captured HQ: 3 Red Stars. Enclave (9 troops on its HQ) can hit either HQ, or take a 1-troop card conquest from Khan.",
+ "me": "enclave",
+ "difficulty": "normal",
+ "factions": {
+  "enclave": {
+   "name": "Enclave of the Bear",
+   "key": "enclave",
+   "redStarTokens": 1,
+   "startingTerritory": "southern_europe",
+   "hand": {
+    "count": 1,
+    "coins": 2
+   }
+  },
+  "balkania": {
+   "name": "Imperial Balkania",
+   "key": "balkania",
+   "redStarTokens": 1,
+   "startingTerritory": "russia",
+   "hand": {
+    "count": 2,
+    "coins": 5
+   }
+  },
+  "saharan": {
+   "name": "Saharan Republic",
+   "key": "saharan",
+   "redStarTokens": 1,
+   "startingTerritory": "egypt",
+   "hand": {
+    "count": 3,
+    "coins": 4
+   }
+  },
+  "khan": {
+   "name": "Khan Industries",
+   "key": "khan",
+   "redStarTokens": 1,
+   "startingTerritory": "china",
+   "hand": {
+    "count": 1,
+    "coins": 1
+   }
+  }
+ },
+ "pieces": {
+  "russia": {
+   "balkania": {
+    "troops": 6,
+    "hq": true
+   }
+  },
+  "egypt": {
+   "balkania": 4,
+   "saharan": {
+    "troops": 0,
+    "hq": true
+   }
+  },
+  "northern_europe": {
+   "balkania": 3
+  },
+  "scandinavia": {
+   "balkania": 2
+  },
+  "ural": {
+   "balkania": 3
+  },
+  "middle_east": {
+   "balkania": 2
+  },
+  "north_africa": {
+   "saharan": 3
+  },
+  "east_africa": {
+   "saharan": 2
+  },
+  "central_africa": {
+   "saharan": 2
+  },
+  "south_africa": {
+   "saharan": 1
+  },
+  "madagascar": {
+   "saharan": 1
+  },
+  "brazil": {
+   "saharan": 2
+  },
+  "venezuela": {
+   "saharan": 1
+  },
+  "peru": {
+   "saharan": 2
+  },
+  "argentina": {
+   "saharan": 1
+  },
+  "southern_europe": {
+   "enclave": {
+    "troops": 9,
+    "hq": true
+   }
+  },
+  "great_britain": {
+   "enclave": 2
+  },
+  "iceland": {
+   "enclave": 1
+  },
+  "greenland": {
+   "enclave": 2
+  },
+  "eastern_canada": {
+   "enclave": 1
+  },
+  "ontario": {
+   "enclave": 2
+  },
+  "china": {
+   "khan": {
+    "troops": 5,
+    "hq": true
+   }
+  },
+  "western_europe": {
+   "khan": 1
+  },
+  "india": {
+   "khan": 3
+  },
+  "afghanistan": {
+   "khan": 2
+  },
+  "mongolia": {
+   "khan": 2
+  },
+  "siberia": {
+   "khan": 2
+  },
+  "irkutsk": {
+   "khan": 1
+  },
+  "yakutsk": {
+   "khan": 1
+  },
+  "kamchatka": {
+   "khan": 1
+  },
+  "japan": {
+   "khan": 1
+  },
+  "southeast_asia": {
+   "khan": 2
+  },
+  "indonesia": {
+   "khan": 1
+  },
+  "new_guinea": {
+   "khan": 1
+  },
+  "western_australia": {
+   "khan": 1
+  },
+  "eastern_australia": {
+   "khan": 2
+  },
+  "alaska": {
+   "khan": 1
+  },
+  "northwest_territory": {
+   "khan": 1
+  },
+  "alberta": {
+   "khan": 1
+  },
+  "western_united_states": {
+   "khan": 1
+  },
+  "eastern_united_states": {
+   "khan": 1
+  },
+  "central_america": {
+   "khan": 1
+  }
+ },
+ "turn": {
+  "faction": "enclave",
+  "phase": "attack",
+  "log": {
+   "recruited": true
+  }
+ },
+ "calls": [
+  {
+   "fn": "assessSituation"
+  },
+  {
+   "fn": "nextMove"
+  }
+ ]
+}

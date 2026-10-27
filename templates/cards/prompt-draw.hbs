@@ -1,0 +1,34 @@
+<div class="rl-draw-prompt rl-faction--{{faction.key}}">
+  {{#if options.eligible}}
+    {{#if noChoice}}
+    <div class="rl-callout">{{localize "RL.CardsUI.prompt.nothing"}}</div>
+    {{else}}
+    <p class="rl-lead">{{localize "RL.CardsUI.prompt.rule"}}</p>
+    {{/if}}
+  {{else}}
+  <div class="rl-callout">{{localize "RL.CardsUI.prompt.notEligible" reason=reason}}</div>
+  {{/if}}
+
+  <div class="rl-draw-prompt__row">
+    {{#each slots}}
+    <label class="rl-pick rl-pick--portrait {{#if allowed}}is-allowed{{else}}is-disabled{{/if}}" data-tooltip="{{territory}}">
+      <input type="radio" name="choice" value="{{card.id}}" {{disabled (not allowed)}}>
+      <span class="rl-pick__slot">{{slot}}</span>
+      {{#if card}}
+      <img src="{{card.img}}" alt="{{card.name}}">
+      <span class="rl-pick__value {{#if card.even}}is-even{{/if}}">{{card.value}}</span>
+      {{#if controlled}}<span class="rl-pick__flag rl-hand rl-hand--red">{{localize "RL.CardsUI.prompt.yours"}}</span>{{/if}}
+      {{else}}
+      <span class="rl-pick__empty">{{localize "RL.Sideboard.empty"}}</span>
+      {{/if}}
+    </label>
+    {{/each}}
+    <span class="rl-draw-prompt__or">{{localize "RL.CardsUI.prompt.or"}}</span>
+    <label class="rl-pick rl-pick--portrait rl-pick--coin {{#if coin.allowed}}is-allowed{{else}}is-disabled{{/if}}">
+      <input type="radio" name="choice" value="coin" {{disabled (not coin.allowed)}}>
+      {{#if coin.count}}<img src="{{coin.img}}" alt="{{localize 'RL.CardsUI.coinCard'}}">
+      {{else}}<span class="rl-pick__empty">{{localize "RL.Sideboard.coinPileEmpty"}}</span>{{/if}}
+      <span class="rl-pick__count">×{{coin.count}}</span>
+    </label>
+  </div>
+</div>

@@ -1,0 +1,12 @@
+<div class="rl-prompt-body">
+  {{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/hot-seat.hbs"}}
+  {{#if data.hint}}<p class="rl-lead">{{data.hint}}</p>{{/if}}
+  <div class="rl-field">
+    <label>{{localize "RL.Wizard.Prompt.territory"}}</label>
+    {{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/territory-select.hbs" name="territory" groups=groups canPick=canPick required=true}}
+  </div>
+  <footer class="rl-prompt-footer">
+    <button type="button" class="rl-btn" data-action="cancel">{{localize "RL.Wizard.Prompt.later"}}</button>
+    <button type="submit" class="rl-btn rl-btn--primary"><i class="fa-solid fa-location-dot" inert></i> {{localize "RL.Wizard.Prompt.confirm"}}</button>
+  </footer>
+</div>

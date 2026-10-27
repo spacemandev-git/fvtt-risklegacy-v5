@@ -1,0 +1,72 @@
+<div class="rl-camp-landing-body">
+  {{#unless campaign}}
+  <section class="rl-camp-landing-hero">
+    <span class="rl-hazard rl-camp-landing-hero__tape"></span>
+    <h1 class="rl-hero">{{localize "RL.Wizard.Landing.hero"}}</h1>
+    <p class="rl-lead">{{localize "RL.Wizard.Landing.heroLead"}}</p>
+    <p class="rl-hand rl-hand--tilt">{{localize "RL.Wizard.Landing.theWars"}}</p>
+    <button type="button" class="rl-btn rl-btn--primary rl-camp-landing__cta" data-action="begin"><i class="fa-solid fa-signature" inert></i> {{localize "RL.Wizard.Landing.begin"}}</button>
+  </section>
+  {{else}}
+  <header class="rl-camp-landing-world">
+    <div class="rl-framed rl-camp-landing-world__art"><img src="{{boardArt}}" alt=""></div>
+    <div class="rl-camp-landing-world__text">
+      <span class="rl-label">{{localize "RL.Wizard.End.theWorldOf"}}</span>
+      {{#if worldName}}<span class="rl-hand rl-camp-landing-world__name">{{worldName}}</span>{{else}}<span class="rl-slot rl-camp-landing-world__unnamed">{{localize "RL.Wizard.Landing.unnamed"}}</span>{{/if}}
+      <p class="rl-caption">{{board}} · {{localize "RL.Wizard.Landing.founded" date=founded}}</p>
+      <p class="rl-hand rl-camp-landing-world__sigs">{{signatures}}</p>
+    </div>
+  </header>
+  <div class="rl-camp-landing-stats">
+    <span class="rl-plate"><span class="rl-counter__value">{{gamesPlayed}}</span><span class="rl-label">{{localize "RL.Wizard.Landing.gamesPlayed"}}</span></span>
+    <span class="rl-plate"><span class="rl-counter__value">{{legacyLeft}}</span><span class="rl-label">{{localize "RL.Wizard.Landing.legacyLeft"}}</span></span>
+    {{#if warInProgress}}<span class="rl-plate rl-plate--war"><span class="rl-counter__value">{{warGame}}</span><span class="rl-label">{{warStage}}</span></span>{{/if}}
+  </div>
+
+  <section class="rl-camp-landing-next">
+    {{#if (eq next "endGame")}}
+    <button type="button" class="rl-btn rl-btn--primary" data-action="endGame"><i class="fa-solid fa-trophy" inert></i> {{localize "RL.Wizard.End.title"}}</button>
+    {{else if (eq next "firstGame")}}
+    <button type="button" class="rl-btn rl-btn--primary" data-action="firstGame"><i class="fa-solid fa-flag-checkered" inert></i> {{localize "RL.Wizard.First.title"}}</button>
+    {{else if (eq next "setup")}}
+    <button type="button" class="rl-btn rl-btn--primary" data-action="setup"><i class="fa-solid fa-chess-board" inert></i> {{#if setupPending}}{{localize "RL.Wizard.Landing.resumeSetup"}}{{else}}{{localize "RL.Wizard.Landing.nextGame" n=nextGame}}{{/if}}</button>
+    {{else if warInProgress}}
+    <p class="rl-lead">{{localize "RL.Wizard.Landing.warInProgress" n=warGame}}</p>
+    {{/if}}
+    <button type="button" class="rl-btn" data-action="rulebook" {{disabled (not rulebook)}}><i class="fa-solid fa-book" inert></i> {{localize "RL.Rulebook.open"}}</button>
+    <button type="button" class="rl-btn" data-action="campaignSheet"><i class="fa-solid fa-map" inert></i> {{localize "RL.Wizard.Landing.campaignSheet"}}</button>
+    <button type="button" class="rl-btn" data-action="stickerSheet"><i class="fa-solid fa-note-sticky" inert></i> {{localize "RL.Legacy.Sheet.title"}}</button>
+  </section>
+
+  {{#if victors.length}}
+  <section class="rl-camp-landing-victors">
+    <h3 class="rl-subhead">{{localize "RL.Wizard.Landing.recentVictors"}}</h3>
+    <ul>{{#each victors}}<li><span class="rl-num">{{number}}</span> <span class="rl-hand">{{player}}</span> · {{faction}}{{#if motto}} <span class="rl-hand rl-hand--red">“{{motto}}”</span>{{/if}}</li>{{/each}}</ul>
+  </section>
+  {{/if}}
+
+  <section class="rl-camp-landing-packs">
+    <h3 class="rl-subhead">{{localize "RL.Wizard.Landing.sealed"}}</h3>
+    <ul>
+      {{#each packs}}
+      <li class="rl-camp-landing-pack {{#if opened}}is-opened{{/if}}">
+        <span class="rl-camp-landing-pack__label">{{label}}</span>
+        {{#if opened}}<span class="rl-stamp rl-camp-landing-pack__stamp">{{localize "RL.Legacy.Pack.opened"}}</span>
+        {{else}}<span class="rl-camp-landing-pack__sealed">{{sealed}}</span>
+        <button type="button" class="rl-btn rl-btn--icon" data-action="openPack" data-pack="{{id}}" data-tooltip="RL.Legacy.Pack.openManually" aria-label="{{localize "RL.Legacy.Pack.openManually"}}"><i class="fa-solid fa-box-open" inert></i></button>{{/if}}
+      </li>
+      {{/each}}
+    </ul>
+  </section>
+
+  {{#if log.length}}
+  <section class="rl-camp-landing-log">
+    <h3 class="rl-subhead">{{localize "RL.Wizard.Landing.chronicle"}}</h3>
+    <ul>{{#each log}}<li><span class="rl-code">G{{game}}</span> {{text}}</li>{{/each}}</ul>
+  </section>
+  {{/if}}
+  <footer class="rl-camp-landing-footer">
+    <button type="button" class="rl-btn" data-action="rebuildRulebook"><i class="fa-solid fa-rotate" inert></i> {{localize "RL.Rulebook.rebuild"}}</button>
+  </footer>
+  {{/unless}}
+</div>

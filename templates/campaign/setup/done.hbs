@@ -1,0 +1,18 @@
+<div class="rl-camp-step rl-camp-step--done">
+  <div class="rl-panel rl-panel--gold rl-camp-step__printed">
+    <h2 class="rl-hero rl-camp-step__hero">{{localize "RL.Wizard.Setup.doneHero"}}</h2>
+    <p class="rl-lead">{{localize "RL.Wizard.Setup.doneLead" n=gameNumber}}</p>
+    <table class="rl-camp-table rl-camp-faction-back">
+      <thead><tr><th>{{localize "RL.Wizard.Setup.game"}}</th><th>{{localize "RL.Wizard.Setup.player"}}</th><th>{{localize "RL.Wizard.Setup.faction"}}</th><th>{{localize "RL.Wizard.Setup.startingTerritory"}}</th></tr></thead>
+      <tbody>
+        {{#each seats}}
+        <tr><td>{{../gameNumber}}</td><td class="rl-hand">{{name}}</td><td>{{faction.name}}</td><td class="rl-hand">{{territory}}</td></tr>
+        {{/each}}
+        {{#each absent}}
+        <tr class="is-absent"><td>{{../gameNumber}}</td><td class="rl-hand rl-hand--red">X</td><td>{{this}}</td><td></td></tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+  <p class="rl-hand rl-hand--red rl-camp-step__aside">{{localize "RL.Wizard.Setup.doneAside"}}</p>
+</div>

@@ -1,0 +1,39 @@
+namespace: balkania.factions.base.risklegacy.spacemandev
+imgPath: balkania.png
+data:
+  troop_img: balkania_1.png
+  three_img: balkania_3.png
+  hq_img: balkania_hq.png
+  name: "Imperial Balkania"
+---  
+namespace: enclave.factions.base.risklegacy.spacemandev
+imgPath: enclave.png
+data:
+  troop_img: enclave_1.png
+  three_img: enclave_3.png
+  hq_img: enclave_hq.png
+  name: "Enclave of the Bear"
+---  
+namespace: khan.factions.base.risklegacy.spacemandev
+imgPath: khan.png
+data:
+  troop_img: khan_1.png
+  three_img: khan_3.png
+  hq_img: khan_hq.png
+  name: "Khan Industries"
+---  
+namespace: mechaniker.factions.base.risklegacy.spacemandev
+imgPath: mechaniker.png
+data:
+  troop_img: mechaniker_1.png
+  three_img: mechaniker_3.png
+  hq_img: mechaniker_hq.png
+  name: "Die Mechaniker"
+---  
+namespace: saharan.factions.base.risklegacy.spacemandev
+imgPath: saharan.png
+data:
+  troop_img: saharan_1.png
+  three_img: saharan_3.png
+  hq_img: saharan_hq.png
+  name: "Saharan Republic"

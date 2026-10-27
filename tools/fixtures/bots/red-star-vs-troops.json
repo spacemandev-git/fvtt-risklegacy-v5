@@ -1,0 +1,150 @@
+{
+ "name": "red-star-vs-troops",
+ "description": "Khan has 2 Red Stars and 5 cards (13 coins). Enclave has 12 troops next to Khan's HQ in China (4 troops). Buy a star, trade for 30 troops, or keep?",
+ "me": "khan",
+ "difficulty": "hard",
+ "factions": {
+  "khan": {
+   "name": "Khan Industries",
+   "key": "khan",
+   "redStarTokens": 1,
+   "startingTerritory": "china"
+  },
+  "enclave": {
+   "name": "Enclave of the Bear",
+   "key": "enclave",
+   "redStarTokens": 1,
+   "startingTerritory": "kamchatka",
+   "hand": {
+    "count": 2,
+    "coins": 4
+   }
+  },
+  "balkania": {
+   "name": "Imperial Balkania",
+   "key": "balkania",
+   "redStarTokens": 1,
+   "startingTerritory": "russia",
+   "hand": {
+    "count": 3,
+    "coins": 5
+   }
+  },
+  "saharan": {
+   "name": "Saharan Republic",
+   "key": "saharan",
+   "redStarTokens": 1,
+   "startingTerritory": "egypt",
+   "hand": {
+    "count": 1,
+    "coins": 2
+   }
+  }
+ },
+ "pieces": {
+  "china": {
+   "khan": {
+    "troops": 4,
+    "hq": true
+   }
+  },
+  "india": {
+   "khan": 3
+  },
+  "afghanistan": {
+   "khan": 2
+  },
+  "southeast_asia": {
+   "khan": 2
+  },
+  "ural": {
+   "khan": 2
+  },
+  "mongolia": {
+   "enclave": 12
+  },
+  "kamchatka": {
+   "enclave": {
+    "troops": 4,
+    "hq": true
+   }
+  },
+  "siberia": {
+   "enclave": 3
+  },
+  "irkutsk": {
+   "enclave": 2
+  },
+  "russia": {
+   "balkania": {
+    "troops": 5,
+    "hq": true
+   }
+  },
+  "middle_east": {
+   "balkania": 3
+  },
+  "egypt": {
+   "saharan": {
+    "troops": 4,
+    "hq": true
+   }
+  },
+  "east_africa": {
+   "saharan": 2
+  }
+ },
+ "turn": {
+  "faction": "khan",
+  "phase": "start"
+ },
+ "view": {
+  "hand": [
+   {
+    "id": "h1",
+    "kind": "coin",
+    "territory": null,
+    "coins": 1
+   },
+   {
+    "id": "h2",
+    "kind": "territory",
+    "territory": "india",
+    "coins": 2
+   },
+   {
+    "id": "h3",
+    "kind": "territory",
+    "territory": "japan",
+    "coins": 3
+   },
+   {
+    "id": "h4",
+    "kind": "territory",
+    "territory": "peru",
+    "coins": 3
+   },
+   {
+    "id": "h5",
+    "kind": "territory",
+    "territory": "china",
+    "coins": 4
+   }
+  ]
+ },
+ "calls": [
+  {
+   "fn": "assessSituation"
+  },
+  {
+   "fn": "planStartOfTurn"
+  },
+  {
+   "fn": "planRecruit",
+   "args": {
+    "mustJoin": false
+   },
+   "phase": "recruit"
+  }
+ ]
+}

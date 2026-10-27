@@ -1,0 +1,9 @@
+<div class="rl-dlg rl-dlg--text">
+  {{#if content}}<div class="rl-callout">{{{content}}}</div>{{/if}}
+  <div class="rl-field">
+    {{#if label}}<label for="rl-prompt-text">{{localize label}}</label>{{/if}}
+    <input id="rl-prompt-text" type="text" name="text" value="{{value}}" maxlength="{{maxLength}}"
+      {{#if hand}}class="rl-input--hand"{{/if}} {{#if placeholder}}placeholder="{{localize placeholder}}"{{/if}} autofocus>
+    {{#if hint}}<p class="hint">{{localize hint}}</p>{{/if}}
+  </div>
+</div>

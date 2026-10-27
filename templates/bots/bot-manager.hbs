@@ -1,0 +1,240 @@
+{{!-- Bot Manager (module/bots/ui/bot-manager.mjs, BOTS.md §7.1). Styled in styles/bots.css. --}}
+<div class="rl-bot-mgr{{#if busy}} is-busy{{/if}}">
+  <div class="rl-bot-mgr__scroll">
+    <p class="rl-bot-mgr__lead">{{localize "RL.Bots.Manager.lead"}}</p>
+
+    {{!-- ============ Bot players ============ --}}
+    <section class="rl-bot-mgr__section" aria-labelledby="rl-bot-mgr-players">
+      <div class="rl-bot-mgr__headrow">
+        <h2 class="rl-subhead" id="rl-bot-mgr-players">{{localize "RL.Bots.Manager.players"}}</h2>
+        {{#if randomize}}
+        <button type="button" class="rl-bot-link" data-action="randomize" data-tooltip="{{randomize.tip}}" aria-label="{{randomize.tip}}" {{disabled (or randomize.disabled busy)}}>
+          <i class="fa-solid fa-dice" inert></i> {{localize "RL.Bots.Manager.randomize"}}</button>
+        {{/if}}
+      </div>
+      {{#if bots.length}}
+      <ul class="rl-bot-list">
+        {{#each bots as |b|}}
+        <li class="rl-bot-row rl-bot-row--{{b.engine}}{{#if b.seat.current}} is-current{{/if}}" data-user-id="{{b.id}}">
+          <span class="rl-bot-rank rl-bot-rank--{{b.difficulty}}" aria-hidden="true">{{#each b.rank}}<i class="fa-solid fa-chevron-up" inert></i>{{/each}}</span>
+          <div class="rl-bot-row__who">
+            <span class="rl-bot-row__name" data-tooltip="{{b.name}}">{{b.name}}</span>
+            <span class="rl-bot-row__seat"{{#if b.seat.color}} style="--rl-bot-faction: {{b.seat.color}}"{{/if}}>
+              <span class="rl-bot-engine rl-bot-engine--{{b.engine}}" data-tooltip="{{b.badgeTip}}">{{#if b.chat}}<i class="fa-solid fa-comments" inert></i>{{else}}<i class="fa-solid fa-bolt" inert></i>{{/if}} {{b.badge}}</span>
+              {{#if b.seat}}
+              <span class="rl-bot-chip" aria-hidden="true"></span>
+              <span class="rl-bot-row__faction">{{b.seat.name}}</span>
+              {{#if b.seat.current}}<span class="rl-bot-row__flag">{{localize "RL.Bots.Manager.theirTurn"}}</span>{{/if}}
+              {{#if b.seat.status}}<span class="rl-bot-row__flag">{{b.seat.status}}</span>{{/if}}
+              {{#if b.seat.ended}}<span class="rl-bot-row__flag">{{localize "RL.Bots.Manager.warEnded"}}</span>{{/if}}
+              {{else}}
+              <span class="rl-bot-row__free">{{localize "RL.Bots.Manager.notSeated"}}</span>
+              {{/if}}
+            </span>
+          </div>
+          <fieldset class="rl-bot-diff">
+            <legend class="rl-bot-sr">{{localize "RL.Bots.Manager.difficultyFor" name=b.name}}</legend>
+            {{#each b.options as |o|}}
+            <label class="rl-bot-diff__opt" data-tooltip="{{o.hint}}">
+              <input type="radio" id="rl-bot-diff-{{b.id}}-{{o.value}}" name="difficulty-{{b.id}}" value="{{o.value}}" data-bot-difficulty="{{b.id}}" {{checked o.checked}} {{disabled @root.busy}}>
+              <span>{{o.label}}</span>
+            </label>
+            {{/each}}
+          </fieldset>
+          <button type="button" class="rl-btn rl-btn--icon rl-bot-row__remove" data-action="removeBot"
+            aria-label="{{b.removeTip}}" data-tooltip="{{b.removeTip}}" {{disabled (or (not b.removable) @root.busy)}}>
+            <i class="fa-solid fa-user-minus" inert></i></button>
+
+          {{#if b.chat}}
+          <div class="rl-bot-row__chat">
+            <div class="rl-bot-row__field rl-bot-row__field--persona">
+              <span class="rl-label" id="rl-bot-persona-{{b.id}}">{{localize "RL.Bots.Manager.personality"}}</span>
+              <button type="button" class="rl-bot-persona" data-action="pickPersonality" aria-haspopup="dialog"
+                aria-labelledby="rl-bot-persona-{{b.id}} rl-bot-persona-name-{{b.id}}" data-tooltip="{{b.persona.tip}}" {{disabled (or b.persona.locked @root.busy)}}>
+                <span class="rl-bot-portrait rl-bot-portrait--sm"><img src="{{b.persona.portrait}}" alt=""></span>
+                <span class="rl-bot-persona__text" id="rl-bot-persona-name-{{b.id}}">
+                  <span class="rl-bot-persona__title">{{b.persona.title}}</span>
+                  <span class="rl-bot-persona__name">{{b.persona.name}}</span>
+                </span>
+                <i class="fa-solid fa-caret-down rl-bot-persona__caret" inert></i>
+              </button>
+            </div>
+            <label class="rl-bot-row__field rl-bot-row__field--model">
+              <span class="rl-label">{{localize "RL.Bots.Manager.model"}}</span>
+              <select data-bot-model="{{b.id}}" {{disabled @root.busy}}>
+                {{#each b.models as |g|}}{{#if g.label}}<optgroup label="{{g.label}}">{{/if}}{{#each g.options as |m|}}<option value="{{m.value}}" {{#if m.selected}}selected{{/if}}>{{m.label}}</option>{{/each}}{{#if g.label}}</optgroup>{{/if}}{{/each}}
+              </select>
+            </label>
+            <button type="button" class="rl-btn rl-bot-small rl-bot-row__notes{{#if b.notes.has}} has-notes{{/if}}" data-action="notes"
+              data-tooltip="{{b.notes.tip}}" {{disabled b.notes.disabled}}>
+              <i class="fa-solid fa-book-open" inert></i> {{localize "RL.Bots.Manager.notes"}}{{#if b.notes.count}} <span class="rl-bot-count">{{b.notes.count}}</span>{{/if}}</button>
+          </div>
+          {{/if}}
+        </li>
+        {{/each}}
+      </ul>
+      {{else}}
+      <div class="rl-slot rl-bot-empty">{{localize "RL.Bots.Manager.empty"}}</div>
+      {{/if}}
+
+      <div class="rl-bot-add" role="group" aria-label="{{localize "RL.Bots.Manager.addGroup"}}">
+        <button type="button" id="rl-bot-add-chat" class="rl-bot-add__btn rl-bot-add__btn--chat" data-action="addChatBot" aria-haspopup="dialog" {{disabled busy}}>
+          <span class="rl-bot-add__top">
+            <span class="rl-bot-add__icon" aria-hidden="true"><i class="fa-solid fa-masks-theater" inert></i></span>
+            <span class="rl-bot-add__label"><i class="fa-solid fa-plus" inert></i> {{localize "RL.Bots.Manager.addChat"}}</span>
+          </span>
+          <span class="rl-bot-add__hint">{{chatAdd.hint}}</span>
+          {{#if chatAdd.faces.length}}
+          <span class="rl-bot-add__faces" aria-hidden="true">{{#each chatAdd.faces as |f|}}<span class="rl-bot-portrait rl-bot-portrait--xs"><img src="{{f.portrait}}" alt=""></span>{{/each}}</span>
+          {{/if}}
+        </button>
+        {{#each add as |a|}}
+        <button type="button" id="rl-bot-add-{{a.difficulty}}" class="rl-bot-add__btn" data-action="addBot" data-difficulty="{{a.difficulty}}" {{disabled @root.busy}}>
+          <span class="rl-bot-add__top">
+            <span class="rl-bot-rank rl-bot-rank--{{a.difficulty}}" aria-hidden="true">{{#each a.rank}}<i class="fa-solid fa-chevron-up" inert></i>{{/each}}</span>
+            <span class="rl-bot-add__label"><i class="fa-solid fa-plus" inert></i> {{a.label}}</span>
+          </span>
+          <span class="rl-bot-add__level">{{a.level}}</span>
+          <span class="rl-bot-add__hint">{{a.hint}}</span>
+        </button>
+        {{/each}}
+      </div>
+      {{#unless inWar}}<p class="rl-bot-mgr__note">{{localize "RL.Bots.Manager.seatHint"}}</p>{{/unless}}
+    </section>
+
+    {{!-- ============ Chat models ============ --}}
+    <section class="rl-bot-mgr__section rl-bot-llm rl-bot-status-host is-{{llm.state}}" aria-labelledby="rl-bot-mgr-llm">
+      <h2 class="rl-subhead" id="rl-bot-mgr-llm">{{localize "RL.Bots.LLM.title"}}</h2>
+      <div class="rl-bot-relay__status">
+        <span class="rl-bot-lamp" aria-hidden="true"></span>
+        <div class="rl-bot-relay__text" role="status" aria-live="polite">
+          <span class="rl-bot-relay__label">{{llm.label}}</span>
+          {{#if llm.details}}<span class="rl-bot-relay__details">{{llm.details}}</span>{{/if}}
+          {{#if llm.error}}<span class="rl-bot-relay__error{{#if llm.policy}} is-policy{{/if}}">{{#if llm.policy}}<i class="fa-solid fa-ban" inert></i> {{/if}}{{llm.error}}</span>{{/if}}
+        </div>
+        <button type="button" id="rl-bot-llm-test" class="rl-btn rl-bot-relay__test" data-action="testLLM" data-tooltip="RL.Bots.LLM.testTip" {{disabled llm.checking}}>
+          <i class="fa-solid {{#if llm.checking}}fa-spinner fa-spin{{else}}fa-plug-circle-check{{/if}}" inert></i> {{localize "RL.Bots.LLM.test"}}</button>
+      </div>
+
+      <div class="rl-bot-llm__fields">
+        <div class="rl-field rl-bot-llm__url">
+          <label for="rl-bot-llm-url">{{localize "RL.Bots.LLM.baseUrl"}}</label>
+          <input type="text" id="rl-bot-llm-url" name="llmBaseUrl" value="{{llm.url}}" spellcheck="false" autocomplete="off"
+            {{#unless llm.urlValid}}aria-invalid="true"{{/unless}} aria-describedby="rl-bot-llm-url-hint">
+          <span class="rl-bot-hint" id="rl-bot-llm-url-hint">{{localize "RL.Bots.LLM.baseUrlHint"}}</span>
+        </div>
+        <div class="rl-field rl-bot-llm__key">
+          <label for="rl-bot-llm-key">{{localize "RL.Bots.LLM.apiKey"}}</label>
+          <span class="rl-bot-llm__keyrow">
+            <input type="password" id="rl-bot-llm-key" name="llmApiKey" value="" autocomplete="off" spellcheck="false"
+              placeholder="{{llm.keyPlaceholder}}" aria-describedby="rl-bot-llm-key-hint"{{#if llm.keySet}} class="is-set"{{/if}}>
+            <button type="button" class="rl-btn rl-bot-small" data-action="clearKey" {{disabled (not llm.keySet)}}><i class="fa-solid fa-xmark" inert></i> {{localize "RL.Bots.LLM.clear"}}</button>
+          </span>
+          <span class="rl-bot-hint" id="rl-bot-llm-key-hint"><i class="fa-solid fa-lock" inert></i> {{localize "RL.Bots.LLM.keyHint"}}</span>
+        </div>
+        <div class="rl-field rl-bot-llm__model">
+          <label for="rl-bot-llm-model">{{localize "RL.Bots.LLM.model"}}</label>
+          <span class="rl-bot-llm__keyrow">
+            <select id="rl-bot-llm-model" name="llmModel" aria-describedby="rl-bot-llm-model-hint">
+              {{#each llm.models as |g|}}{{#if g.label}}<optgroup label="{{g.label}}">{{/if}}{{#each g.options as |m|}}<option value="{{m.value}}" {{#if m.selected}}selected{{/if}}>{{m.label}}</option>{{/each}}{{#if g.label}}</optgroup>{{/if}}{{/each}}
+            </select>
+            <button type="button" class="rl-btn rl-btn--icon rl-bot-llm__refresh" data-action="refreshModels" aria-label="{{localize "RL.Bots.LLM.refresh"}}" data-tooltip="RL.Bots.LLM.refresh" {{disabled llm.modelsLoading}}>
+              <i class="fa-solid fa-rotate{{#if llm.modelsLoading}} fa-spin{{/if}}" inert></i></button>
+          </span>
+          <span class="rl-bot-hint{{#if llm.modelsError}} is-error{{/if}}" id="rl-bot-llm-model-hint">{{#if llm.modelsError}}{{llm.modelsError}}{{else if llm.modelsNone}}{{localize "RL.Bots.LLM.modelsNone"}}{{else}}{{llm.modelsHint}}{{/if}}</span>
+        </div>
+        <label class="rl-field rl-bot-llm__talk">
+          <span class="rl-bot-llm__label">{{localize "RL.Bots.LLM.tableTalk"}}</span>
+          <select name="tableTalk">
+            {{#each llm.talk as |o|}}<option value="{{o.value}}" {{#if o.selected}}selected{{/if}}>{{o.label}}</option>{{/each}}
+          </select>
+          <span class="rl-bot-hint">{{localize "RL.Bots.LLM.tableTalkHint"}}</span>
+        </label>
+      </div>
+
+      <div class="rl-bot-spend{{#if llm.spend.over}} is-over{{else if llm.spend.warn}} is-warn{{/if}}">
+        <div class="rl-bot-spend__head">
+          <span class="rl-label">{{localize "RL.Bots.LLM.spend"}}</span>
+          <span class="rl-bot-spend__value">{{llm.spend.value}}</span>
+          <span class="rl-bot-spend__of">{{llm.spend.cap}} · {{llm.spend.calls}}{{#if llm.spend.war}} · {{llm.spend.war}}{{/if}}</span>
+        </div>
+        {{#if llm.spend.hasCap}}<span class="rl-bot-spend__meter" role="presentation"><span style="width: {{llm.spend.pct}}%"></span></span>{{/if}}
+        <label class="rl-bot-spend__cap">
+          <span class="rl-label">{{localize "RL.Bots.LLM.cap"}}</span>
+          <input type="number" name="llmSpendLimit" value="{{llm.spend.limit}}" min="0" max="50" step="0.5" data-tooltip="RL.Bots.LLM.capTip">
+        </label>
+        {{#if llm.spend.over}}<p class="rl-bot-spend__note">{{localize "RL.Bots.LLM.overCap"}}</p>{{/if}}
+      </div>
+    </section>
+
+    {{!-- ============ Jev relay ============ --}}
+    <section class="rl-bot-mgr__section rl-bot-relay rl-bot-status-host is-{{relay.state}}" aria-labelledby="rl-bot-mgr-relay">
+      <h2 class="rl-subhead" id="rl-bot-mgr-relay">{{localize "RL.Bots.Relay.title"}}</h2>
+      <div class="rl-bot-relay__status">
+        <span class="rl-bot-lamp" aria-hidden="true"></span>
+        <div class="rl-bot-relay__text" role="status" aria-live="polite">
+          <span class="rl-bot-relay__label">{{relay.label}}</span>
+          {{#if relay.details}}<span class="rl-bot-relay__details">{{relay.details}}</span>{{/if}}
+          {{#if relay.error}}<span class="rl-bot-relay__error">{{relay.error}}</span>{{/if}}
+        </div>
+        <button type="button" id="rl-bot-relay-test" class="rl-btn rl-bot-relay__test" data-action="testRelay" {{disabled relay.checking}}>
+          <i class="fa-solid {{#if relay.checking}}fa-spinner fa-spin{{else}}fa-plug-circle-check{{/if}}" inert></i> {{localize "RL.Bots.Relay.test"}}</button>
+      </div>
+
+      {{#if relay.showHelp}}
+      <div class="rl-callout rl-bot-relay__help">
+        <p class="rl-bot-relay__helphead"><b>{{localize "RL.Bots.Relay.helpTitle"}}</b> {{localize "RL.Bots.Relay.helpLead"}}</p>
+        <ol class="rl-bot-relay__steps">
+          <li>
+            <span class="rl-label">{{localize "RL.Bots.Relay.mac"}}</span>
+            <span>{{localize "RL.Bots.Relay.macText"}}</span>
+            <code class="rl-bot-code rl-bot-code--path">{{relay.commands.folder}}/start-jev-relay.command</code>
+            {{#if relay.hasExtra}}
+            <span>{{localize "RL.Bots.Relay.macExtra"}}</span>
+            <span class="rl-bot-cmd" data-copy-from><code class="rl-bot-code">{{relay.commands.mac}}</code>
+              <button type="button" class="rl-btn rl-btn--icon rl-bot-cmd__copy" data-action="copy" aria-label="{{localize "RL.Bots.Copy"}}" data-tooltip="RL.Bots.Copy"><i class="fa-regular fa-copy" inert></i></button></span>
+            {{/if}}
+          </li>
+          <li>
+            <span class="rl-label">{{localize "RL.Bots.Relay.node"}}</span>
+            <span>{{localize "RL.Bots.Relay.nodeText"}}</span>
+            <span class="rl-bot-cmd" data-copy-from><code class="rl-bot-code">{{relay.commands.node}}</code>
+              <button type="button" class="rl-btn rl-btn--icon rl-bot-cmd__copy" data-action="copy" aria-label="{{localize "RL.Bots.Copy"}}" data-tooltip="RL.Bots.Copy"><i class="fa-regular fa-copy" inert></i></button></span>
+          </li>
+          <li><span>{{localize "RL.Bots.Relay.thenTest"}}</span></li>
+        </ol>
+      </div>
+      {{/if}}
+
+      <div class="rl-bot-relay__fields">
+        <div class="rl-field rl-bot-relay__url">
+          <label for="rl-bot-relay-url">{{localize "RL.Bots.Relay.url"}}</label>
+          <input type="text" id="rl-bot-relay-url" name="relayUrl" value="{{relay.url}}" spellcheck="false" autocomplete="off"
+            {{#unless relay.urlValid}}aria-invalid="true"{{/unless}}>
+        </div>
+        <div class="rl-field rl-bot-relay__token">
+          <label for="rl-bot-relay-token">{{localize "RL.Bots.Relay.token"}}</label>
+          <input type="password" id="rl-bot-relay-token" name="relayToken" value="{{relay.token}}" autocomplete="off"
+            placeholder="{{localize "RL.Bots.Relay.tokenNone"}}">
+        </div>
+      </div>
+    </section>
+  </div>
+
+  {{!-- ============ Controls ============ --}}
+  <footer class="rl-bot-mgr__footer{{#if control.paused}} is-paused{{/if}}">
+    <div class="rl-bot-mgr__state" role="status">
+      <span class="rl-bot-mgr__statelabel"><i class="fa-solid {{#if control.paused}}fa-circle-pause{{else}}fa-circle-play{{/if}}" inert></i> {{control.state}}</span>
+      <span class="rl-bot-mgr__statehint">{{control.hint}}</span>
+      {{#if control.heuristic}}<span class="rl-bot-mgr__lasterror">{{localize "RL.Bots.Manager.heuristicSession"}}</span>{{/if}}
+      {{#if control.lastError}}<span class="rl-bot-mgr__lasterror" data-tooltip="{{control.lastError}}">{{localize "RL.Bots.Manager.lastError" error=control.lastError}}</span>{{/if}}
+    </div>
+    <div class="rl-bot-mgr__buttons">
+      <button type="button" class="rl-bot-link" data-action="openSettings"><i class="fa-solid fa-sliders" inert></i> {{localize "RL.Bots.Manager.settings"}}</button>
+      <button type="button" id="rl-bot-open-log" class="rl-btn" data-action="openLog"><i class="fa-solid fa-list-check" inert></i> {{localize "RL.Bots.Log.open"}}</button>
+      <button type="button" id="rl-bot-pause" class="rl-btn{{#if control.paused}} rl-btn--primary{{/if}}" data-action="togglePause">
+        {{#if control.paused}}<i class="fa-solid fa-play" inert></i> {{localize "RL.Bots.Manager.resume"}}
+        {{else}}<i class="fa-solid fa-pause" inert></i> {{localize "RL.Bots.Manager.pause"}}{{/if}}</button>
+    </div>
+  </footer>
+</div>

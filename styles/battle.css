@@ -1,0 +1,311 @@
+/* ==========================================================================
+   Battle chat card (ChatMessage type "battle") — module/battle/card.mjs, templates/battle/*.hbs
+   A printed dispatch: identical in light and dark themes. Builds on .rl-chat-card, .rl-die, .rl-hazard--thin,
+   .rl-token--missile, .rl-hand and .rl-btn from styles/risklegacy.css. Max ~300 px wide (chat sidebar).
+   ========================================================================== */
+
+.risklegacy.rl-battle {
+  --rl-battle-squiggle: url("assets/svg/marker-arrow-squiggle.svg");
+  --rl-battle-die: 30px;
+  max-width: 300px;
+  overflow: visible;
+}
+
+/* ---- header: territory title, dice, attacker → defender ------------------------------------------------ */
+.risklegacy.rl-battle .rl-battle__head {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--rl-space-2);
+  padding: var(--rl-space-3) var(--rl-space-5);
+}
+.risklegacy.rl-battle .rl-battle__headline {
+  display: flex;
+  align-items: baseline;
+  gap: var(--rl-space-4);
+}
+.risklegacy.rl-battle .rl-battle__headline .rl-chat-card__title {
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+.risklegacy.rl-battle .rl-battle__headline .rl-chat-card__sub { flex: none; }
+.risklegacy.rl-battle .rl-battle__factions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--rl-space-2) var(--rl-space-3);
+  font: 700 11px/1.15 var(--rl-font-body);
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+  color: var(--rl-ink);
+}
+.risklegacy.rl-battle .rl-battle__faction {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.risklegacy.rl-battle .rl-battle__faction::before {   /* faction colour chip (data, not decoration) */
+  content: "";
+  flex: none;
+  width: 9px; height: 9px;
+  background: var(--rl-faction);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / .35);
+}
+.risklegacy.rl-battle .rl-battle__arrow-right { color: var(--rl-red); font-weight: 900; }
+
+/* ---- dice grid: attacker row, "defeats" row, defender row ------------------------------------------------ */
+.risklegacy.rl-battle .rl-battle__body { gap: var(--rl-space-4); padding: var(--rl-space-5); }
+.risklegacy.rl-battle .rl-battle__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) repeat(var(--rl-battle-cols, 3), 34px);
+  grid-auto-rows: auto;
+  column-gap: var(--rl-space-4);   /* room for the dashed missile-target outlines between dice */
+  row-gap: 0;
+  align-items: center;
+  padding-top: var(--rl-space-2);
+}
+.risklegacy.rl-battle .rl-battle__side {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--rl-space-1);
+  min-width: 0;
+  min-height: 34px;
+  padding-left: var(--rl-space-4);
+  border-left: 4px solid var(--rl-faction);
+}
+/* Territory names wrap rather than ellipsize ("Western United States" is two lines in a 300 px card). */
+.risklegacy.rl-battle .rl-battle__place {
+  overflow-wrap: anywhere;
+  font: 800 14px/1.05 var(--rl-font-display);
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+}
+.risklegacy.rl-battle .rl-battle__count {
+  font: italic 11px/1.15 var(--rl-font-body);
+  color: var(--rl-k70);
+}
+.risklegacy.rl-battle .rl-battle__side--vs {
+  min-height: 24px;
+  border-left-color: transparent;
+  align-items: flex-end;
+  padding-right: 2px;
+}
+.risklegacy.rl-battle .rl-battle__side--vs .rl-hand { font-size: 17px; line-height: 1; transform: rotate(-4deg); }
+.risklegacy.rl-battle .rl-battle__cell {
+  display: grid;
+  place-items: center;
+  min-height: 34px;
+}
+.risklegacy.rl-battle .rl-battle__cell--vs { min-height: 24px; }
+
+/* the marker "defeats" arrow: points at the die that lost */
+.risklegacy.rl-battle .rl-battle__defeats {
+  display: block;
+  width: 10px; height: 24px;
+  background: var(--rl-red);
+  -webkit-mask: var(--rl-battle-squiggle) center / contain no-repeat;
+          mask: var(--rl-battle-squiggle) center / contain no-repeat;
+}
+.risklegacy.rl-battle .rl-battle__defeats--attack { transform: rotate(180deg); }   /* black die defeats the red one */
+
+/* dice */
+.risklegacy.rl-battle .rl-battle__die {
+  width: var(--rl-battle-die); height: var(--rl-battle-die);
+  user-select: none;
+}
+.risklegacy.rl-battle .rl-battle__die[data-mod]::after { right: -10px; top: -13px; font-size: 21px; }
+.risklegacy.rl-battle .rl-battle__die.is-lost { opacity: .4; }
+.risklegacy.rl-battle .rl-battle__die.is-ignored { opacity: .3; filter: grayscale(.7); }
+.risklegacy.rl-battle .rl-battle__die.is-pending {
+  color: rgb(255 255 255 / .75);
+  font-size: 16px;
+}
+.risklegacy.rl-battle .rl-battle__die.is-missile { box-shadow: inset 0 -3px 0 rgb(0 0 0 / .45), 0 0 0 2px var(--rl-missile), 0 1px 2px rgb(0 0 0 / .45); }
+.risklegacy.rl-battle .rl-battle__missile {
+  position: absolute;
+  left: -7px; bottom: -9px;
+  width: 9px; height: 22px;
+  transform: rotate(-24deg);
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / .4));
+}
+.risklegacy.rl-battle .rl-battle__die.is-target {
+  cursor: crosshair;
+  outline: 2px dashed var(--rl-missile);
+  outline-offset: 2px;
+}
+.risklegacy.rl-battle .rl-battle__die.is-target:is(:hover, :focus-visible) {
+  outline-style: solid;
+  box-shadow: inset 0 -3px 0 rgb(0 0 0 / .45), 0 0 0 4px rgb(243 113 35 / .45);
+}
+
+/* the marker note: modifiers in effect, one line per side (chip = black attack / red defence die) */
+.risklegacy.rl-battle .rl-battle__mods {
+  display: grid;
+  justify-items: end;
+  gap: var(--rl-space-2);
+  padding-right: var(--rl-space-1);   /* the -1° tilt lifts the line ends: keep them off the card edge */
+  transform: rotate(-1deg);
+}
+.risklegacy.rl-battle .rl-battle__mod {
+  display: flex;
+  align-items: center;
+  gap: var(--rl-space-3);
+  font-size: 16px;
+  line-height: 1.05;
+  text-align: right;
+}
+.risklegacy.rl-battle .rl-battle__mod--attack { color: var(--rl-ink); }
+.risklegacy.rl-battle .rl-battle__mod--defend { color: var(--rl-red); }
+.risklegacy.rl-battle .rl-battle__chip {
+  flex: none;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  background: linear-gradient(160deg, #3a3a3a, #121212);
+}
+.risklegacy.rl-battle :is(.rl-battle__mod--defend .rl-battle__chip, .rl-battle__chip--defend) { background: linear-gradient(160deg, #e2262d, #a8121a); }
+
+/* blitz rounds */
+.risklegacy.rl-battle .rl-battle__rounds {
+  display: grid;
+  gap: var(--rl-space-1);
+  margin: 0;
+  padding: var(--rl-space-3) 10px;
+  list-style: none;
+  background: var(--rl-grad-steel);
+  box-shadow: var(--rl-bevel-steel);
+  font: 700 11px/1.3 var(--rl-font-body);
+  font-variant-numeric: tabular-nums;
+}
+.risklegacy.rl-battle .rl-battle__rounds > li { display: flex; gap: var(--rl-space-3); align-items: center; }
+.risklegacy.rl-battle .rl-battle__round-n { min-width: 14px; color: var(--rl-k70); }
+.risklegacy.rl-battle .rl-battle__round-dice { word-spacing: 2px; }
+.risklegacy.rl-battle .rl-battle__round-vs { color: var(--rl-red); }
+.risklegacy.rl-battle .rl-battle__round-loss { display: inline-flex; align-items: center; gap: var(--rl-space-2); margin-left: auto; color: var(--rl-k80); }
+.risklegacy.rl-battle .rl-battle__round-loss .rl-battle__chip { width: 8px; height: 8px; }
+.risklegacy.rl-battle .rl-battle__round-loss .rl-battle__chip--defend { margin-left: var(--rl-space-3); }
+/* fixed-width loss figures so the chips line up from round to round ("0" vs "−2") */
+.risklegacy.rl-battle .rl-battle__round-value { min-width: 2ch; text-align: right; }
+
+/* missiles */
+.risklegacy.rl-battle .rl-battle__missiles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--rl-space-3) var(--rl-space-4);
+}
+.risklegacy.rl-battle .rl-battle__missiles select { flex: 1 1 90px; min-width: 0; min-height: 28px; padding: 2px 6px; font-size: 12px; }
+.risklegacy.rl-battle .rl-battle__fire .rl-token--missile,
+.risklegacy.rl-battle .rl-battle__fired .rl-token--missile { width: 8px; height: 19px; }
+.risklegacy.rl-battle .rl-battle__missiles.is-armed .rl-battle__fire {
+  background: var(--rl-missile);
+  color: #fff;
+}
+.risklegacy.rl-battle .rl-battle__hint,
+.risklegacy.rl-battle .rl-battle__fired {
+  font: italic 11px/1.2 var(--rl-font-body);
+  color: var(--rl-k80);
+}
+.risklegacy.rl-battle .rl-battle__hint { flex-basis: 100%; }
+.risklegacy.rl-battle .rl-battle__fired { display: flex; align-items: center; gap: var(--rl-space-3); }
+
+/* rules notes */
+.risklegacy.rl-battle .rl-battle__notes {
+  display: grid;
+  gap: var(--rl-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: italic 11px/1.25 var(--rl-font-body);
+  color: var(--rl-k80);
+}
+
+/* ---- cream result footer and controls ---------------------------------------------------------------------- */
+.risklegacy.rl-battle .rl-battle__result { display: grid; gap: var(--rl-space-2); font-weight: 700; }
+.risklegacy.rl-battle .rl-battle__outcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rl-space-5);
+}
+.risklegacy.rl-battle .rl-battle__outcome > span:first-child { white-space: pre-line; }
+.risklegacy.rl-battle .rl-battle__stamp {
+  flex: none;
+  font-size: 17px;
+  border-width: 2px;
+  padding: 2px 6px 0;
+}
+.risklegacy.rl-battle .rl-battle__outcome-sub { font: 400 12px/1.25 var(--rl-font-body); }
+.risklegacy.rl-battle .rl-battle__outcome-label { font: italic 400 11px/1.1 var(--rl-font-body); color: var(--rl-k70); }
+.risklegacy.rl-battle .rl-battle__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--rl-space-4);
+  margin-top: var(--rl-space-3);
+}
+/* Compact steel buttons for the 300 px card, still padded ≥ 6 × 10 px around the label (DESIGN.md §5). */
+.risklegacy.rl-battle .rl-battle__actions .rl-btn,
+.risklegacy.rl-battle .rl-battle__missiles .rl-btn {
+  min-height: 28px;
+  padding: 6px 10px 4px;
+  font-size: 13px;
+  gap: var(--rl-space-3);
+}
+.risklegacy.rl-battle .rl-battle__actions .rl-btn.rl-btn--icon { min-width: 32px; padding-inline: var(--rl-space-4); }
+.risklegacy.rl-battle .rl-battle__actions .rl-btn > i { font-size: 11px; }
+.risklegacy.rl-battle .rl-battle__field {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rl-space-3);
+}
+.risklegacy.rl-battle .rl-battle__field input[type="number"] {
+  width: 44px;
+  min-height: 28px;
+  padding: 2px 4px;
+  font: 700 14px/1 var(--rl-font-body);
+}
+.risklegacy.rl-battle .rl-battle__stop-at {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rl-space-2);
+  font: italic 11px/1 var(--rl-font-body);
+  color: var(--rl-k80);
+}
+.risklegacy.rl-battle .rl-battle__cancel { margin-left: auto; }
+
+/* states */
+.risklegacy.rl-battle.rl-battle--cancelled .rl-battle__grid { opacity: .5; }
+
+/* the defender's dialog */
+.risklegacy .rl-battle-defense { margin: 0; display: grid; gap: var(--rl-space-4); }
+.risklegacy .rl-battle-defense p { margin: 0; }
+.risklegacy .rl-battle-defense__hint { font: italic 12px/1.25 var(--rl-font-body); color: var(--rl-k70); }
+
+
+/* ==========================================================================
+   Turn chat cards — templates/turn/chat-card.hbs (module/turn/chat.mjs): turn start, recruit, expansion, end of
+   turn, knock-out, elimination, powers, victory… The same printed dispatch as the battle card, ≤ 300 px wide.
+   Cards posted before these classes existed carry inline styles; the `.rl-chat-card__row` rules still apply to them.
+   ========================================================================== */
+.risklegacy .rl-turn-card__body--token {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--rl-space-5);
+}
+.risklegacy .rl-turn-card__token.rl-token { width: 40px; height: 40px; }
+.risklegacy .rl-turn-card__token.rl-token--missile { width: 20px; height: 48px; margin-inline: 10px; }
+.risklegacy .rl-turn-card__lines { display: grid; gap: var(--rl-space-4); min-width: 0; }
+/* label + value rows: a value too long for the line drops below its label, right-aligned (never ragged) */
+.risklegacy.rl-turn-card .rl-chat-card__row {
+  flex-wrap: wrap;
+  align-items: baseline;
+  row-gap: var(--rl-space-1);
+}
+.risklegacy.rl-turn-card .rl-chat-card__row > .rl-label { flex: 0 1 auto; min-width: 0; }
+.risklegacy.rl-turn-card .rl-turn-card__value {
+  margin-left: auto;
+  min-width: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.risklegacy .rl-turn-card__note { font-size: 16px; text-align: right; }

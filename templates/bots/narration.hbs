@@ -1,0 +1,22 @@
+{{!-- Bot narration chat card (BOTS.md §7.3), built by module/bots/ui/narration.mjs; strings arrive localized.
+     A compact printed dispatch: same in both themes. Styled in styles/bots.css ("Narration"). A chat bot's table talk
+     (BOTS-LLM.md §8) may ride along as `quote`. --}}
+<div class="risklegacy rl-chat-card rl-bot-say rl-bot-say--{{category}} {{factionClass}}"{{#if color}} style="--rl-bot-faction: {{color}}"{{/if}}>
+  {{#if notice}}<span class="rl-hazard rl-hazard--thin"></span>{{/if}}
+  <div class="rl-chat-card__head rl-bot-say__head">
+    <span class="rl-bot-say__icon" aria-hidden="true"><i class="fa-solid fa-robot" inert></i></span>
+    <h3 class="rl-chat-card__title rl-bot-say__title">{{title}}</h3>
+    {{#if sub}}<span class="rl-chat-card__sub rl-bot-say__sub">{{sub}}</span>{{/if}}
+  </div>
+  <div class="rl-chat-card__body rl-bot-say__body">
+    <p class="rl-bot-say__line">{{line}}</p>
+    {{#if heuristic}}<p class="rl-hand rl-hand--red rl-bot-say__note">{{heuristicNote}}</p>{{/if}}
+  </div>
+  {{#if quote}}
+  <figure class="rl-bot-say__talk">
+    <span class="rl-bot-portrait rl-bot-portrait--sm" aria-hidden="true"><img src="{{quote.portrait}}" alt=""></span>
+    <blockquote class="rl-bot-say__quote">{{quote.text}}</blockquote>
+    <figcaption class="rl-bot-say__by">{{quote.by}}</figcaption>
+  </figure>
+  {{/if}}
+</div>

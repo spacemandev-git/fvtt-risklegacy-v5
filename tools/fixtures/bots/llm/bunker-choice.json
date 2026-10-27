@@ -1,0 +1,27 @@
+{
+ "name": "bunker-choice",
+ "description": "Enclave declares an attack on Khan's HQ China (6) from Mongolia (11). Khan holds a Bunker scar card (+1 to the defender's higher die there, for good).",
+ "me": "khan",
+ "difficulty": "hard",
+ "factions": {
+  "khan": { "name": "Khan Industries", "key": "khan", "redStarTokens": 1, "startingTerritory": "china" },
+  "enclave": { "name": "Enclave of the Bear", "key": "enclave", "redStarTokens": 1, "startingTerritory": "kamchatka", "hand": { "count": 2, "coins": 3 } },
+  "balkania": { "name": "Imperial Balkania", "key": "balkania", "redStarTokens": 1, "startingTerritory": "russia" }
+ },
+ "pieces": {
+  "china": { "khan": { "troops": 6, "hq": true } }, "india": { "khan": 3 }, "southeast_asia": { "khan": 2 },
+  "mongolia": { "enclave": 11 }, "kamchatka": { "enclave": { "troops": 5, "hq": true } }, "irkutsk": { "enclave": 2 },
+  "russia": { "balkania": { "troops": 6, "hq": true } }, "ural": { "balkania": 3 }
+ },
+ "turn": { "faction": "enclave", "phase": "attack", "log": { "recruited": true } },
+ "llm": { "personality": "test_turtle" },
+ "calls": [
+  {
+   "fn": "preRollScar",
+   "args": {
+    "battle": { "id": "battle-china", "attacker": "enclave", "defender": "khan", "from": "mongolia", "to": "china", "attackDice": 3, "status": "declared" },
+    "cards": [ { "id": "b1", "scar": "bunker", "name": "Bunker", "text": "+1 to the defender's higher die in this territory.", "target": "territory", "timing": "beforeAttackRoll" } ]
+   }
+  }
+ ]
+}

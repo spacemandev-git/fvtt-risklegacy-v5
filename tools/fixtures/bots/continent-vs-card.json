@@ -1,0 +1,94 @@
+{
+ "name": "continent-vs-card",
+ "description": "Khan holds three of South America's four territories; Argentina has 2 Saharan troops. A 1-troop Balkania territory is next door in North America.",
+ "me": "khan",
+ "difficulty": "normal",
+ "factions": {
+  "khan": {
+   "name": "Khan Industries",
+   "key": "khan",
+   "redStarTokens": 1,
+   "startingTerritory": "venezuela"
+  },
+  "saharan": {
+   "name": "Saharan Republic",
+   "key": "saharan",
+   "redStarTokens": 1,
+   "startingTerritory": "north_africa"
+  },
+  "balkania": {
+   "name": "Imperial Balkania",
+   "key": "balkania",
+   "redStarTokens": 1,
+   "startingTerritory": "northern_europe"
+  },
+  "enclave": {
+   "name": "Enclave of the Bear",
+   "key": "enclave",
+   "redStarTokens": 1,
+   "startingTerritory": "kamchatka"
+  }
+ },
+ "pieces": {
+  "venezuela": {
+   "khan": {
+    "troops": 4,
+    "hq": true
+   }
+  },
+  "brazil": {
+   "khan": 7
+  },
+  "peru": {
+   "khan": 3
+  },
+  "central_america": {
+   "khan": 5
+  },
+  "argentina": {
+   "saharan": 2
+  },
+  "north_africa": {
+   "saharan": {
+    "troops": 5,
+    "hq": true
+   }
+  },
+  "egypt": {
+   "saharan": 3
+  },
+  "western_united_states": {
+   "balkania": 1
+  },
+  "eastern_united_states": {
+   "balkania": 3
+  },
+  "northern_europe": {
+   "balkania": {
+    "troops": 5,
+    "hq": true
+   }
+  },
+  "kamchatka": {
+   "enclave": {
+    "troops": 5,
+    "hq": true
+   }
+  },
+  "alaska": {
+   "enclave": 2
+  }
+ },
+ "turn": {
+  "faction": "khan",
+  "phase": "attack",
+  "log": {
+   "recruited": true
+  }
+ },
+ "calls": [
+  {
+   "fn": "nextMove"
+  }
+ ]
+}

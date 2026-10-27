@@ -1,0 +1,27 @@
+<section class="tab rl-cs-tab-continents {{tab.cssClass}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  {{#if noBoard}}<div class="rl-note"><span class="rl-label">{{localize "RL.Sheet.Faction.NoBoardTitle"}}</span>{{localize "RL.Sheet.Campaign.NoBoard"}}</div>{{/if}}
+  <div class="rl-cs-continents">
+    {{#each continents as |c|}}
+    <article class="rl-cs-continent" data-continent="{{c.id}}"{{#if c.color}} style="--rl-continent: {{c.color}}"{{/if}}>
+      <div class="rl-cs-continent__plate">
+        <span class="rl-cs-continent__strip">{{localize "RL.Sheet.Campaign.NTerritories" count=c.territories}}</span>
+        <span class="rl-cs-continent__bonus">
+          <b>{{c.bonus}}</b>
+          {{#if c.modArt}}<img class="rl-cs-continent__mod" src="{{c.modArt}}" alt="{{#if (gt c.modifier 0)}}+1{{else}}−1{{/if}}">{{/if}}
+        </span>
+      </div>
+      <h4 class="rl-cs-continent__label">{{c.label}}</h4>
+      <div class="rl-cs-continent__name">
+        {{#if c.name}}<span class="rl-hand">{{c.name}}</span>
+        {{else}}<span class="rl-slot rl-cs-continent__slot">{{localize "RL.Sheet.Campaign.Unnamed"}}</span>{{/if}}
+      </div>
+      <p class="rl-cs-continent__meta">
+        {{#if c.name}}{{localize "RL.Sheet.Campaign.NamedBy"}} <span class="rl-hand">{{c.namedBy}}</span> <b class="rl-cs-continent__plus">{{localize "RL.Sheet.Campaign.NamerBonus"}}</b>{{#if c.game}} · {{localize "RL.Sheet.Campaign.GameN" game=c.game}}{{/if}}<br>{{/if}}
+        {{localize "RL.Sheet.Campaign.ContinentValue" value=c.value}}{{#if c.modifier}} <span class="rl-hand rl-hand--red">({{#if (gt c.modifier 0)}}+1{{else}}−1{{/if}})</span>{{/if}}
+        {{#if c.owner}}<br><span class="rl-cs-continent__owner" style="--rl-owner: {{c.owner.color}}">{{localize "RL.Sheet.Campaign.HeldBy" faction=c.owner.name}}</span>{{/if}}
+      </p>
+      {{#if @root.canManage}}<button type="button" class="rl-ui-icon rl-cs-continent__edit" data-action="editContinent" data-tooltip="RL.Sheet.Campaign.EditContinent" aria-label="{{localize "RL.Sheet.Campaign.EditContinent"}}"><i class="fa-solid fa-pen" inert></i></button>{{/if}}
+    </article>
+    {{/each}}
+  </div>
+</section>

@@ -1,0 +1,6 @@
+namespace: alien_island.territories.thirtytroops.risklegacy.spacemandev
+imgPath: alien_island.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 3
+ continent: "None"

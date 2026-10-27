@@ -1,0 +1,372 @@
+# POCKET 2 - opened when someone is about to place 30+ troops and has a Missile. Card codes K180s-K198s.
+pack:
+  label: "Pocket 2: Thirty Troops"
+  order: 6
+  kind: pocket
+  trigger:
+    key: thirtyTroopsWithMissile
+    text: Open when someone is about to place 30+ troops on the board and has a missile.
+    rulebook: "POCKET 2: Open when a person is about to place 30+ troops on the board and has at least one Missile. These 30 troops can be from any combination of territories/cities held, continent bonuses, plus cards turned in. The person must also have a Missile in their possession - that is, they can't have used all of their Missiles earlier in the game. Open the pocket before placing the troops. This will be opened in the middle of a game."
+    when: midGame
+
+notes:
+  - rules/images/evolution_1..5.jpg (K180s-K184) are "THE WAR PROGRESSES" cards. K180s carries the Alien Collaborator weakness sticker (powers/alien_collaborator); K182s is the Alien Island sticker card (marks/alien_island, stickers/alien_island, stickers/alien_island_sea_line_start).
+  - "alien_island_rules.jpg (K185s) carries TWO rulebook stickers: \"Alien Island\" and \"Ruins\". Their boxes (M and N, the two short boxes on page 13) are inferred."
+  - "Alien Island territory card (K186) - art exists only for 3-6 resources, in thirtytroops/territories/images/cards.3..6/alien_island.jpg (the card starts at 3 and can only gain resources). There is one art set for both board variants, so faces.original and faces.advanced list the same files, with null at index 0-1 (values 1 and 2)."
+  - territories/cards.yaml gives the Alien Island continent as "None"; it is emitted as null (K185s - "It is not part of any continent").
+  - The alien faction card was not scanned (factions/images/aliens.png is character art). Its printed powers come from the old thirtytroops/init.js (textSource "init.js", unverified).
+  - "init.js gives the alien private mission as \"Controlling every city on the board earns you 2 Red Stars\", but K184 says the private mission \"can earn them one Red Star token once per game\". Unresolved; the init.js text is kept and the conflict flagged on the power."
+  - "init.js gives the alien starting power as \"You do not lose troops expanding into enemy cities\". Expanding only ever targets unoccupied territories, so \"empty cities\" (the wording on the weakness cards) is probably meant; kept verbatim."
+  - "Weakness scars are dealt like other scars but go on a faction card's yellow slot, not on the board (K184). Each weakness scar card (scars[], target \"faction\") points at its power (powers[], slot \"weakness\"). Alien Collaborator is not a dealt scar - it is placed on the collaborating faction when this pocket opens (K180s)."
+  - "Weakness cards K194s Cautious, K195s Purist, K196s Short Sighted, K197s Unpopular, K198s Primitive. powers/cards.yaml had no Cautious entry and worded Purist slightly differently (\"keep the coin cards\"); the cards win. powers/cards.yaml marks every weakness slot as type \"weakness\"."
+  - "Ruins - the YAML has no qty. Each of the 3 Die Humans event cards (K187s) carries one ruin mark, so qty is set to 3 (inferred)."
+  - Event copies - Die Humans x3 (K187s, presumably K187s-K189s), Beam Down x2 (K190, presumably K190-K191), Mysterious Island x2 (K192, presumably K192-K193); 7 Alien Event Cards in total, as K183 says.
+  - factions/images/aliens_3_old.png is unused older art. Alien colour "#2e76d0" (blue) was sampled from the alien HQ token art.
+  - thirtytroops/territories/images/{coin.png,resource_card.jpg} are byte-identical copies of the base files.
+
+warProgresses:
+  - yaml: rules:evolution_1
+    id: thirtytroops_evolution_1
+    code: K180s
+    order: 1
+    title: "The War Progresses: Thirty Troops (1)"
+    text: |-
+      They have been living among us. The faction about to place 30+ troops is the Alien Collaborator and has been working with an alien race in their attempt to conquer the planet.
+
+      Place this Alien Collaborator weakness scar on the Collaborating Faction's yellow slot now.
+    sticker: {kind: weakness, ref: "powers:alien_collaborator", text: "ALIEN COLLABORATOR: Add one to your resource total when turning in cards. Lose 2 extra troops when expanding into empty cities."}
+    textSource: card
+  - yaml: rules:evolution_2
+    id: thirtytroops_evolution_2
+    code: K181
+    order: 2
+    title: "The War Progresses: Thirty Troops (2)"
+    text: |-
+      The Alien collaborator places the Alien Island sticker (on the next card) onto any ocean and places both sea line start stickers onto two different territories that have borders touching an ocean.
+
+      Connect each sea line start stickers to a different sea line on Alien Island using a pen. Those territories are now connected to the Alien Island.
+    textSource: card
+  - yaml: rules:evolution_3
+    id: thirtytroops_evolution_3
+    code: K182s
+    order: 3
+    title: "The War Progresses: Thirty Troops (3)"
+    text: ALIEN ISLAND
+    description: "Sticker card - the Alien Island mark (a ring-shaped island labelled ALIEN ISLAND with two sea-line ends) and two separate sea line start stickers. The only printed text is the island's label."
+    sticker: {kind: mark, ref: "marks:alien_island"}
+    textSource: card
+  - yaml: rules:evolution_4
+    id: thirtytroops_evolution_4
+    code: K183
+    order: 4
+    title: "The War Progresses: Thirty Troops (4)"
+    text: |-
+      The Alien Collaborator places the 30+ troops he is getting onto Alien Island along with 10 Alien troops.
+
+      For this game only, the Alien Collaborator and the Aliens are one faction and the troops can be intermixed.
+
+      Shuffle the Alien Island territory card into the territory deck. Put the 7 Alien Event Cards aside. They will go into (or create) the event deck for the next game.
+    textSource: card
+  - yaml: rules:evolution_5
+    id: thirtytroops_evolution_5
+    code: K184
+    order: 5
+    title: "The War Progresses: Thirty Troops (5)"
+    text: |-
+      These Aliens are focused on controlling and destroying cities. Their faction card includes a private mission that can earn them one Red Star token once per game.
+
+      There are also new scar cards to be used in future games.
+
+      These new scars are weakness scars that are not played on the board. They go onto any non-alien faction card on the yellow sticker slot.
+    textSource: card
+
+rules:
+  - yaml: rules:alien_island_rules
+    id: alien_island_rules
+    kind: addition
+    addition: M
+    page: 13
+    inferred: true
+    inferredFrom: "Two short stickers on K185s; M and N are the two shorter boxes on page 13 and the last in card-code order."
+    code: K185s
+    title: Alien Island
+    text: |-
+      Alien Island: Alien Island is a territory connected to two other territories via sea-lines. It is the 8th island on this board. It is not part of any continent.
+    replaces: null
+    mark: alien_island
+    stickerIndex: 1
+    textSource: card
+  - yaml: rules:alien_island_rules
+    id: ruins_rules
+    kind: addition
+    addition: N
+    page: 13
+    inferred: true
+    inferredFrom: "Second short sticker on K185s (see alien_island_rules)."
+    code: K185s
+    title: Ruins
+    text: |-
+      Ruins: When the Alien player destroys a city and replaces it with a ruin, that territory no longer contains a city. A ruin cannot be fortified and is not considered a city. You can rebuild a city over a ruin.
+    replaces: null
+    mark: ruins
+    stickerIndex: 2
+    textSource: card
+
+marks:
+  - yaml: rules:alien_island
+    id: alien_island
+    name: Alien Island
+    code: K182s
+    cardImg: assets/unlocks/thirtytroops/rules/images/evolution_3.jpg
+    text: |-
+      Alien Island: Alien Island is a territory connected to two other territories via sea-lines. It is the 8th island on this board. It is not part of any continent.
+    effect: {type: newTerritory, territory: alien_island, continent: null, seaLines: 2, island: true}
+    rules: [alien_island_rules]
+    textSource: card
+  - id: ruins
+    name: Ruins
+    code: K187s
+    img: assets/unlocks/thirtytroops/stickersheet/images/ruins.png
+    cardImg: assets/unlocks/thirtytroops/events/images/die_humans.jpg
+    text: |-
+      Ruins: When the Alien player destroys a city and replaces it with a ruin, that territory no longer contains a city. A ruin cannot be fortified and is not considered a city. You can rebuild a city over a ruin.
+    effect: {type: ruin}
+    rules: [ruins_rules]
+    textSource: card
+
+stickers:
+  - yaml: stickersheet:ruins
+    name: Ruin
+    code: K187s
+    qty: 3
+    group: other
+    text: |-
+      The Alien player may choose a minor city. Place the ruin mark over the city mark. That city is gone. Remove all troops and DEMOLISH any HQ in that territory.
+    effect: {type: mark, mark: ruins}
+    textSource: card
+  - id: alien_island
+    name: Alien Island
+    code: K182s
+    qty: 1
+    img: assets/unlocks/thirtytroops/rules/images/alien_island.png
+    group: other
+    text: |-
+      The Alien collaborator places the Alien Island sticker (on the next card) onto any ocean and places both sea line start stickers onto two different territories that have borders touching an ocean.
+    effect: {type: mark, mark: alien_island}
+    textSource: card
+  - id: alien_island_sea_line_start
+    name: Sea Line Start (Alien Island)
+    code: K182s
+    qty: 2
+    img: assets/unlocks/thirtytroops/rules/images/evolution_3.jpg
+    group: other
+    text: |-
+      Connect each sea line start stickers to a different sea line on Alien Island using a pen. Those territories are now connected to the Alien Island.
+    effect: {type: seaLine, to: alien_island}
+    textSource: card
+
+events:
+  - yaml: events:beam_down
+    name: Beam Down
+    code: K190
+    text: |-
+      The Alien player may place 5 troops into any 1 unoccupied city territory.
+
+      DISCARD this card.
+    afterResolve: box
+    effect: {type: placeTroops, who: alienPlayer, where: {unoccupied: true, city: true}, targets: 1, count: 5, optional: true}
+    textSource: card
+  - yaml: events:die_humans
+    name: Die Humans
+    code: K187s
+    text: |-
+      The Alien player may choose a minor city. Place the ruin mark over the city mark. That city is gone. Remove all troops and DEMOLISH any HQ in that territory.
+
+      If a city is ruined, DESTROY this card, otherwise DISCARD it.
+    afterResolve: other
+    afterResolveText: If a city is ruined, DESTROY this card, otherwise DISCARD it.
+    effect: {type: ruinCity, who: alienPlayer, where: {cityType: minor}, optional: true, afterResolve: destroy}
+    textSource: card
+  - yaml: events:mysterious_island
+    name: Mysterious Island
+    code: K192
+    text: |-
+      Whomever controls Alien Island may take any one face up territory card. This may trigger a second event this turn.
+
+      DISCARD this card.
+    afterResolve: box
+    effect: {type: takeTerritoryCard, who: {controllerOf: alien_island}, from: faceUp, count: 1}
+    textSource: card
+
+factions:
+  - yaml: factions:aliens
+    color: "#2e76d0"
+
+territoryCards:
+  - id: alien_island
+    code: K186
+
+scars:
+  - yaml: scars:cautious
+    name: Cautious
+    code: K194s
+    target: faction
+    text: |-
+      You may play this card at any point during your turn. Place the weakness scar on any faction with an empty yellow slot.
+
+      Cautious: When placing recruited troops, you can place them into no more than 2 territories.
+    play: {timing: duringOwnTurn, where: factionYellowSlot, requires: emptyYellowSlot}
+    effect: {type: factionPower, power: cautious}
+    power: cautious
+    textSource: card
+  - yaml: scars:primitive
+    name: Primitive
+    code: K198s
+    target: faction
+    text: |-
+      You may play this card at any point during your turn. Place the weakness scar on any faction with an empty yellow slot.
+
+      Primitive: You do not add population when recruiting troops.
+    play: {timing: duringOwnTurn, where: factionYellowSlot, requires: emptyYellowSlot}
+    effect: {type: factionPower, power: primitive}
+    power: primitive
+    textSource: card
+  - yaml: scars:purist
+    name: Purist
+    code: K195s
+    target: faction
+    text: |-
+      You may play this card at any point during your turn. Place the weakness scar on any faction with an empty yellow slot.
+
+      Purist: You cannot have more than 2 coin cards. You must keep coin cards face up in front of you, not in your hand.
+    play: {timing: duringOwnTurn, where: factionYellowSlot, requires: emptyYellowSlot}
+    effect: {type: factionPower, power: purist}
+    power: purist
+    textSource: card
+  - yaml: scars:short_sighted
+    name: Short Sighted
+    code: K196s
+    target: faction
+    text: |-
+      You may play this card at any point during your turn. Place the weakness scar on any faction with an empty yellow slot.
+
+      Short Sighted: You can only maneuver into adjacent territories.
+    play: {timing: duringOwnTurn, where: factionYellowSlot, requires: emptyYellowSlot}
+    effect: {type: factionPower, power: short_sighted}
+    power: short_sighted
+    textSource: card
+  - yaml: scars:unpopular
+    name: Unpopular
+    code: K197s
+    target: faction
+    text: |-
+      You may play this card at any point during your turn. Place the weakness scar on any faction with an empty yellow slot.
+
+      Unpopular: You lose 1 extra troop when expanding into empty cities.
+    play: {timing: duringOwnTurn, where: factionYellowSlot, requires: emptyYellowSlot}
+    effect: {type: factionPower, power: unpopular}
+    power: unpopular
+    textSource: card
+
+powers:
+  - yaml: powers:alien_collaborator
+    name: Alien Collaborator
+    code: K180s
+    text: Add one to your resource total when turning in cards. Lose 2 extra troops when expanding into empty cities.
+    cardImg: assets/unlocks/thirtytroops/rules/images/evolution_1.jpg
+    timing: recruit
+    effect: null
+    textSource: card
+  - id: cautious
+    faction: null
+    slot: weakness
+    name: Cautious
+    code: K194s
+    text: When placing recruited troops, you can place them into no more than 2 territories.
+    cardImg: assets/unlocks/thirtytroops/scars/images/cautious.jpg
+    timing: recruit
+    effect: null
+    scar: cautious
+    textSource: card
+  - yaml: powers:primitive
+    name: Primitive
+    code: K198s
+    text: You do not add population when recruiting troops.
+    cardImg: assets/unlocks/thirtytroops/scars/images/primitive.jpg
+    timing: recruit
+    effect: null
+    scar: primitive
+    textSource: card
+  - yaml: powers:unpopular
+    name: Unpopular
+    code: K197s
+    text: You lose 1 extra troop when expanding into empty cities.
+    cardImg: assets/unlocks/thirtytroops/scars/images/unpopular.jpg
+    timing: expand
+    effect: null
+    scar: unpopular
+    textSource: card
+  - yaml: powers:short_sighted
+    name: Short Sighted
+    code: K196s
+    text: You can only maneuver into adjacent territories.
+    cardImg: assets/unlocks/thirtytroops/scars/images/short_sighted.jpg
+    timing: maneuver
+    effect: null
+    scar: short_sighted
+    textSource: card
+  - yaml: powers:purist
+    name: Purist
+    code: K195s
+    text: You cannot have more than 2 coin cards. You must keep coin cards face up in front of you, not in your hand.
+    cardImg: assets/unlocks/thirtytroops/scars/images/purist.jpg
+    timing: passive
+    effect: null
+    scar: purist
+    textSource: card
+  - id: aliens_starter
+    faction: aliens
+    slot: starter
+    name: "Aliens: Starting Power"
+    text: You do not lose troops expanding into enemy cities
+    timing: expand
+    effect: null
+    note: Probably means "empty cities" (expanding only targets unoccupied territories).
+    textSource: init.js
+  - id: aliens_mission
+    faction: aliens
+    slot: mission
+    name: "Aliens: Private Mission"
+    text: Controlling every city on the board earns you 2 Red Stars
+    timing: endOfTurn
+    check: {type: controlAllCities}
+    reward: 2
+    note: "K184 says the alien private mission earns one Red Star token once per game; init.js says 2 Red Stars. Unresolved."
+    effect: null
+    textSource: init.js
+  - id: aliens_knockout
+    faction: aliens
+    slot: knockout
+    name: "Aliens: Comeback Power"
+    text: When recruiting, you get 2 extra troops if you control Alien Island and 1 extra troop for every Ruin you control.
+    timing: recruit
+    effect: null
+    textSource: init.js
+  - id: aliens_no_weakness
+    faction: aliens
+    slot: weakness
+    name: "Aliens: Limitation (weakness)"
+    text: You cannot be given a weakness.
+    timing: passive
+    limitation: true
+    effect: null
+    textSource: init.js
+  - id: aliens_no_missile_power
+    faction: aliens
+    slot: missile
+    name: "Aliens: Limitation (missile)"
+    text: You cannot be given a missile power.
+    timing: passive
+    limitation: true
+    effect: null
+    textSource: init.js

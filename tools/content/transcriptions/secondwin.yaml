@@ -1,0 +1,164 @@
+# PACK 3 - opened when someone signs the board for the second time. Card codes D109-D121.
+pack:
+  label: "Pack 3: Second Win"
+  order: 3
+  kind: package
+  trigger:
+    key: secondSignature
+    text: Open when one person gets to sign the board for a second time.
+    sealedText: OPEN WHEN ONE PERSON GETS TO SIGN THE BOARD FOR A SECOND TIME.
+    rulebook: "PACK 3: Open when a person gets to sign the board for the second time. After signing the victor's section of the board and picking their reward for their second victory on this world, this envelope should be opened. This will be opened at the end of a game."
+    when: endOfGame
+
+notes:
+  - rules/images/evolution_1.jpg (D109) is a "THE WAR PROGRESSES" narrative card (listed under warProgresses). The Evolution sticker card is pg12panelF (D110s).
+  - Join the Cause has 3 copies (presumably D111-D113); one face is scanned.
+  - "Mission rewards are the number of Red Star icons on the card: Explore the World and The world is ready give 2, all others 1."
+  - The World Capital mark (stickers/world_capital, image stickersheet/images/scar_capital.png) is physically printed on the mission card "The world is ready" (D120s). Completing that mission places it and opens the World Capital envelope (pack worldcapital).
+  - The two sea-line start stickers are printed on Explore the World (D121s); there is no separate image for them, so `img` is the mission card.
+  - Mission `check.count` always means "at least" (the cards say 4+, 7+ ...).
+
+warProgresses:
+  - yaml: rules:evolution_1
+    id: secondwin_evolution_1
+    code: D109
+    order: 1
+    title: "The War Progresses: Second Win"
+    text: |-
+      Factions are starting to become attached to their new world. By this time they are starting to develop a Homeland.
+
+      Place the sticker from the Evolution card onto the rulebook in the matching box.
+
+      In this pack there are also Mission and Event cards. Shuffle them into (or create) the event and mission decks right now.
+    textSource: card
+
+rules:
+  - yaml: rules:pg12panelF
+    id: pg12_panel_f
+    kind: addition
+    addition: F
+    page: 12
+    inferred: false
+    inferredFrom: file name pg12panelF + rules/08-turn-steps-4-5-maneuver-and-end-of-turn.md comment
+    code: D110s
+    title: "Homeland (Rules addition F)"
+    text: |-
+      At the end of your turn, when you draw a resource card, you may draw a face up card containing a territory in your homeland, even if you do not currently control that territory.
+
+      Homeland: Look at the back of your faction card. The faction's homeland is the continent that has been the starting location most often for the faction (including this game). If there is a tie, the faction does not have a homeland.
+    replaces: null
+    textSource: card
+
+events:
+  - yaml: events:join_the_cause
+    name: Join the Cause
+    code: D111
+    text: |-
+      Whomever has the largest population EITHER receives 3 troops that can be placed into one or more city territories he controls OR he may choose a new mission from the mission deck to replace the current one (discard the current mission and reshuffle the mission deck).
+
+      DISCARD this card.
+    afterResolve: box
+    effect:
+      type: choice
+      who: largestPopulation
+      options:
+        - {type: placeTroops, where: controlledCities, count: 3, split: true}
+        - {type: chooseMission}
+    textSource: card
+
+missions:
+  - yaml: missions:amphibious_onslaught
+    name: Amphibious Onslaught
+    code: D117
+    text: Conquer 4+ territories over sea lines this turn.
+    reward: 1
+    afterComplete: box
+    check: {type: conquerThisTurn, count: 4, via: seaLine}
+    textSource: card
+  - yaml: missions:explore_the_world
+    name: Explore the World
+    code: D121s
+    text: |-
+      Control 7+ islands (territories only connected to other territories by sea-line).
+
+      Place the 2 sea-line start stickers onto 2 different territories that have borders touching an ocean. Connect the two stickers using a pen. Those territories are now connected.
+
+      DESTROY this card.
+    reward: 2
+    afterComplete: destroy
+    check: {type: controlIslands, count: 7}
+    textSource: card
+  - yaml: missions:imperial_might
+    name: Imperial Might
+    code: D119
+    text: Have a current total continent bonus of 7+.
+    reward: 1
+    afterComplete: box
+    check: {type: continentBonusTotal, count: 7}
+    textSource: card
+  - yaml: missions:reign_of_terror
+    name: Reign of Terror
+    code: D115
+    text: Conquer 9+ territories this turn.
+    reward: 1
+    afterComplete: box
+    check: {type: conquerThisTurn, count: 9}
+    textSource: card
+  - yaml: missions:superior_infrastructure
+    name: Superior Infrastructure
+    code: D114
+    text: Control 6+ cities.
+    reward: 1
+    afterComplete: box
+    check: {type: controlTerritoriesWithCities, count: 6}
+    textSource: card
+  - yaml: missions:unexpected_attack
+    name: Unexpected Attack
+    code: D118
+    text: Conquer all the territories in one continent this turn.
+    reward: 1
+    afterComplete: box
+    check: {type: conquerContinentThisTurn, count: 1}
+    textSource: card
+  - yaml: missions:urban_assault
+    name: Urban Assault
+    code: D116
+    text: Conquer 4+ cities this turn.
+    reward: 1
+    afterComplete: box
+    check: {type: conquerThisTurn, count: 4, cities: true}
+    textSource: card
+  - yaml: missions:world_capital
+    name: The world is ready
+    code: D120s
+    text: |-
+      Be eligible to draw a territory card worth 4+ resources.
+
+      Place and name the World Capital in the territory of the card you would have claimed (replacing any mark already in the city slot). Immediately open the World Capital envelope.
+
+      DESTROY this card.
+    reward: 2
+    afterComplete: destroy
+    check: {type: eligibleTerritoryCard, minResources: 4}
+    opens: worldcapital
+    textSource: card
+
+stickers:
+  - yaml: stickersheet:world_capital
+    name: World Capital
+    code: D120s
+    group: other
+    text: |-
+      Place and name the World Capital in the territory of the card you would have claimed (replacing any mark already in the city slot). Immediately open the World Capital envelope.
+    effect: {type: city, cityType: worldCapital, population: 5}
+    textSource: card
+  - id: sea_line_start
+    name: Sea-Line Start
+    code: D121s
+    qty: 2
+    img: assets/unlocks/secondwin/missions/images/explore_the_world.jpg
+    group: other
+    text: |-
+      Place the 2 sea-line start stickers onto 2 different territories that have borders touching an ocean. Connect the two stickers using a pen. Those territories are now connected.
+    effect: {type: seaLine}
+    textSource: card

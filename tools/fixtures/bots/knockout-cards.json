@@ -1,0 +1,122 @@
+{
+ "name": "knockout-cards",
+ "description": "Saharan is down to Madagascar (2 troops) and holds 6 resource cards. Balkania has 7 in South Africa, next to Madagascar and to 2 Khan troops in East Africa.",
+ "me": "balkania",
+ "difficulty": "hard",
+ "factions": {
+  "balkania": {
+   "name": "Imperial Balkania",
+   "key": "balkania",
+   "redStarTokens": 1,
+   "startingTerritory": "northern_europe",
+   "hand": {
+    "count": 1,
+    "coins": 2
+   }
+  },
+  "saharan": {
+   "name": "Saharan Republic",
+   "key": "saharan",
+   "redStarTokens": 1,
+   "startingTerritory": "brazil",
+   "hand": {
+    "count": 6,
+    "coins": 11
+   }
+  },
+  "khan": {
+   "name": "Khan Industries",
+   "key": "khan",
+   "redStarTokens": 1,
+   "startingTerritory": "egypt",
+   "hand": {
+    "count": 2,
+    "coins": 3
+   }
+  },
+  "enclave": {
+   "name": "Enclave of the Bear",
+   "key": "enclave",
+   "redStarTokens": 1,
+   "startingTerritory": "kamchatka",
+   "hand": {
+    "count": 1,
+    "coins": 1
+   }
+  }
+ },
+ "pieces": {
+  "south_africa": {
+   "balkania": 7
+  },
+  "central_africa": {
+   "balkania": 3
+  },
+  "northern_europe": {
+   "balkania": {
+    "troops": 6,
+    "hq": true
+   }
+  },
+  "western_europe": {
+   "balkania": 3
+  },
+  "southern_europe": {
+   "balkania": 4
+  },
+  "madagascar": {
+   "saharan": 2
+  },
+  "egypt": {
+   "khan": {
+    "troops": 4,
+    "hq": true
+   }
+  },
+  "north_africa": {
+   "khan": 2
+  },
+  "east_africa": {
+   "khan": 2
+  },
+  "middle_east": {
+   "khan": 3
+  },
+  "india": {
+   "khan": 2
+  },
+  "kamchatka": {
+   "enclave": {
+    "troops": 5,
+    "hq": true
+   }
+  },
+  "alaska": {
+   "enclave": 2
+  },
+  "japan": {
+   "enclave": 1
+  },
+  "brazil": {
+   "enclave": 1
+  },
+  "argentina": {
+   "enclave": 2
+  }
+ },
+ "turn": {
+  "faction": "balkania",
+  "phase": "attack",
+  "log": {
+   "recruited": true
+  }
+ },
+ "calls": [
+  {
+   "fn": "assessSituation"
+  },
+  {
+   "fn": "nextMove"
+  }
+ ]
+}

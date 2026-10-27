@@ -1,0 +1,247 @@
+{
+  "RL": {
+    "Turn": {
+      "warName": "Game {game}: The War",
+      "Power": {
+        "khan_1": "Khan: troops at HQs",
+        "khan_2": "Khan: troop with the card",
+        "mechaniker_1": "Mechaniker: fortified HQ",
+        "mechaniker_2": "Mechaniker: double sixes",
+        "enclave_1": "Enclave: first attack",
+        "enclave_2": "Enclave: three of a kind",
+        "balkania_1": "Balkania: round up",
+        "balkania_2": "Balkania: 4+ expansions",
+        "saharan_1": "Saharan: maneuver any time",
+        "saharan_2": "Saharan: maneuver anywhere"
+      },
+      "Chat": {
+        "warRoom": "War Room",
+        "rulesCheck": "Rules Check",
+        "warCreated": "Game {game}: War Declared",
+        "warCreatedResult": "Choose starting territories in pick order.",
+        "redStarToken": "Red Star token",
+        "missiles": "{n} Missile(s)",
+        "placementTitle": "Choose Starting Territories",
+        "placementText": "In pick order: {order}.",
+        "placementResult": "Unoccupied and unmarked, or your own Major City. No HQ next to another HQ.",
+        "hqTitle": "HQ Established",
+        "hqText": "{faction} places its HQ and {troops} troops in {territory}.",
+        "warBeginsTitle": "The War Begins",
+        "warBeginsText": "{faction} takes the first turn. Play proceeds clockwise.",
+        "turnSub": "Round {round}",
+        "redStars": "Red Stars",
+        "mustJoin": "Knocked out: Join the War ({n} legal territories)",
+        "recruitTitle": "Recruit Troops",
+        "recruitTerritories": "Territories",
+        "recruitPopulation": "Population",
+        "recruitBase": "({sum}) ÷ 3",
+        "recruitContinent": "Continent",
+        "ignored": "ignored",
+        "roundedUp": "rounded up!",
+        "minimum": "minimum 3",
+        "recruitResult": "{faction} recruits {total} troops.",
+        "tradeTitle": "Cards for Troops",
+        "tradeText": "Turned in {cards} card(s) worth {coins} resources.",
+        "tradeResult": "+{troops} troops",
+        "starsTitle": "Red Star Purchased",
+        "starsText": "Turned in {cards} Resource cards.",
+        "starsNote": "{total} of 4!",
+        "joinTitle": "Join the War",
+        "joinText": "{faction} returns with {troops} troops in {territory}.",
+        "expandTitle": "Expansion",
+        "expandText": "{count} troop(s) from {from}.",
+        "expandResult": "{remaining} troop(s) hold the territory.",
+        "costCity": "City resistance",
+        "costFortification": "Fortification",
+        "costMark": {
+          "fallout_zone": "Fallout Zone",
+          "mercenary": "Mercenary",
+          "biohazard": "Bio-hazard"
+        },
+        "hqTaken": "{faction}'s HQ is yours!",
+        "maneuverTitle": "Maneuver",
+        "maneuverText": "{count} troop(s) from {from} to {to}.",
+        "hqCapturedTitle": "HQ Captured",
+        "hqCapturedText": "{faction} takes {owner}'s HQ in {territory}. It now counts as their Red Star.",
+        "knockedOutTitle": "Knocked Out",
+        "knockedOutText": "{faction} has no troops left on the board. {by} takes their {cards} resource card(s).",
+        "eliminatedTitle": "Eliminated",
+        "eliminatedText": "{faction} has no legal starting territory and is out of this war.",
+        "eliminatedManual": "{faction} is out of this war.",
+        "eliminatedNote": "plot your revenge",
+        "endTitle": "End of Turn",
+        "rallyText": "Two troops in every HQ: {territories}.",
+        "mobileText": "The HQ moves from {from} to {to}.",
+        "reconText": "May take any face-up territory card instead of a coin this turn.",
+        "badIntelText": "{faction} is denied the {continent} bonus this turn.",
+        "victoryTitle": "Victory!",
+        "victory": {
+          "redStars": "{faction} holds {stars} Red Stars and wins the war.",
+          "lastStanding": "{faction} is the last faction standing and wins the war.",
+          "manual": "{faction} wins the war.",
+          "none": "The war is over."
+        },
+        "victoryResult": "Record the results and choose the rewards."
+      },
+      "End": {
+        "title": "End of Turn",
+        "choiceContent": "You can complete the mission <b>or</b> draw a resource card this turn, never both.",
+        "completeMission": "Complete the mission: {mission}",
+        "missionMet": "You meet the conditions.",
+        "missionManual": "Claim it only if you completed it.",
+        "drawCard": "Draw a resource card",
+        "drawHint": "You conquered a territory this turn (or a power lets you).",
+        "neither": "Neither",
+        "noMission": "End the turn without completing it",
+        "skipDraw": "End your turn without drawing a resource card?",
+        "khan2": "Place one troop in {territory}? (Khan Industries)"
+      },
+      "Prompt": {
+        "none": "There's no legal territory for that.",
+        "start": "Choose your starting territory",
+        "join": "Join the War: choose a legal starting territory",
+        "redStars": "Turn in 4 Resource cards per Red Star",
+        "trade": "Turn in Resource cards for troops",
+        "attackFrom": "Attack from…",
+        "attackTo": "Attack which territory?",
+        "dice": "Attack Dice",
+        "diceLabel": "Troops attacking (dice)",
+        "expandFrom": "Expand from…",
+        "expandTo": "Expand into…",
+        "maneuverFrom": "Maneuver from…",
+        "maneuverTo": "Maneuver to…",
+        "troops": "Troops",
+        "troopsLabel": "Troops to move",
+        "mobileFrom": "Move which HQ?",
+        "mobileTo": "Move the HQ to…",
+        "badIntel": "Bad Intel: deny {faction} which continent bonus?"
+      },
+      "Error": {
+        "missingApi": "{api} isn't available yet.",
+        "noBoard": "The board definition isn't loaded (yet).",
+        "apiFailed": "{api} failed.",
+        "stepFailed": "{step} could not be applied: {error}",
+        "gmOnly": "Only a Gamemaster can do that.",
+        "noFaction": "Unknown faction {id}.",
+        "cannotAct": "You can't act for {faction}.",
+        "noWar": "There is no war in progress.",
+        "notPlaying": "The war hasn't started yet.",
+        "wrongStage": "Not now: the war is at the \"{stage}\" stage.",
+        "warInProgress": "A war is already in progress. End it first.",
+        "noParticipants": "A war needs at least one faction.",
+        "duplicateFaction": "{faction} is listed twice.",
+        "notInHand": "Those cards aren't in your hand.",
+        "notResource": "Only Resource cards (territory and coin cards) can be turned in.",
+        "turnStarting": "The turn is still starting. Try again in a moment."
+      }
+    },
+    "Rules": {
+      "unknownTerritory": "Unknown territory {id}.",
+      "badCount": "Choose at least one troop.",
+      "sameTerritory": "Choose two different territories.",
+      "notYours": "You don't control {name}.",
+      "notAdjacent": "{from} and {to} aren't adjacent.",
+      "leaveOne": "Leave at least one troop in {from} (move at most {max}).",
+      "turn": {
+        "noWar": "There is no war in progress.",
+        "notPlaying": "The war isn't being played right now.",
+        "notYourTurn": "It isn't your turn.",
+        "unknownFaction": "That faction isn't in this war.",
+        "eliminated": "This faction has been eliminated.",
+        "unknownAction": "Unknown action {action}.",
+        "recruitFirst": "Recruit your troops first.",
+        "joinFirst": "Join the War first.",
+        "placeReserveFirst": "Place your {reserve} recruited troop(s) first."
+      },
+      "phase": {
+        "unknown": "Unknown turn step {phase}.",
+        "backwards": "You can't go back to an earlier step."
+      },
+      "stars": {
+        "onlyAtStart": "Red Stars can only be bought at the start of your turn.",
+        "multiple": "Turn in {per} Resource cards for each Red Star.",
+        "notEnough": "You need {count} Resource cards (you have {have})."
+      },
+      "trade": {
+        "wrongPhase": "Cards are turned in for troops while recruiting (step 2).",
+        "joinedWar": "You joined the war this turn: no recruiting.",
+        "mustJoin": "You control no territory: Join the War instead.",
+        "already": "You already turned in cards for troops this turn.",
+        "tooFew": "Turn in at least 2 resources.",
+        "tooMany": "You can turn in at most {max} resources at once.",
+        "notEnough": "You only have {have} resources."
+      },
+      "recruit": {
+        "wrongPhase": "Troops are recruited in step 2.",
+        "already": "You already recruited this turn.",
+        "joinedWar": "You joined the war this turn: no recruiting.",
+        "mustJoin": "You control no territory: Join the War instead."
+      },
+      "join": {
+        "wrongPhase": "You Join the War in step 2.",
+        "already": "You already joined the war this turn.",
+        "controlsTerritory": "You still control a territory: recruit instead.",
+        "nowhere": "There is no legal starting territory left."
+      },
+      "start": {
+        "occupied": "{name} is occupied.",
+        "marked": "{name} has a mark (scar or city) and isn't your Major City.",
+        "adjacentHQ": "{name} is next to another faction's HQ ({other}).",
+        "notYourPick": "It isn't {faction}'s pick.",
+        "alreadyPlaced": "{faction} has already placed its starting forces."
+      },
+      "place": {
+        "wrongPhase": "Recruited troops are placed in step 2.",
+        "recruitFirst": "Recruit first.",
+        "noReserve": "You have no troops left to place.",
+        "tooMany": "You only have {reserve} troop(s) to place.",
+        "notControlled": "You don't control {name}.",
+        "forbidden": "Troops can't be placed in {name}.",
+        "cautious": "Cautious: recruited troops go into no more than 2 territories."
+      },
+      "expand": {
+        "alreadyYours": "You already control {to}: that's a maneuver.",
+        "occupied": "{to} is occupied by an enemy: attack it instead.",
+        "cannotHold": "Expanding into {name} costs {cost} troop(s): move at least {needed} to keep control."
+      },
+      "attack": {
+        "empty": "{to} is unoccupied: expand into it instead.",
+        "own": "You control {to}.",
+        "tooFew": "Attack from a territory with at least 2 troops.",
+        "dice": "Attack with 1, 2 or 3 dice.",
+        "diceTroops": "{from} can attack with at most {max} dice (one troop stays behind).",
+        "protected": "{to} can't be attacked again this turn.",
+        "afterManeuver": "You can't expand or attack after maneuvering."
+      },
+      "maneuver": {
+        "done": "You have already maneuvered this turn.",
+        "wrongPhase": "The turn is ending: no more maneuvers.",
+        "notYours": "You don't control {to}.",
+        "notConnected": "{from} and {to} aren't connected through territories you control.",
+        "adjacentOnly": "Short Sighted: you can only maneuver into adjacent territories."
+      },
+      "advance": {
+        "none": "That isn't a follow-up of your last expansion or conquest."
+      },
+      "draw": {
+        "already": "You already drew a card this turn.",
+        "missionCompleted": "You completed a mission this turn: no resource card.",
+        "notEligible": "Conquer a territory to draw a resource card."
+      },
+      "mobile": {
+        "noHQ": "There's no HQ you control in {name}.",
+        "notControlled": "You don't control {name}.",
+        "shared": "{name} already has an HQ: HQs can't share a territory."
+      },
+      "power": {
+        "notYours": "You don't have {power}.",
+        "noMissile": "You need a Missile to use this power.",
+        "oncePerTurn": "Already used this turn.",
+        "startOnly": "{power} is used at the start of the turn.",
+        "otherPlayersTurn": "Use it at the start of another player's turn.",
+        "noContinent": "{faction} controls no continent.",
+        "manual": "{power} is applied by hand."
+      }
+    }
+  }
+}

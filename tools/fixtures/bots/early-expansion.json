@@ -1,0 +1,73 @@
+{
+ "name": "early-expansion",
+ "description": "Round 1: Balkania has 9 troops on its HQ in Northern Europe and empty land all around.",
+ "me": "balkania",
+ "difficulty": "normal",
+ "factions": {
+  "balkania": {
+   "name": "Imperial Balkania",
+   "key": "balkania",
+   "redStarTokens": 1,
+   "startingTerritory": "northern_europe"
+  },
+  "khan": {
+   "name": "Khan Industries",
+   "key": "khan",
+   "redStarTokens": 1,
+   "startingTerritory": "china"
+  },
+  "saharan": {
+   "name": "Saharan Republic",
+   "key": "saharan",
+   "redStarTokens": 1,
+   "startingTerritory": "brazil"
+  },
+  "enclave": {
+   "name": "Enclave of the Bear",
+   "key": "enclave",
+   "redStarTokens": 1,
+   "startingTerritory": "kamchatka"
+  }
+ },
+ "pieces": {
+  "northern_europe": {
+   "balkania": {
+    "troops": 9,
+    "hq": true
+   }
+  },
+  "china": {
+   "khan": {
+    "troops": 8,
+    "hq": true
+   }
+  },
+  "brazil": {
+   "saharan": {
+    "troops": 8,
+    "hq": true
+   }
+  },
+  "kamchatka": {
+   "enclave": {
+    "troops": 8,
+    "hq": true
+   }
+  }
+ },
+ "turn": {
+  "faction": "balkania",
+  "phase": "attack",
+  "log": {
+   "recruited": true
+  }
+ },
+ "view": {
+  "round": 1
+ },
+ "calls": [
+  {
+   "fn": "nextMove"
+  }
+ ]
+}

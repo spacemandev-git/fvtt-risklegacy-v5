@@ -1,0 +1,25 @@
+namespace: alien_collaborator.powers.thirtytroops.risklegacy.spacemandev
+data: 
+  description: Add one to your resource total when turning in cards. Lose 2 extra troops when expanding into empty cities. 
+  type: weakness
+---
+namespace: primitive.powers.thirtytroops.risklegacy.spacemandev
+data: 
+  description: You do not add population when recruiting troops. 
+  type: weakness
+---
+namespace: unpopular.powers.thirtytroops.risklegacy.spacemandev
+data: 
+  description: You lose 1 extra troop when expanding into empty cities.
+  type: weakness
+---
+namespace: short_sighted.powers.thirtytroops.risklegacy.spacemandev
+data: 
+  description: You can only maneuver into adjacent territories.
+  type: weakness
+---
+namespace: purist.powers.thirtytroops.risklegacy.spacemandev
+data: 
+  description: You cannot have more than 2 coin cards. You must keep the coin cards face up in front of you, not in your hand. 
+  type: weakness
+

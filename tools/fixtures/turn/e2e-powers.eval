@@ -1,0 +1,116 @@
+// Turn area e2e, powers: a new war (replace) with Khan (khan_1/2, rally, mobile), Balkania (bad_intel) and Saharan
+// (saharan_1/2, stealthy); a reported drag (moved: true); the Red Star victory watcher.
+const RL = game.risklegacy;
+const SYS = "fvtt-risklegacy-v5";
+const log = [];
+const step = (name, data) => log.push({ step: name, ...(data ?? {}) });
+const wait = ms => new Promise(r => setTimeout(r, ms));
+async function waitFor(fn, ms = 20000) {
+  const t0 = Date.now();
+  while ( Date.now() - t0 < ms ) {
+    try { if ( fn() ) return true; } catch(e) { /* keep waiting */ }
+    await wait(150);
+  }
+  return false;
+}
+await waitFor(() => RL.state.getCampaignBoard() && RL.state.buildSnapshot());
+const [khan, balk, sah] = ["khan", "balkania", "saharan"].map(k => RL.state.getFactionByKey(k));
+const snap = () => RL.turn.snapshot();
+const troops = (f, t) => snap().territories[t].pieces?.[f.id]?.troops ?? 0;
+let since = Date.now();
+const startedFor = f => waitFor(() => {
+  const war = RL.state.getWar();
+  return (war.combatant?.actorId === f.id) && (war.system.turn.faction === f.id)
+    && game.messages.contents.some(m => (m.flags?.[SYS]?.turn === "turnStarted") && (m.flags?.[SYS]?.faction === f.id) && (m.timestamp >= since));
+});
+const setPowers = async (f, keys) => {
+  await f.deleteEmbeddedDocuments("Item", f.items.map(i => i.id));
+  await f.createEmbeddedDocuments("Item", keys.map(key => ({ name: key, type: "power", system: { key, slot: "starter" } })));
+};
+await setPowers(khan, ["khan_1", "khan_2", "rally", "mobile", "recon"]);
+await setPowers(balk, ["bad_intel"]);
+await setPowers(sah, ["saharan_1", "saharan_2", "stealthy"]);
+await RL.board.clearPieces({});
+await waitFor(() => !RL.state.getBoardScene().tokens.size);
+
+const users = ["Ana", "Ben", "Cy"].map(n => game.users.getName(n));
+since = Date.now();
+await RL.turn.createWar({ replace: true, participants: [khan, balk, sah].map((f, i) => ({ faction: f.id, userId: users[i]?.id ?? "", seat: i })) });
+const war = RL.state.getWar();
+await RL.turn.beginPlacement({});
+await RL.turn.placeStartingForces({ faction: khan.id, territory: "siberia" });
+await RL.turn.placeStartingForces({ faction: balk.id, territory: "brazil" });
+await RL.turn.placeStartingForces({ faction: sah.id, territory: "egypt" });
+await startedFor(khan);
+step("newWar", { game: war.system.game, stage: war.system.stage, current: RL.turn.getTurnInfo().faction?.system.key, siberia: troops(khan, "siberia") });
+
+// GM setup: Khan holds Australia and Yakutsk; missiles
+for ( const t of ["indonesia", "new_guinea", "western_australia", "eastern_australia", "yakutsk"] ) {
+  await RL.board.spawnPieces({ faction: khan.id, territory: t, troops: 1 });
+}
+await khan.update({ "system.war.missiles": 2 });
+await balk.update({ "system.war.missiles": 1 });
+await waitFor(() => snap().factions[khan.id].continents.includes("australia"));
+
+// Bad Intel (Balkania, on Khan's start of turn)
+const opts = RL.turn.powerOptions(snap(), balk.id);
+const bad = await RL.turn.usePower({ faction: balk.id, power: "bad_intel", continent: "australia" });
+step("badIntel", { options: opts.map(o => [o.power, o.result.ok]), bad, denied: war.system.turn.flags.deniedContinents, balkMissiles: balk.system.war.missiles });
+
+// Rally, then the missile limit (once per turn), Mobile
+const rally = await RL.turn.usePower({ faction: khan.id, power: "rally" });
+step("rally", { rally, siberia: troops(khan, "siberia"), missiles: khan.system.war.missiles });
+step("recon", { result: await RL.turn.usePower({ faction: khan.id, power: "recon" }) });
+const mobile = await RL.turn.usePower({ faction: khan.id, power: "mobile", from: "siberia", to: "yakutsk" });
+await waitFor(() => snap().territories.yakutsk.hq === khan.id);
+step("mobile", { mobile, hqAt: snap().factions[khan.id].hqs, flags: war.system.turn.flags.mobile });
+
+// Recruit with Australia denied: 6 territories → 3 (no +2)
+const r = await RL.turn.recruit({ faction: khan.id });
+step("recruitDenied", { total: r?.total, continents: r?.continents?.map(c => `${c.id}:${c.total}:${c.denied}`) });
+await RL.turn.placeReserve({ faction: khan.id, territory: "siberia", count: 3 });
+
+// A reported drag: one troop dragged from Siberia to Irkutsk, then turn.expand({moved: true})
+const scene = RL.state.getBoardScene();
+const tok = scene.tokens.find(t => (t.actorId === khan.id) && (t.flags[SYS]?.piece === "troop") && (RL.state.territoryOfToken(t) === "siberia"));
+const c = RL.state.getCampaignBoard().territories.irkutsk.center;
+await tok.update({ x: c[0] - 45, y: c[1] - 45 }, { [SYS]: { internal: true }, animate: false });
+const dragged = await RL.turn.expand({ faction: khan.id, from: "siberia", to: "irkutsk", count: 1, moved: true });
+step("draggedExpand", { dragged, irkutsk: troops(khan, "irkutsk"), expanded: war.system.turn.expanded });
+
+// End with a card draw + khan_2: make sure Khan controls the slot-1 territory
+const row = RL.cards.getRow();
+const target = row.find(card => !snap().territories[card.system.territory].owner) ?? row[0];
+const territory = target.system.territory;
+if ( snap().territories[territory].owner !== khan.id ) await RL.board.spawnPieces({ faction: khan.id, territory, troops: 1 });
+await war.update({ "system.turn.conquered": 1 });
+const before = troops(khan, territory);
+const ended = await RL.actions.run("turn.end", { faction: khan.id, draw: { cardId: target.id }, powers: { khan_2: true } });
+await waitFor(() => troops(khan, territory) > before, 5000);
+step("khan2", { territory, before, after: troops(khan, territory), drawn: !!ended?.drawn?.cardId });
+
+// Balkania: quick turn
+since = Date.now();
+await startedFor(balk);
+await RL.turn.recruit({ faction: balk.id });
+await RL.turn.placeReserve({ faction: balk.id, territory: "brazil", count: balk.system.war.reserve });
+await RL.actions.run("turn.end", { faction: balk.id });
+
+// Saharan: maneuver before placing (saharan_1), anywhere (saharan_2), stealthy placement, attack after maneuver
+since = Date.now();
+await startedFor(sah);
+await RL.turn.recruit({ faction: sah.id });
+const stealth = await RL.turn.placeReserve({ faction: sah.id, territory: "japan", count: 1 });
+const stealth2 = await RL.turn.placeReserve({ faction: sah.id, territory: "india", count: 1 });
+step("stealthy", { stealth: stealth?.stealthy, japan: troops(sah, "japan"), second: stealth2, flag: war.system.turn.flags.stealthy });
+const man = await RL.turn.maneuver({ faction: sah.id, from: "egypt", to: "japan", count: 3 });
+step("saharanManeuver", { man, phase: war.system.phase, reserve: sah.system.war.reserve, japan: troops(sah, "japan") });
+await RL.turn.placeReserve({ faction: sah.id, territory: "egypt", count: sah.system.war.reserve });
+const exp = await RL.turn.expand({ faction: sah.id, from: "egypt", to: "east_africa", count: 1 });
+step("expandAfterManeuver", { exp, phase: war.system.phase });
+
+// Victory watcher: Red Star tokens awarded outside the turn flow
+await balk.update({ "system.war.redStarTokens": 3 });
+await waitFor(() => war.system.stage === "ended", 5000);
+step("watcher", { stage: war.system.stage, winner: game.actors.get(war.system.winner)?.system.key });
+return { log, chat: game.messages.contents.map(m => m.flags?.[SYS]?.turn ?? m.type).slice(-16) };

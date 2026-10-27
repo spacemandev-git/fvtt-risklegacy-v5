@@ -1,0 +1,57 @@
+<div class="rl-prompt-body">
+  {{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/hot-seat.hbs"}}
+  <p class="rl-lead">{{localize "RL.Wizard.Prompt.rewardLead"}}</p>
+  <input type="hidden" name="reward" value="{{reward}}">
+  <div class="rl-camp-reward-grid">
+    {{#each rewards}}
+    <div class="rl-camp-reward {{#unless ok}}is-disabled{{/unless}} {{#if selected}}is-selected{{/if}}" data-reward="{{key}}" {{#if ok}}data-action="choose" data-name="reward" data-value="{{key}}" tabindex="0"{{/if}}>
+      <span class="rl-camp-reward__art">{{#if img}}<img src="{{img}}" alt="">{{else}}<i class="{{icon}}" inert></i>{{/if}}</span>
+      <span class="rl-camp-reward__label">{{label}}</span>
+      <span class="rl-camp-reward__hint">{{hint}}</span>
+      {{#unless ok}}<span class="rl-hand rl-hand--red">{{why}}</span>{{/unless}}
+      {{#if hasLeft}}<span class="rl-camp-reward__left">{{localize "RL.Wizard.Prompt.left" n=left}}</span>{{/if}}
+    </div>
+    {{/each}}
+  </div>
+
+  <div class="rl-camp-reward-form" data-reward-form="nameContinent" {{#unless (eq reward "nameContinent")}}hidden{{/unless}}>
+    <div class="rl-field"><label>{{localize "RL.Wizard.Prompt.continent"}}</label>
+      <select name="nameContinent.continent"><option value="">—</option>{{#each sub.nameContinent}}<option value="{{id}}">{{name}}</option>{{/each}}</select></div>
+    <div class="rl-field"><label>{{localize "RL.Wizard.Prompt.continentName"}}</label>
+      <input type="text" name="nameContinent.name" class="rl-input--hand" placeholder="Awesometonia" maxlength="40"></div>
+  </div>
+  <div class="rl-camp-reward-form" data-reward-form="foundMajorCity" {{#unless (eq reward "foundMajorCity")}}hidden{{/unless}}>
+    <div class="rl-field"><label>{{localize "RL.Wizard.Prompt.territory"}}</label>
+      {{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/territory-select.hbs" name="foundMajorCity.territory" groups=sub.foundMajorCity canPick=canPick}}</div>
+    <div class="rl-field"><label>{{localize "RL.Wizard.Prompt.cityName"}}</label>
+      <input type="text" name="foundMajorCity.name" class="rl-input--hand" placeholder="Jasonville" maxlength="30"></div>
+  </div>
+  <div class="rl-camp-reward-form" data-reward-form="cancelScar" {{#unless (eq reward "cancelScar")}}hidden{{/unless}}>
+    <div class="rl-field"><label>{{localize "RL.Wizard.Prompt.scarredTerritory"}}</label>
+      {{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/territory-select.hbs" name="cancelScar.territory" groups=sub.cancelScar canPick=canPick}}</div>
+  </div>
+  <div class="rl-camp-reward-form" data-reward-form="changeContinentBonus" {{#unless (eq reward "changeContinentBonus")}}hidden{{/unless}}>
+    <div class="rl-field"><label>{{localize "RL.Wizard.Prompt.continent"}}</label>
+      <select name="changeContinentBonus.continent"><option value="">—</option>{{#each sub.changeContinentBonus}}<option value="{{id}}">{{name}}</option>{{/each}}</select></div>
+    <div class="rl-field"><label>{{localize "RL.Wizard.Prompt.mark"}}</label>
+      <select name="changeContinentBonus.delta">
+        {{#if sub.plus}}<option value="1">+1</option>{{/if}}
+        {{#if sub.minus}}<option value="-1">−1</option>{{/if}}
+      </select></div>
+  </div>
+  <div class="rl-camp-reward-form" data-reward-form="fortifyCity" {{#unless (eq reward "fortifyCity")}}hidden{{/unless}}>
+    <div class="rl-field"><label>{{localize "RL.Wizard.Prompt.city"}}</label>
+      {{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/territory-select.hbs" name="fortifyCity.territory" groups=sub.fortifyCity canPick=canPick}}</div>
+  </div>
+  <div class="rl-camp-reward-form" data-reward-form="destroyTerritoryCard" {{#unless (eq reward "destroyTerritoryCard")}}hidden{{/unless}}>
+    <div class="rl-field"><label>{{localize "RL.Wizard.Prompt.cardToDestroy"}}</label>
+      {{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/territory-select.hbs" name="destroyTerritoryCard.territory" groups=sub.destroyTerritoryCard canPick=canPick}}</div>
+    <p class="rl-hand rl-hand--red">{{localize "RL.Wizard.toughToDo"}}</p>
+  </div>
+
+  <footer class="rl-prompt-footer">
+    <button type="button" class="rl-btn" data-action="cancel">{{localize "RL.Wizard.Prompt.later"}}</button>
+    <button type="button" class="rl-btn" data-action="stickerSheet" data-tooltip="RL.Legacy.Sheet.useSheetHint"><i class="fa-solid fa-note-sticky" inert></i> {{localize "RL.Legacy.Sheet.useSheet"}}</button>
+    <button type="submit" class="rl-btn rl-btn--primary"><i class="fa-solid fa-trophy" inert></i> {{localize "RL.Wizard.Prompt.claimReward"}}</button>
+  </footer>
+</div>

@@ -1,0 +1,33 @@
+<div class="rl-camp-step rl-camp-step--coins">
+  <header class="rl-camp-coins-head">
+    <div>
+      <h2 class="rl-title">{{localize "RL.Wizard.First.coinsTitle"}}</h2>
+      <p class="rl-lead">{{localize "RL.Wizard.First.coinsLead"}}</p>
+    </div>
+    <div class="rl-plate rl-camp-coins-left">
+      <img src="{{coinImg}}" alt="">
+      <span><span class="rl-counter__value">{{remaining}}</span><span class="rl-label">{{localize "RL.Wizard.First.coinsLeft" total=total}}</span></span>
+    </div>
+  </header>
+  {{#each groups}}
+  <section class="rl-camp-coin-continent" style="--rl-continent: {{color}}">
+    <h3 class="rl-subhead">{{label}}</h3>
+    <div class="rl-camp-coin-grid">
+      {{#each territories}}
+      <article class="rl-camp-coin-card {{#if added}}has-added{{/if}}">
+        <h4 class="rl-camp-coin-card__name">{{name}}</h4>
+        <div class="rl-coins">
+          {{#each coins}}<span class="rl-coin {{#if filled}}is-filled{{/if}} {{#if added}}is-added{{/if}}"></span>{{/each}}
+        </div>
+        <div class="rl-camp-coin-card__controls">
+          <button type="button" class="rl-btn rl-btn--icon" data-action="coinMinus" data-territory="{{id}}" {{disabled (not canRemove)}} aria-label="{{localize "RL.Wizard.First.removeCoin"}}"><i class="fa-solid fa-minus" inert></i></button>
+          <span class="rl-camp-coin-card__value">{{value}}</span>
+          <button type="button" class="rl-btn rl-btn--icon" data-action="coinPlus" data-territory="{{id}}" {{disabled (not canAdd)}} aria-label="{{localize "RL.Wizard.First.addCoin"}}"><i class="fa-solid fa-plus" inert></i></button>
+        </div>
+      </article>
+      {{/each}}
+    </div>
+  </section>
+  {{/each}}
+  <div class="rl-note"><span class="rl-label">{{localize "RL.Wizard.noteLabel"}}</span> {{localize "RL.Wizard.First.coinsNote"}}</div>
+</div>

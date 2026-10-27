@@ -1,0 +1,47 @@
+namespace: coin_pregame.stickersheet.base.risklegacy.spacemandev
+imgPath: coin.png
+qty: 12
+data: 
+  folder: "Before First Game"
+---
+namespace: fortification.stickersheet.base.risklegacy.spacemandev
+imgPath: fortification.png
+qty: 5
+data:
+  folder: "Game Won"
+---
+namespace: major_city.stickersheet.base.risklegacy.spacemandev
+imgPath: major_city.png
+qty: 5
+data:
+  folder: "Game Won"
+---
+namespace: cancel_scar.stickersheet.base.risklegacy.spacemandev
+imgPath: cancel.png
+qty: 4
+data:
+  folder: "Game Won"
+---
+namespace: continent_bonus.stickersheet.base.risklegacy.spacemandev
+imgPath: plus_one.png
+qty: 1
+data:
+  folder: "Game Won"
+---
+namespace: continent_penalty.stickersheet.base.risklegacy.spacemandev
+imgPath: minus_one.png
+qty: 1
+data:
+  folder: "Game Won"
+---
+namespace: coin_heldon.stickersheet.base.risklegacy.spacemandev
+imgPath: coin.png
+qty: 41
+data:
+  folder: "Held On"
+---
+namespace: minor_city.stickersheet.base.risklegacy.spacemandev
+imgPath: minor_city.png
+qty: 9
+data:
+  folder: "Held On"

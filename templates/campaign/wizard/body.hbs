@@ -1,0 +1,22 @@
+<section class="rl-wizard-body">
+  {{#if waiting.length}}
+  <div class="rl-wizard-waiting">
+    {{#each waiting}}
+    <div class="rl-wizard-waiting__row">
+      <i class="fa-solid fa-hourglass-half" inert></i>
+      <span>{{localize "RL.Wizard.Ask.waiting" name=userName}}</span>
+      <button type="button" class="rl-btn" data-action="takeOver" data-prompt="{{promptId}}">{{localize "RL.Wizard.Ask.takeOver"}}</button>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+  <div class="rl-wizard-scroll">
+    {{#if stepTemplate}}{{> (lookup this "stepTemplate")}}{{/if}}
+  </div>
+  {{#if busy}}
+  <div class="rl-wizard-progress">
+    <i class="fa-solid fa-gear fa-spin" inert></i>
+    <div>{{#each progress}}<div>{{this}}</div>{{else}}<div>{{localize "RL.Wizard.working"}}</div>{{/each}}</div>
+  </div>
+  {{/if}}
+</section>

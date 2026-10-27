@@ -1,0 +1,152 @@
+{
+ "name": "missile-decisive",
+ "description": "Balkania (3 Red Stars) rolled 6,4 against Saharan's HQ in Brazil (5,3): both defenders fall and Balkania wins, unless Saharan fires its missile.",
+ "me": "saharan",
+ "difficulty": "normal",
+ "factions": {
+  "saharan": {
+   "name": "Saharan Republic",
+   "key": "saharan",
+   "redStarTokens": 1,
+   "missiles": 1,
+   "startingTerritory": "brazil"
+  },
+  "balkania": {
+   "name": "Imperial Balkania",
+   "key": "balkania",
+   "redStarTokens": 1,
+   "startingTerritory": "western_europe",
+   "hand": {
+    "count": 2,
+    "coins": 3
+   }
+  },
+  "khan": {
+   "name": "Khan Industries",
+   "key": "khan",
+   "redStarTokens": 1,
+   "startingTerritory": "great_britain"
+  },
+  "enclave": {
+   "name": "Enclave of the Bear",
+   "key": "enclave",
+   "redStarTokens": 1,
+   "startingTerritory": "kamchatka"
+  }
+ },
+ "pieces": {
+  "western_europe": {
+   "balkania": {
+    "troops": 5,
+    "hq": true
+   }
+  },
+  "great_britain": {
+   "balkania": 3,
+   "khan": {
+    "troops": 0,
+    "hq": true
+   }
+  },
+  "north_africa": {
+   "balkania": 3
+  },
+  "southern_europe": {
+   "balkania": 2
+  },
+  "northern_europe": {
+   "balkania": 2
+  },
+  "china": {
+   "khan": 4
+  },
+  "india": {
+   "khan": 2
+  },
+  "middle_east": {
+   "khan": 3
+  },
+  "brazil": {
+   "saharan": {
+    "troops": 2,
+    "hq": true
+   }
+  },
+  "venezuela": {
+   "saharan": 2
+  },
+  "peru": {
+   "saharan": 1
+  },
+  "argentina": {
+   "saharan": 1
+  },
+  "egypt": {
+   "saharan": 2
+  },
+  "east_africa": {
+   "saharan": 2
+  },
+  "kamchatka": {
+   "enclave": {
+    "troops": 5,
+    "hq": true
+   }
+  },
+  "alaska": {
+   "enclave": 2
+  },
+  "central_america": {
+   "enclave": 2
+  }
+ },
+ "turn": {
+  "faction": "balkania",
+  "phase": "attack",
+  "log": {
+   "recruited": true,
+   "conquered": 1
+  }
+ },
+ "calls": [
+  {
+   "fn": "missileDecision",
+   "args": {
+    "battle": {
+     "id": "battle-decisive",
+     "attacker": "balkania",
+     "defender": "saharan",
+     "from": "north_africa",
+     "to": "brazil",
+     "attackDice": 2,
+     "defendDice": 2,
+     "status": "rolled",
+     "attack": [
+      {
+       "slot": 0,
+       "natural": 6,
+       "value": 6
+      },
+      {
+       "slot": 1,
+       "natural": 4,
+       "value": 4
+      }
+     ],
+     "defend": [
+      {
+       "slot": 0,
+       "natural": 3,
+       "value": 3
+      },
+      {
+       "slot": 1,
+       "natural": 5,
+       "value": 5
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

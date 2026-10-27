@@ -1,0 +1,223 @@
+{
+  "id": "eliminated",
+  "label": "Pack 2: Faction Eliminated",
+  "order": 2,
+  "kind": "package",
+  "trigger": {
+    "key": "factionEliminated",
+    "text": "Open when a faction is eliminated from the game.",
+    "sealedText": "OPEN THE FIRST TIME A FACTION IS ELIMINATED FROM THE GAME.",
+    "rulebook": "PACK 2: Open when a player is eliminated. This envelope is opened the first time a Faction is wiped off the board and starts their turn with no way to come back into the game, or is knocked out or eliminated when the game ends. This could be opened mid-game or at the end of a game.",
+    "when": "midOrEndOfGame"
+  },
+  "warProgresses": [
+    {
+      "id": "eliminated_evolution_1",
+      "code": "C100",
+      "order": 1,
+      "title": "The War Progresses: Faction Eliminated (1)",
+      "img": "assets/unlocks/eliminated/rules/images/evolution_1.jpg",
+      "text": "War is hell. Sometimes a faction finds itself driven to the brink of extinction. That's when they find a way to rebuild.\n\nIn this package are blue comeback powers that are to be used on a faction the next time it is knocked out or eliminated from a game. Each faction can have only one comeback power.",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/eliminated/rules/cards.yaml",
+        "key": "evolution_1"
+      }
+    },
+    {
+      "id": "eliminated_evolution_2",
+      "code": "C101",
+      "order": 2,
+      "title": "The War Progresses: Faction Eliminated (2)",
+      "img": "assets/unlocks/eliminated/rules/images/evolution_2.jpg",
+      "text": "The player controlling the eliminated faction chooses a comeback power and places it onto the blue slot on his faction card.\n\nFrom now on, whenever a faction with an empty blue slot is knocked out or eliminated, the controlling player chooses a comeback power and places it onto the blue slot on his faction card.\n\nPlace the sticker from the Evolution card onto the rulebook in the matching box.\n\nThere are also new scar cards to be used in future games.",
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/eliminated/rules/cards.yaml",
+        "key": "evolution_2"
+      }
+    }
+  ],
+  "factions": [],
+  "powers": [
+    {
+      "id": "resourceful",
+      "faction": null,
+      "slot": "knockout",
+      "name": "Resourceful",
+      "text": "As long as you expanded into a city territory, you draw a resource card, even if you didn't conquer a territory.",
+      "img": "assets/unlocks/eliminated/powers/images/knockout.png",
+      "timing": "drawCard",
+      "automation": "resourceful",
+      "effect": null,
+      "textSource": "yaml",
+      "source": {
+        "yaml": "assets/unlocks/eliminated/powers/cards.yaml",
+        "key": "resourceful"
+      }
+    },
+    {
+      "id": "stealthy",
+      "faction": null,
+      "slot": "knockout",
+      "name": "Stealthy",
+      "text": "You may place some or all of your recruited troops into one unmarked, unoccupied territory. This is not an expansion.",
+      "img": "assets/unlocks/eliminated/powers/images/knockout.png",
+      "timing": "recruit",
+      "automation": "stealthy",
+      "effect": null,
+      "textSource": "yaml",
+      "source": {
+        "yaml": "assets/unlocks/eliminated/powers/cards.yaml",
+        "key": "stealthy"
+      }
+    },
+    {
+      "id": "well_armed",
+      "faction": null,
+      "slot": "knockout",
+      "name": "Well-Armed",
+      "text": "Add 1 to all your attack dice when attacking an HQ.",
+      "img": "assets/unlocks/eliminated/powers/images/knockout.png",
+      "timing": "attack",
+      "automation": "well_armed",
+      "effect": {
+        "type": "dieMod",
+        "side": "attacker",
+        "die": "all",
+        "delta": 1,
+        "condition": "defendingTerritoryHasHQ"
+      },
+      "textSource": "yaml",
+      "source": {
+        "yaml": "assets/unlocks/eliminated/powers/cards.yaml",
+        "key": "well-armed"
+      }
+    },
+    {
+      "id": "mobile",
+      "faction": null,
+      "slot": "knockout",
+      "name": "Mobile",
+      "text": "At the start of your turn, you may move one HQ you control to an adjacent territory you control. HQs cannot share a territory.",
+      "img": "assets/unlocks/eliminated/powers/images/knockout.png",
+      "timing": "startOfTurn",
+      "automation": "mobile",
+      "effect": null,
+      "textSource": "yaml",
+      "source": {
+        "yaml": "assets/unlocks/eliminated/powers/cards.yaml",
+        "key": "mobile"
+      }
+    },
+    {
+      "id": "convincing",
+      "faction": null,
+      "slot": "knockout",
+      "name": "Convincing",
+      "text": "You gain one extra troop in Mercenary territories.",
+      "img": "assets/unlocks/eliminated/powers/images/knockout.png",
+      "timing": "endOfTurn",
+      "automation": "convincing",
+      "effect": {
+        "type": "scarModifier",
+        "scar": "mercenary",
+        "delta": 1
+      },
+      "textSource": "yaml",
+      "source": {
+        "yaml": "assets/unlocks/eliminated/powers/cards.yaml",
+        "key": "convincing"
+      }
+    },
+    {
+      "id": "well_supplied",
+      "faction": null,
+      "slot": "knockout",
+      "name": "Well-Supplied",
+      "text": "When defending, you are unaffected by Ammo Shortage scars.",
+      "img": "assets/unlocks/eliminated/powers/images/knockout.png",
+      "timing": "defend",
+      "automation": "well_supplied",
+      "effect": {
+        "type": "ignoreScar",
+        "scar": "ammo_shortage",
+        "side": "defender"
+      },
+      "textSource": "yaml",
+      "source": {
+        "yaml": "assets/unlocks/eliminated/powers/cards.yaml",
+        "key": "well-supplied"
+      }
+    }
+  ],
+  "territoryCards": [],
+  "coinCards": null,
+  "scars": [
+    {
+      "id": "mercenary",
+      "name": "Mercenary",
+      "code": "C106s",
+      "qty": 3,
+      "target": "territory",
+      "cardImg": "assets/unlocks/eliminated/scars/images/mercenary.jpg",
+      "stickerImg": "assets/unlocks/eliminated/scars/images/scar_mercenary.png",
+      "text": "You may play this card at the start of any player's turn\n\nPlace the mercenary scar onto any unscarred territory.\n\nThe player that controls that territory will gain 1 troop in that territory at the end of his turn.",
+      "play": {
+        "timing": "startOfAnyTurn",
+        "where": "anyUnscarredTerritory",
+        "requires": "unscarred"
+      },
+      "effect": {
+        "type": "endOfTurnTroops",
+        "delta": 1
+      },
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/eliminated/scars/cards.yaml",
+        "key": "mercenary"
+      }
+    }
+  ],
+  "stickers": [],
+  "events": [],
+  "missions": [],
+  "draft": [],
+  "rules": [
+    {
+      "id": "pg12_panel_e",
+      "kind": "addition",
+      "addition": "E",
+      "page": 12,
+      "inferred": false,
+      "inferredFrom": "file name pg12PanelE + rules/07-turn-step-3-expand-and-attack.md comment",
+      "code": "C103s",
+      "title": "Comeback powers (Rules addition E)",
+      "img": "assets/unlocks/eliminated/rules/images/pg12PanelE.jpg",
+      "text": "When a faction with an empty blue slot is knocked out or eliminated, the player controlling that faction chooses its comeback power.",
+      "replaces": null,
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/eliminated/rules/cards.yaml",
+        "key": "pg12PanelE"
+      }
+    },
+    {
+      "id": "mercenary_reference",
+      "kind": "reference",
+      "title": "Mercenary reference sticker (game board)",
+      "img": "assets/unlocks/eliminated/rules/images/mercenary_rules.jpg",
+      "text": "If you control this territory at the end of your turn, add one troop to it.",
+      "scar": "mercenary",
+      "textSource": "card"
+    }
+  ],
+  "marks": [],
+  "secretPowers": [],
+  "notes": [
+    "rules/images/evolution_1.jpg (C100) and evolution_2.jpg (C101) are \"THE WAR PROGRESSES\" narrative cards; they are listed under warProgresses. The Evolution sticker card is pg12PanelE (C103s).",
+    "rules/images/mercenary_rules.jpg is the Mercenary reference sticker for the board's reference-sticker space. It has no entry in rules/cards.yaml (the old init.js loaded it directly); its card code is cropped off (probably C102s).",
+    "The six knockout (\"blue comeback\") powers have no card scans; their text comes from powers/cards.yaml (textSource \"yaml\") and their names are the YAML ids. They are probably printed on the unscanned cards C104-C105.",
+    "Mercenary scars presumably C106s-C108s (one face scanned, qty 3 from scars/cards.yaml)."
+  ]
+}

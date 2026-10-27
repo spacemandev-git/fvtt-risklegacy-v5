@@ -1,0 +1,293 @@
+namespace: afghanistan.territories.base.risklegacy.spacemandev
+imgPath: afghanistan.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: asia
+---
+namespace: alaska.territories.base.risklegacy.spacemandev
+imgPath: alaska.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: north_america
+---
+namespace: alberta.territories.base.risklegacy.spacemandev
+imgPath: alberta.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: north_america
+---
+namespace: argentina.territories.base.risklegacy.spacemandev
+imgPath: argentina.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: south_america
+---
+namespace: brazil.territories.base.risklegacy.spacemandev
+imgPath: brazil.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: south_america
+---
+namespace: central_africa.territories.base.risklegacy.spacemandev
+imgPath: central_africa.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: africa
+---
+namespace: central_america.territories.base.risklegacy.spacemandev
+imgPath: central_america.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: north_america
+---
+namespace: china.territories.base.risklegacy.spacemandev
+imgPath: china.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: asia
+---
+namespace: east_africa.territories.base.risklegacy.spacemandev
+imgPath: east_africa.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: africa
+---
+namespace: eastern_australia.territories.base.risklegacy.spacemandev
+imgPath: eastern_australia.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: australia
+---
+namespace: eastern_canada.territories.base.risklegacy.spacemandev
+imgPath: eastern_canada.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: north_america
+---
+namespace: eastern_united_states.territories.base.risklegacy.spacemandev
+imgPath: eastern_united_states.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: north_america
+---
+namespace: egypt.territories.base.risklegacy.spacemandev
+imgPath: egypt.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: africa
+---
+namespace: great_britain.territories.base.risklegacy.spacemandev
+imgPath: great_britain.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: europe
+---
+namespace: greenland.territories.base.risklegacy.spacemandev
+imgPath: greenland.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: north_america
+---
+namespace: iceland.territories.base.risklegacy.spacemandev
+imgPath: iceland.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: europe
+---
+namespace: india.territories.base.risklegacy.spacemandev
+imgPath: india.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: asia
+---
+namespace: indonesia.territories.base.risklegacy.spacemandev
+imgPath: indonesia.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: australia
+---
+namespace: irkutsk.territories.base.risklegacy.spacemandev
+imgPath: irkutsk.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: asia
+---
+namespace: japan.territories.base.risklegacy.spacemandev
+imgPath: japan.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: asia
+---
+namespace: kamchatka.territories.base.risklegacy.spacemandev
+imgPath: kamchatka.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: asia
+---
+namespace: madagascar.territories.base.risklegacy.spacemandev
+imgPath: madagascar.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: africa
+---
+namespace: middle_east.territories.base.risklegacy.spacemandev
+imgPath: middle_east.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: asia
+---
+namespace: mongolia.territories.base.risklegacy.spacemandev
+imgPath: mongolia.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: asia
+---
+namespace: new_guinea.territories.base.risklegacy.spacemandev
+imgPath: new_guinea.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: australia
+---
+namespace: north_africa.territories.base.risklegacy.spacemandev
+imgPath: north_africa.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: africa
+---
+namespace: northern_europe.territories.base.risklegacy.spacemandev
+imgPath: northern_europe.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: europe
+---
+namespace: northwest_territory.territories.base.risklegacy.spacemandev
+imgPath: northwest_territory.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: north_america
+---
+namespace: ontario.territories.base.risklegacy.spacemandev
+imgPath: ontario.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: north_america
+---
+namespace: peru.territories.base.risklegacy.spacemandev
+imgPath: peru.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: south_america
+---
+namespace: russia.territories.base.risklegacy.spacemandev
+imgPath: russia.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: europe
+---
+namespace: scandinavia.territories.base.risklegacy.spacemandev
+imgPath: scandinavia.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: europe
+---
+namespace: siberia.territories.base.risklegacy.spacemandev
+imgPath: siberia.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: asia
+---
+namespace: south_africa.territories.base.risklegacy.spacemandev
+imgPath: south_africa.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: africa
+---
+namespace: southeast_asia.territories.base.risklegacy.spacemandev
+imgPath: southeast_asia.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: asia
+---
+namespace: southern_europe.territories.base.risklegacy.spacemandev
+imgPath: southern_europe.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: europe
+---
+namespace: ural.territories.base.risklegacy.spacemandev
+imgPath: ural.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: asia
+---
+namespace: venezuela.territories.base.risklegacy.spacemandev
+imgPath: venezuela.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: south_america
+---
+namespace: western_australia.territories.base.risklegacy.spacemandev
+imgPath: western_australia.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: australia
+---
+namespace: western_europe.territories.base.risklegacy.spacemandev
+imgPath: western_europe.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: europe
+---
+namespace: western_united_states.territories.base.risklegacy.spacemandev
+imgPath: western_united_states.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: north_america
+---
+namespace: yakutsk.territories.base.risklegacy.spacemandev
+imgPath: yakutsk.jpg
+cardBack: resource_card.jpg
+data: 
+ value: 1
+ continent: asia

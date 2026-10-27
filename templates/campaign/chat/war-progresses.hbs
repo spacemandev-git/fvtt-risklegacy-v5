@@ -1,0 +1,15 @@
+<div class="risklegacy rl-chat-card rl-campaign-chat rl-camp-war-progresses">
+  {{#if first}}<span class="rl-hazard rl-hazard--thin"></span>{{/if}}
+  <div class="rl-chat-card__head">
+    <h3 class="rl-chat-card__title">{{#if title}}{{title}}{{else}}{{localize "RL.Legacy.Pack.warProgresses"}}{{/if}}</h3>
+    <span class="rl-chat-card__sub">{{pack}}{{#if total}} · {{index}}/{{total}}{{/if}}</span>
+  </div>
+  <div class="rl-chat-card__body">
+    {{#if img}}<img class="rl-camp-war-progresses__img" src="{{img}}" alt="{{title}}">{{/if}}
+    <div class="rl-legal rl-camp-war-progresses__note">
+      <span class="rl-hand">{{localize "RL.Legacy.Pack.warProgresses"}}</span>
+      {{#each paragraphs}}<p>{{this}}</p>{{/each}}
+    </div>
+  </div>
+  {{#if first}}<div class="rl-chat-card__result">{{localize "RL.Legacy.Pack.readAloud"}} {{#if code}}<span class="rl-code">{{code}}</span>{{/if}}</div>{{/if}}
+</div>

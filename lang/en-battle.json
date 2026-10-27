@@ -1,0 +1,139 @@
+{
+  "RL": {
+    "Battle": {
+      "Settings": {
+        "autoResolve": {
+          "name": "Resolve Battles Automatically",
+          "hint": "When nobody in the war holds a Missile, battles resolve as soon as the dice land. Otherwise the attacker clicks Resolve once everyone has had the chance to fire.",
+          "whenNoMissiles": "When nobody holds a Missile",
+          "never": "Never (the attacker clicks Resolve)"
+        }
+      },
+      "Card": {
+        "title": "Attack · {territory}",
+        "vs": "{attack} vs {defend}",
+        "dice": "{count} dice",
+        "round": "Round {round}",
+        "blitz": "Blitz · {count} rounds",
+        "troops": "{count} troops",
+        "troopsOne": "1 troop",
+        "troopsOne": "1 troop",
+        "troopsChange": "{before} \u2192 {after} troops",
+        "unknown": "Unknown",
+        "defeats": "defeats",
+        "attackDie": "Attack die {value}",
+        "defendDie": "Defence die {value}",
+        "missileBy": "Missile ({faction}): 6",
+        "missilesFired": "Missiles fired on this roll: {count}",
+        "fireHint": "Click a die to make it a 6.",
+        "preRoll": "Before the roll: scar cards and EMP may be played now.",
+        "rolling": "Rolling the dice…",
+        "awaiting": "Waiting for {faction} to choose the defence dice…",
+        "cancelled": "Battle cancelled.",
+        "projected": "If resolved now:",
+        "losesNone": "{faction} loses no troops",
+        "losesOne": "{faction} loses 1 troop",
+        "losesMany": "{faction} loses {count} troops",
+        "enclaveArmed": "Natural three of a kind: every defender falls if at least one is defeated.",
+        "hold": "Pocket 1 opens before this battle resolves.",
+        "conquered": "Taken",
+        "conqueredAll": "Natural three of a kind: every defender is removed.",
+        "movedIn": "{count} moved into {territory}.",
+        "fortificationWorn": "One fortification box marked off.",
+        "fortificationWornMany": "{count} fortification boxes marked off.",
+        "protected": "{territory} can't be attacked again this turn.",
+        "cloned": "{faction} adds a defending troop (unstable cloning)."
+      },
+      "Button": {
+        "roll": "Roll",
+        "resolve": "Resolve",
+        "fire": "Fire missile ({count})",
+        "fireCancel": "Cancel",
+        "fireAs": "Fire as",
+        "moveIn": "Move in",
+        "moveInLabel": "Troops to move in",
+        "attackAgain": "Attack again",
+        "blitz": "Blitz",
+        "blitzStop": "stop at",
+        "blitzHint": "Keep attacking with the most dice until the territory falls or you are down to this many troops.",
+        "stop": "Stop",
+        "cancel": "Cancel this battle",
+        "emp": "EMP ({faction})",
+        "playScar": "Play {scar}"
+      },
+      "Mod": {
+        "fortification": "Fortified",
+        "mechaniker_1": "Fortified HQ",
+        "enclave_1": "Enclave",
+        "well_armed": "Well-Armed",
+        "missile": "Missile"
+      },
+      "Note": {
+        "advisory": "Rules check: {reason}",
+        "ignoreScar": "{power}: {scar} has no effect.",
+        "unmodifiable": "{source}: these dice can't be modified.",
+        "emp": "EMP: no die can be modified in this territory this turn.",
+        "empActivated": "{faction} activated EMP.",
+        "scarPlayed": "{faction} played {scar} on {territory}.",
+        "rerolled": "Attack 1s re-rolled: {count}.",
+        "pack": "Third missile on one roll: Pocket 1 opens before resolving.",
+        "enterLoss": "{source}: {count} troops lost entering.",
+        "missingApi": "Not available yet: {api}.",
+        "error": "Error: {error}"
+      },
+      "Defense": {
+        "title": "Defend {territory}",
+        "prompt": "{attacker} attacks {territory} from {from} with {dice} dice. How many troops defend?",
+        "auto": "If you don't choose, you defend with {max} in {seconds} seconds.",
+        "one": "Defend with {n} die",
+        "many": "Defend with {n} dice",
+        "oneShort": "{n} die",
+        "manyShort": "{n} dice"
+      },
+      "PackReason": "Three Missiles were used on one combat roll ({territory}).",
+      "Error": {
+        "missingApi": "Not available yet: {api}.",
+        "noBoard": "There is no campaign board to fight on.",
+        "notBattle": "That isn't a battle.",
+        "notFaction": "That isn't a faction.",
+        "notYours": "You can't act for {faction}.",
+        "gmOnly": "Only a Gamemaster can do that.",
+        "unknownTerritory": "Unknown territory.",
+        "noDefender": "Nobody holds {territory}.",
+        "ownTerritory": "You already control {territory}.",
+        "protected": "{territory} can't be attacked again this turn.",
+        "inProgress": "Another battle hasn't been resolved yet.",
+        "notAwaiting": "This battle isn't waiting for the defender.",
+        "notRolled": "The dice haven't been rolled.",
+        "notPreRoll": "The dice have already been rolled.",
+        "onHold": "Wait: a package is being opened before this battle resolves.",
+        "badDie": "There is no such die.",
+        "alreadyMissile": "A missile already hit that die.",
+        "noMissiles": "{faction} has no Missiles left.",
+        "unmodifiable": "These dice can't be modified.",
+        "notConquered": "The territory wasn't conquered.",
+        "closed": "This battle is over.",
+        "lostTerritory": "You no longer hold the conquered territory.",
+        "nothingToMove": "No troops can move in: one must stay behind.",
+        "cannotAttackAgain": "You can't attack again from this battle.",
+        "alreadyResolved": "This battle has already been resolved.",
+        "blitzMissiles": "No Blitz while anyone holds a Missile.",
+        "blitzReactions": "Someone could play a scar card before the roll: attack one roll at a time.",
+        "blitzNothing": "Nothing to blitz: you don't have enough troops.",
+        "noEmp": "{faction} can't activate EMP now.",
+        "noScar": "That scar card can't be played here."
+      },
+      "Data": {
+        "FIELDS": {
+          "attacker": { "label": "Attacker" },
+          "defender": { "label": "Defender" },
+          "from": { "label": "From" },
+          "to": { "label": "To" },
+          "attackDice": { "label": "Attack Dice" },
+          "defendDice": { "label": "Defence Dice" },
+          "status": { "label": "Status" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+<div class="risklegacy rl-chat-card rl-campaign-chat">
+  <span class="rl-hazard rl-hazard--thin"></span>
+  <div class="rl-chat-card__head">
+    <h3 class="rl-chat-card__title">{{localize "RL.Wizard.End.chatTitle" n=game}}</h3>
+    {{#if winner}}<span class="rl-chat-card__sub">{{localize "RL.Wizard.End.chatWinner" faction=winner player=player}}</span>{{/if}}
+  </div>
+  <div class="rl-chat-card__body">
+    {{#each rows}}
+    <div class="rl-chat-card__row"><span class="rl-label">{{factionName}}</span><span class="rl-hand">{{player}}</span><span class="rl-camp-result-tag rl-camp-result-tag--{{result}}">{{label}}</span></div>
+    {{/each}}
+  </div>
+</div>

@@ -1,0 +1,10 @@
+<nav class="rl-wizard-steps" aria-label="{{localize "RL.Wizard.steps"}}">
+  <ol>
+    {{#each stepList}}
+    <li class="{{#if current}}is-current{{/if}} {{#if done}}is-done{{/if}}" {{#if done}}data-action="goto" data-index="{{@index}}"{{/if}}>
+      <span class="rl-wizard-steps__num">{{#if done}}<i class="fa-solid fa-check" inert></i>{{else}}{{n}}{{/if}}</span>
+      <span class="rl-wizard-steps__label">{{label}}</span>
+    </li>
+    {{/each}}
+  </ol>
+</nav>

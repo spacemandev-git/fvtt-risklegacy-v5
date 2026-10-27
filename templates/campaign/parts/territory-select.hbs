@@ -1,0 +1,17 @@
+<div class="rl-camp-territory-select">
+  <select name="{{name}}" {{#if required}}required{{/if}}>
+    <option value="">{{localize "RL.Wizard.Prompt.selectTerritory"}}</option>
+    {{#each groups}}
+    <optgroup label="{{label}}">
+      {{#each territories}}
+      <option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}{{#if value}} ({{value}}){{/if}}</option>
+      {{/each}}
+    </optgroup>
+    {{/each}}
+  </select>
+  {{#if canPick}}
+  <button type="button" class="rl-btn rl-btn--icon" data-action="pickOnBoard" data-target="{{name}}" data-tooltip="RL.Wizard.Prompt.pickOnBoard" aria-label="{{localize "RL.Wizard.Prompt.pickOnBoard"}}">
+    <i class="fa-solid fa-crosshairs" inert></i>
+  </button>
+  {{/if}}
+</div>

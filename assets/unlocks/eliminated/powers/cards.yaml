@@ -1,0 +1,29 @@
+namespace: resourceful.powers.eliminated.risklegacy.spacemandev
+data:
+  description: As long as you expanded into a city territory, you draw a resource card, even if you didn't conquer a territory.
+  type: knockout
+---
+namespace: stealthy.powers.eliminated.risklegacy.spacemandev
+data:
+  description: You may place some or all of your recruited troops into one unmarked, unoccupied territory. This is not an expansion.
+  type: knockout
+---
+namespace: well-armed.powers.eliminated.risklegacy.spacemandev
+data:
+  description: Add 1 to all your attack dice when attacking an HQ.
+  type: knockout
+---
+namespace: mobile.powers.eliminated.risklegacy.spacemandev
+data:
+  description: At the start of your turn, you may move one HQ you control to an adjacent territory you control. HQs cannot share a territory.
+  type: knockout
+---
+namespace: convincing.powers.eliminated.risklegacy.spacemandev
+data:
+  description: You gain one extra troop in Mercenary territories.
+  type: knockout
+---
+namespace: well-supplied.powers.eliminated.risklegacy.spacemandev
+data:
+  description: When defending, you are unaffected by Ammo Shortage scars. 
+  type: knockout

@@ -1,0 +1,38 @@
+{
+ "name": "campaign-reward",
+ "description": "Khan won game 4 and picks the winner's reward. It started in China twice; Enclave leads the campaign on wins.",
+ "me": "khan",
+ "difficulty": "hard",
+ "factions": {
+  "khan": { "name": "Khan Industries", "key": "khan", "redStarTokens": 2, "startingTerritory": "china" },
+  "enclave": { "name": "Enclave of the Bear", "key": "enclave", "redStarTokens": 1 },
+  "balkania": { "name": "Imperial Balkania", "key": "balkania", "redStarTokens": 1 }
+ },
+ "marks": { "mongolia": { "city": "minor" }, "japan": { "scar": "ammo_shortage" } },
+ "pieces": {
+  "china": { "khan": { "troops": 9, "hq": true } }, "mongolia": { "khan": 3 }, "india": { "khan": 4 }, "siberia": { "khan": 2 },
+  "kamchatka": { "enclave": { "troops": 3, "hq": true } }, "japan": { "enclave": 2 },
+  "russia": { "balkania": { "troops": 5, "hq": true } }
+ },
+ "turn": { "faction": "khan", "phase": "end", "stage": "ended" },
+ "view": {
+  "game": 4,
+  "campaign": {
+   "game": 4, "totalGames": 15,
+   "victors": [ { "game": 1, "faction": "enclave", "wasMe": false }, { "game": 2, "faction": "enclave", "wasMe": false }, { "game": 3, "faction": "balkania", "wasMe": false } ],
+   "wins": { "user-enclave": 2, "user-balkania": 1 },
+   "history": [ "game 1: held on, started in China", "game 2: held on, started in China", "game 3: eliminated, started in India" ],
+   "scars": [ "Ammo Shortage in Japan" ], "cities": [ "Minor city in Mongolia" ], "packs": [ "base" ]
+  }
+ },
+ "llm": { "personality": "test_mathematician" },
+ "calls": [
+  { "fn": "chooseOption", "args": { "kind": "winnerReward", "title": "Winner's reward", "options": [
+   { "value": "nameContinent", "label": "Name a continent", "hint": "You (this player) get +1 troop whenever you hold that whole continent, in every future game." },
+   { "value": "foundMajorCity", "label": "Found a major city", "hint": "Population 2 in a territory you control; only you may start there in future games." },
+   { "value": "fortifyCity", "label": "Fortify a city", "hint": "+1 to both defence dice there for 10 uses; costs 2 extra troops to expand into." },
+   { "value": "cancelScar", "label": "Cancel a scar", "hint": "Remove a scar from a territory for good." },
+   { "value": "destroyTerritoryCard", "label": "Destroy a territory card", "hint": "That territory's resource card leaves the game for good." }
+  ] } }
+ ]
+}

@@ -1,0 +1,1223 @@
+/* ==========================================================================
+   RISK LEGACY — design tokens & base components for Foundry VTT (v13/v14)
+   --------------------------------------------------------------------------
+   Source: assets/rules.pdf (Risk Legacy rulebook, 2011, InDesign CS4,
+   PDF/X-1a, U.S. Web Coated (SWOP) v2 output intent).
+   CMYK values were converted to sRGB with the PDF's own embedded SWOP
+   profile (LittleCMS, perceptual intent + black-point compensation) and
+   cross-checked against MuPDF renders. See DESIGN.md for provenance.
+
+   Scope: everything visual is nested under `.risklegacy` (or the
+   `.application.risklegacy` window root). No bare element selectors, no
+   core `--color-*` overrides, so nothing leaks into Foundry's own UI.
+
+   Foundry usage (system.json):
+     "styles": [{ "src": "styles/risklegacy.css", "layer": "system" }]
+   and give every app/sheet `classes: ["risklegacy", ...]`.
+   Paths below (`assets/...`) are relative to this file; keep them relative
+   when you move the file next to its assets inside the system.
+   ========================================================================== */
+
+
+/* --------------------------------------------------------------------------
+   1. FONTS — self-hosted OFL web fonts (no third-party @import; works offline)
+      Big Shoulders Display      ← United Sans Cond Heavy   (headings, labels)
+      Big Shoulders Stencil Disp ← BatteryPark              (hero / stamp)
+      Roboto Condensed           ← Helvetica Neue Condensed (body, sub-heads)
+      Gochi Hand                 ← Felt Tip Roman           (marker notes)
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Big Shoulders Display";
+  font-style: normal;
+  font-weight: 700 900;
+  font-display: swap;
+  src: url("assets/fonts/BigShouldersDisplay-normal-700-900-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Big Shoulders Display";
+  font-style: normal;
+  font-weight: 700 900;
+  font-display: swap;
+  src: url("assets/fonts/BigShouldersDisplay-normal-700-900-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Big Shoulders Stencil Display";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("assets/fonts/BigShouldersStencilDisplay-normal-900-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Big Shoulders Stencil Display";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("assets/fonts/BigShouldersStencilDisplay-normal-900-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Roboto Condensed";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("assets/fonts/RobotoCondensed-normal-400-700-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Roboto Condensed";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("assets/fonts/RobotoCondensed-normal-400-700-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Roboto Condensed";
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("assets/fonts/RobotoCondensed-italic-400-700-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Roboto Condensed";
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("assets/fonts/RobotoCondensed-italic-400-700-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Gochi Hand";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/fonts/GochiHand-normal-400-latin.woff2") format("woff2");
+}
+
+
+/* --------------------------------------------------------------------------
+   2. TOKENS
+   -------------------------------------------------------------------------- */
+.risklegacy {
+  /* ---- 2.1 Raw palette (exact = from PDF vectors via SWOP ICC;
+              ≈ = sampled from rasters / card art) ------------------------ */
+  /* ink & paper */
+  --rl-ink:            #231f20; /* K100 — all body text, 2pt callout frames            */
+  --rl-ink-rich:       #111213; /* ≈ hazard-bar black / rich black C75M68Y67K90         */
+  --rl-paper:          #ffffff; /* page white                                           */
+  --rl-paper-grunge:   #efeeee; /* ≈ speckled page edges                                */
+  --rl-map:            #dfdfde; /* ≈ faded world-map watermark (p.2–3)                  */
+
+  /* reds */
+  --rl-red:            #b11116; /* M100 Y100 K30 — headings, stencil hero, italic heads  */
+  --rl-red-bright:     #c4151c; /* M100 Y100 K20 — numbered discs, step labels           */
+  --rl-red-star:       #c01f25; /* ≈ red-star token shading                             */
+  --rl-crimson:        #b10069; /* M100 K30 — hairline under "LEGACY KEY TERMS"         */
+
+  /* neutral K tints (the rulebook's grey system) */
+  --rl-k10:            #e6e7e8;
+  --rl-k20:            #d1d3d4; /* K20 — "rules addition" brackets                      */
+  --rl-k30:            #bcbec0; /* K30 — "A NOTE ON TIMING" box                         */
+  --rl-k40:            #a7a9ac; /* K40 — placeholder italics                            */
+  --rl-k50:            #939598; /* K50 — photo captions                                 */
+  --rl-k60:            #808285;
+  --rl-k70:            #6d6f71;
+  --rl-k80:            #58595b;
+  --rl-k90:            #404041;
+  --rl-concept:        #b2bdc3; /* C31 M19 Y18 — handwritten concept-art captions       */
+
+  /* steel, gunmetal, hazard, concrete */
+  --rl-steel-hi:       #fbfcfc; /* ≈ plate highlight                                    */
+  --rl-steel-1:        #e0e1e2; /* ≈ plate face                                         */
+  --rl-steel-2:        #cfd0d2; /* ≈ plate mid                                          */
+  --rl-steel-3:        #bcbec0; /* ≈ plate low (= K30)                                  */
+  --rl-steel-lo:       #9c9d9f; /* ≈ plate bevel shadow line                            */
+  --rl-gunmetal:       #4a4b4d; /* ≈ hazard bar / dark stripes                          */
+  --rl-gunmetal-2:     #404142; /* C68 M61 Y59 K46 — missile-token frame                */
+  --rl-hazard:         #fcdc07; /* ≈ hazard-stripe yellow                               */
+  --rl-concrete:       #5c5b55; /* ≈ dark concrete wall (p.4–5)                         */
+  --rl-concrete-dark:  #4e4e48;
+  --rl-concrete-light: #76746e;
+
+  /* panels & paper stocks */
+  --rl-cream:          #fffcd5; /* Y20 — caption callouts (2pt ink frame)               */
+  --rl-sage:           #d8dbcc; /* ≈ stone panel face (p.4–5)                           */
+  --rl-sage-hi:        #f6f7f2; /* ≈ panel top bevel                                    */
+  --rl-sage-lo:        #959992; /* ≈ panel bottom/right bevel                           */
+  --rl-tan:            #c4b69d; /* ≈ "LEGACY KEY TERMS" manila (p.2–3)                  */
+  --rl-gold:           #f2dfa6; /* ≈ "GOAL" / "OBJECT" panel (p.6, p.8)                 */
+  --rl-gold-deep:      #e6d08f;
+  --rl-lavender:       #bebdca; /* ≈ grey-violet panels (p.11)                          */
+  --rl-legal:          #fcefc3; /* ≈ "Opening New Packages" note (p.15)                 */
+  --rl-panel-white:    #e5e6e7; /* ≈ "YOUR FACTIONS" plate (p.3)                        */
+  --rl-blueprint:      #cfe0ea; /* ≈ concept-sketch grid lines (strengthened)           */
+
+  /* card stock & stickers (scanned card art — approximate) */
+  --rl-card-paper:     #f4f4f0; /* scan #dedfda, white-balanced                         */
+  --rl-card-strip:     #fcf6c0; /* scar/event instruction strip (scan #dbd7a4, balanced)*/
+  --rl-coin-amber:     #e3a312; /* ≈ coin / territory card (scan #d99c0c)               */
+  --rl-coin-gold:      #dba945;
+  --rl-coin-brown:     #6d4009;
+  --rl-city-navy:      #112a6e; /* ≈ major-city sticker                                 */
+  --rl-fort-blue:      #0a4f9a; /* ≈ fortification ring                                 */
+  --rl-fort-cyan:      #01abe2;
+  --rl-scar-orange:    #da8811; /* ≈ scar-sticker rim                                   */
+  --rl-missile:        #f37123; /* ≈ missile-token orange (gradient #f47b24→#f26521)    */
+
+  /* power-slot colours (faction-card brackets; see DESIGN.md) */
+  --rl-power-mission:  #c23b40; /* red                                                  */
+  --rl-power-weakness: #e3c34f; /* yellow                                               */
+  --rl-power-missile:  #d9781e; /* orange                                               */
+  --rl-power-knockout: #2f9fd0; /* blue                                                 */
+  --rl-power-starter:  #8db540; /* green (power sticker, p.6)                           */
+
+  /* faction accents (HQ token art) */
+  --rl-faction-balkania:   #6f38ad;
+  --rl-faction-enclave:    #17a838;
+  --rl-faction-khan:       #5f6062;
+  --rl-faction-mechaniker: #9a0b0c;
+  --rl-faction-saharan:    #c9b400; /* token #cfcf01, slightly deepened for UI           */
+  --rl-faction-mutants:    #c8862a; /* pack faction (Pocket 1), sampled from the HQ token  */
+  --rl-faction-aliens:     #2e76d0; /* pack faction (Pocket 2), sampled from the HQ token  */
+
+  /* ---- 2.2 Typography ------------------------------------------------- */
+  --rl-font-display: "Big Shoulders Display", "Sofia Sans Extra Condensed", "Oswald", "Arial Narrow", "Roboto Condensed", Impact, sans-serif;
+  --rl-font-stencil: "Big Shoulders Stencil Display", "Big Shoulders Display", "Stardos Stencil", Impact, "Arial Narrow", sans-serif;
+  --rl-font-body:    "Roboto Condensed", "Helvetica Neue", "Arial Narrow", "Liberation Sans Narrow", "Nimbus Sans Narrow", Arial, sans-serif;
+  --rl-font-hand:    "Gochi Hand", "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive;
+
+  /* scale: rulebook pt × 1.4 → px (8/10/12/20/26/32/46/74 pt) */
+  --rl-fs-2xs:  10px;
+  --rl-fs-xs:   11px;  /*  8pt captions, placeholders   */
+  --rl-fs-sm:   12px;
+  --rl-fs-base: 14px;  /* 10pt body                     */
+  --rl-fs-md:   17px;  /* 12pt glossary terms, sub-heads */
+  --rl-fs-lg:   22px;
+  --rl-fs-xl:   28px;  /* 20pt panel titles             */
+  --rl-fs-2xl:  36px;  /* 26pt section titles           */
+  --rl-fs-3xl:  46px;  /* 32pt                          */
+  --rl-fs-hero: 72px;  /* 74pt stencil headline (×1)    */
+  --rl-lh-tight: 1;
+  --rl-lh-snug:  1.15;
+  --rl-lh-body:  1.3;
+  --rl-track-display: 0.02em;
+  --rl-track-caps:    0.04em;
+
+  /* ---- 2.3 Spacing, borders, radii, shadows ---------------------------- */
+  --rl-space-1: 2px;
+  --rl-space-2: 4px;
+  --rl-space-3: 6px;
+  --rl-space-4: 8px;
+  --rl-space-5: 12px;
+  --rl-space-6: 16px;
+  --rl-space-7: 24px;
+  --rl-space-8: 32px;
+
+  --rl-border-frame: 2px solid var(--rl-ink);   /* callout/photo frame (2pt) */
+  --rl-border-hair:  1px solid var(--rl-ink);
+  --rl-bracket-w:    4px;                       /* legacy bracket stroke   */
+  --rl-bracket-arm:  18px;
+  --rl-chamfer:      10px;                      /* 45° cut corner          */
+  --rl-radius-card:  7px;                       /* physical cards only     */
+
+  --rl-bevel-raised:  inset 0 3px 0 rgb(255 255 255 / .6), inset 2px 0 0 rgb(0 0 0 / .05),
+                      inset 0 -3px 0 rgb(0 0 0 / .3), inset -3px 0 0 rgb(0 0 0 / .3);
+  --rl-bevel-steel:   inset 0 1px 0 #fff, inset 0 -1px 0 var(--rl-steel-lo);
+  --rl-shadow-panel:  0 1px 2px rgb(0 0 0 / .3);
+  --rl-shadow-card:   0 1px 1px rgb(0 0 0 / .35), 0 4px 10px rgb(0 0 0 / .3);
+  --rl-shadow-note:   2px 4px 8px rgb(0 0 0 / .28);
+  --rl-shadow-window: 0 0 0 1px rgb(0 0 0 / .45), 0 12px 32px rgb(0 0 0 / .55);
+  --rl-inset-field:   inset 0 1px 2px rgb(0 0 0 / .2);
+
+  /* gradients */
+  --rl-grad-steel:    linear-gradient(180deg, var(--rl-steel-hi) 0%, #eceded 40%, #dadbdd 70%, #c8cacc 100%);
+  --rl-grad-gunmetal: linear-gradient(180deg, #626365 0%, var(--rl-gunmetal) 50%, #38393b 100%);
+  --rl-grad-red:      linear-gradient(180deg, #cf1c23 0%, var(--rl-red) 55%, #8e0d12 100%);
+  --rl-grad-hazard:   repeating-linear-gradient(-60deg, var(--rl-hazard) 0 8px, var(--rl-gunmetal) 8px 16px);
+
+  /* textures (relative to this file) */
+  --rl-tex-grunge:   url("assets/textures/grunge-speckle.webp");
+  --rl-tex-concrete: url("assets/textures/concrete.webp");
+  --rl-tex-paper:    url("assets/textures/paper-grain.webp");
+  --rl-tex-stone:    url("assets/textures/stone-grain.webp");
+  --rl-tex-legal:    url("assets/textures/legal-pad.webp");
+  --rl-tex-distress: url("assets/textures/distress-mask.webp");
+  --rl-svg-hazard:   url("assets/svg/hazard-stripes.svg");
+  --rl-svg-wire:     url("assets/svg/barbed-wire.svg");
+  --rl-svg-grid:     url("assets/svg/blueprint-grid.svg");
+  --rl-svg-loop:     url("assets/svg/marker-loop.svg");
+  --rl-svg-arrow:    url("assets/svg/marker-arrow.svg");
+  --rl-svg-star:     url("assets/svg/token-red-star.svg");
+  --rl-svg-missile:  url("assets/svg/token-missile.svg");
+
+  /* data keys (overridden by .rl-faction--* / .rl-power--*) */
+  --rl-faction:       var(--rl-red);
+  --rl-power:         var(--rl-power-starter);
+
+  font-family: var(--rl-font-body);
+  font-size: var(--rl-fs-base);
+  line-height: var(--rl-lh-body);
+  color: var(--rl-on-page);
+}
+
+/* ---- 2.4 / 2.5 Semantic roles — LIGHT ("rulebook page") & DARK ("war-room
+   concrete"). Declared only on the OUTERMOST .risklegacy element and on
+   .risklegacy windows, so nested .risklegacy blocks (chat cards, previews)
+   inherit the roles of their window instead of re-reading the <body> theme.
+   Order matters: the ancestor-theme rule comes before the window's own theme
+   class, so a sheet's per-document theme beats the interface theme (equal
+   specificity, later wins). Printed objects (panels, callouts, cards, notes,
+   chat cards) do NOT change between themes — only the surface they sit on. */
+:is(.risklegacy:not(.risklegacy *), .application.risklegacy) {
+  --rl-page:          var(--rl-paper);
+  --rl-page-texture:  var(--rl-tex-grunge);
+  --rl-page-tex-size: 420px;
+  --rl-page-tex-alpha: .55;
+  --rl-on-page:       var(--rl-ink);
+  --rl-on-page-muted: var(--rl-k70);
+  --rl-page-heading:  var(--rl-red);
+  --rl-page-rule:     var(--rl-ink);
+  --rl-tab-bg:        var(--rl-grad-steel);
+  --rl-tab-fg:        var(--rl-k80);
+  --rl-tab-hover:     var(--rl-red);
+  --rl-focus:         var(--rl-red-bright);
+  --rl-slot-color:    var(--rl-k20);
+  --rl-wire-filter:   none;
+}
+.theme-dark :is(.risklegacy:not(.risklegacy *), .application.risklegacy) {
+  --rl-page:          var(--rl-concrete);
+  --rl-page-texture:  var(--rl-tex-concrete);
+  --rl-page-tex-size: 512px;
+  --rl-page-tex-alpha: 1;
+  --rl-on-page:       var(--rl-steel-1);
+  --rl-on-page-muted: var(--rl-k20);
+  --rl-page-heading:  var(--rl-steel-hi);
+  --rl-page-rule:     var(--rl-k40);
+  --rl-tab-bg:        var(--rl-grad-gunmetal);
+  --rl-tab-fg:        var(--rl-steel-1);
+  --rl-tab-hover:     var(--rl-hazard);
+  --rl-focus:         var(--rl-hazard);
+  --rl-slot-color:    var(--rl-k60);
+  --rl-wire-filter:   invert(.85);
+}
+:is(.risklegacy:not(.risklegacy *), .application.risklegacy).theme-light {
+  --rl-page:          var(--rl-paper);
+  --rl-page-texture:  var(--rl-tex-grunge);
+  --rl-page-tex-size: 420px;
+  --rl-page-tex-alpha: .55;
+  --rl-on-page:       var(--rl-ink);
+  --rl-on-page-muted: var(--rl-k70);
+  --rl-page-heading:  var(--rl-red);
+  --rl-page-rule:     var(--rl-ink);
+  --rl-tab-bg:        var(--rl-grad-steel);
+  --rl-tab-fg:        var(--rl-k80);
+  --rl-tab-hover:     var(--rl-red);
+  --rl-focus:         var(--rl-red-bright);
+  --rl-slot-color:    var(--rl-k20);
+  --rl-wire-filter:   none;
+}
+:is(.risklegacy:not(.risklegacy *), .application.risklegacy).theme-dark {
+  --rl-page:          var(--rl-concrete);
+  --rl-page-texture:  var(--rl-tex-concrete);
+  --rl-page-tex-size: 512px;
+  --rl-page-tex-alpha: 1;
+  --rl-on-page:       var(--rl-steel-1);
+  --rl-on-page-muted: var(--rl-k20);
+  --rl-page-heading:  var(--rl-steel-hi);
+  --rl-page-rule:     var(--rl-k40);
+  --rl-tab-bg:        var(--rl-grad-gunmetal);
+  --rl-tab-fg:        var(--rl-steel-1);
+  --rl-tab-hover:     var(--rl-hazard);
+  --rl-focus:         var(--rl-hazard);
+  --rl-slot-color:    var(--rl-k60);
+  --rl-wire-filter:   invert(.85);
+}
+
+/* Faction & power keys (set on any element; everything below inherits) */
+.risklegacy .rl-faction--balkania,   .risklegacy.rl-faction--balkania   { --rl-faction: var(--rl-faction-balkania); }
+.risklegacy .rl-faction--enclave,    .risklegacy.rl-faction--enclave    { --rl-faction: var(--rl-faction-enclave); }
+.risklegacy .rl-faction--khan,       .risklegacy.rl-faction--khan       { --rl-faction: var(--rl-faction-khan); }
+.risklegacy .rl-faction--mechaniker, .risklegacy.rl-faction--mechaniker { --rl-faction: var(--rl-faction-mechaniker); }
+.risklegacy .rl-faction--saharan,    .risklegacy.rl-faction--saharan    { --rl-faction: var(--rl-faction-saharan); }
+.risklegacy .rl-faction--mutants,    .risklegacy.rl-faction--mutants    { --rl-faction: var(--rl-faction-mutants); }
+.risklegacy .rl-faction--aliens,     .risklegacy.rl-faction--aliens     { --rl-faction: var(--rl-faction-aliens); }
+.risklegacy .rl-power--mission  { --rl-power: var(--rl-power-mission); }
+.risklegacy .rl-power--weakness { --rl-power: var(--rl-power-weakness); }
+.risklegacy .rl-power--missile  { --rl-power: var(--rl-power-missile); }
+.risklegacy .rl-power--knockout { --rl-power: var(--rl-power-knockout); }
+.risklegacy .rl-power--starter  { --rl-power: var(--rl-power-starter); }
+
+
+/* --------------------------------------------------------------------------
+   3. WINDOW FRAME — ApplicationV2 (.application.risklegacy)
+      Steel header plate + bevel rail, rulebook page (light) or concrete (dark)
+   -------------------------------------------------------------------------- */
+.application.risklegacy {
+  --header-height: 38px;
+  border: 1px solid var(--rl-k90);
+  border-radius: 0;
+  box-shadow: var(--rl-shadow-window);
+  background-color: var(--rl-page);
+  color: var(--rl-on-page);
+}
+.application.risklegacy .window-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--rl-space-4);
+  min-height: var(--header-height);
+  padding: 0 var(--rl-space-4) 7px var(--rl-space-6);
+  border: 0;
+  background: var(--rl-grad-steel);
+  color: var(--rl-ink);
+  box-shadow: inset 0 1px 0 #fff;
+}
+/* bevel rail along the plate's lower edge, stepping in with a 45° chamfer */
+.application.risklegacy .window-header::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 7px;
+  background:
+    linear-gradient(180deg, transparent 0 1px, var(--rl-steel-lo) 1px 2px, #fff 2px 3px, #dcdddf 3px 5px, var(--rl-steel-lo) 5px 6px, rgb(0 0 0 / .35) 6px 7px);
+  clip-path: polygon(0 100%, 0 30%, 34% 30%, calc(34% + 5px) 0, 100% 0, 100% 100%);
+  pointer-events: none;
+}
+.application.risklegacy .window-header .window-title {
+  flex: 1;
+  margin: 0;
+  font-family: var(--rl-font-display);
+  font-weight: 800;
+  font-size: var(--rl-fs-lg);
+  line-height: 1;
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+  color: var(--rl-ink);
+  padding-top: 3px;
+}
+.application.risklegacy .window-header .window-icon { color: var(--rl-red); }
+.application.risklegacy .window-header .header-control {
+  border: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--rl-k80);
+  width: 24px; height: 24px;
+  clip-path: none;
+}
+.application.risklegacy .window-header .header-control:hover { color: var(--rl-red); }
+.application.risklegacy .window-content {
+  padding: var(--rl-space-6);
+  background-color: var(--rl-page);
+  color: var(--rl-on-page);
+  position: relative;
+  isolation: isolate;
+}
+.application.risklegacy .window-content::before {         /* page grunge / concrete */
+  content: "";
+  position: absolute; inset: 0;
+  z-index: -1;
+  background-image: var(--rl-page-texture);
+  background-size: var(--rl-page-tex-size);
+  opacity: var(--rl-page-tex-alpha);
+  pointer-events: none;
+}
+/* optional hazard tape under the header (GM tools, destructive dialogs) */
+.application.risklegacy.rl-hazard-header .window-header { padding-bottom: 19px; }
+.application.risklegacy.rl-hazard-header .window-header::before {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: 7px;
+  height: 12px;
+  background: var(--rl-svg-hazard) repeat-x left center / auto 100%;
+}
+
+
+/* --------------------------------------------------------------------------
+   4. TYPE ROLES
+   -------------------------------------------------------------------------- */
+.risklegacy .rl-hero {                  /* "WELL, THIS IS NEW."            */
+  font-family: var(--rl-font-stencil);
+  font-weight: 900;
+  font-size: var(--rl-fs-hero);
+  line-height: .9;
+  letter-spacing: .01em;
+  text-transform: uppercase;
+  color: var(--rl-red);
+  -webkit-mask-image: var(--rl-tex-distress);
+          mask-image: var(--rl-tex-distress);
+  -webkit-mask-size: 256px auto;
+          mask-size: 256px auto;
+  margin: 0;
+}
+.risklegacy .rl-stamp {                 /* small stencil stamp, e.g. ELIMINATED */
+  display: inline-block;
+  font-family: var(--rl-font-stencil);
+  font-weight: 900;
+  font-size: var(--rl-fs-xl);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--rl-red);
+  border: 3px solid currentColor;
+  padding: 2px 8px 0;
+  transform: rotate(-4deg);
+  -webkit-mask-image: var(--rl-tex-distress);
+          mask-image: var(--rl-tex-distress);
+  -webkit-mask-size: 160px auto;
+          mask-size: 160px auto;
+}
+.risklegacy .rl-title {                 /* "A LOOK AT THE COMPONENTS"      */
+  font-family: var(--rl-font-display);
+  font-weight: 900;
+  font-size: var(--rl-fs-2xl);
+  line-height: var(--rl-lh-tight);
+  letter-spacing: var(--rl-track-display);
+  text-transform: uppercase;
+  color: var(--rl-page-heading);
+  margin: 0 0 var(--rl-space-3);
+}
+.risklegacy .rl-title--sm { font-size: var(--rl-fs-xl); }
+.risklegacy .rl-title--ink { color: var(--rl-ink); }
+.risklegacy .rl-subhead {               /* "PLASTIC PIECES" (HN Bold Cond Obl) */
+  font-family: var(--rl-font-body);
+  font-weight: 700;
+  font-style: italic;
+  font-size: var(--rl-fs-md);
+  line-height: var(--rl-lh-snug);
+  text-transform: uppercase;
+  color: var(--rl-red);
+  margin: 0 0 var(--rl-space-3);
+}
+.risklegacy .rl-label {                 /* "A NOTE ON TIMING:" / field labels  */
+  font-family: var(--rl-font-body);
+  font-weight: 700;
+  font-size: var(--rl-fs-sm);
+  line-height: var(--rl-lh-snug);
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+  color: inherit;
+}
+.risklegacy .rl-term { font-weight: 700; font-size: var(--rl-fs-md); }   /* "Marks:" */
+.risklegacy .rl-lead { font-weight: 500; font-size: var(--rl-fs-md); }   /* "But all that will change." */
+.risklegacy .rl-caption {               /* "1-troop pieces"                */
+  font-style: italic;
+  font-size: var(--rl-fs-xs);
+  color: var(--rl-k50);
+}
+.risklegacy .rl-hand {                  /* marker annotation               */
+  font-family: var(--rl-font-hand);
+  font-weight: 400;
+  font-size: 1.3em;
+  line-height: 1.05;
+  color: var(--rl-ink);
+}
+.risklegacy .rl-hand--red { color: var(--rl-red); }
+.risklegacy .rl-hand--concept { color: var(--rl-concept); font-size: var(--rl-fs-sm); }
+.risklegacy .rl-hand--tilt { display: inline-block; transform: rotate(-3deg); }
+.risklegacy .rl-code {                  /* card code "A56s"                */
+  font-family: var(--rl-font-body);
+  font-size: var(--rl-fs-2xs);
+  color: var(--rl-k70);
+}
+.risklegacy .rl-folio {                 /* "PAGE 7"                        */
+  font-family: var(--rl-font-display);
+  font-weight: 900;
+  font-size: var(--rl-fs-base);
+  text-transform: uppercase;
+  color: var(--rl-ink);
+}
+
+
+/* --------------------------------------------------------------------------
+   5. DECORATIONS
+   -------------------------------------------------------------------------- */
+/* 5.1 raised stone/paper panel (p.4–5 sage, p.2 tan, p.8 gold, p.11 lavender) */
+.risklegacy .rl-panel {
+  position: relative;
+  padding: var(--rl-space-6);
+  background-color: var(--rl-sage);
+  background-image: var(--rl-tex-stone);
+  background-size: 360px;
+  background-blend-mode: multiply;
+  box-shadow: var(--rl-bevel-raised), var(--rl-shadow-panel);
+  color: var(--rl-ink);
+}
+.risklegacy .rl-panel            { --rl-peel-under: var(--rl-sage); }
+.risklegacy .rl-panel--tan      { background-color: var(--rl-tan);      background-image: var(--rl-tex-paper); --rl-peel-under: var(--rl-tan); }
+.risklegacy .rl-panel--gold     { background-color: var(--rl-gold);     background-image: var(--rl-tex-paper); --rl-peel-under: var(--rl-gold); }
+.risklegacy .rl-panel--lavender { background-color: var(--rl-lavender); --rl-peel-under: var(--rl-lavender); }
+.risklegacy .rl-panel--white    { background-color: var(--rl-panel-white); background-image: none; --rl-peel-under: var(--rl-panel-white); }
+.risklegacy .rl-panel--flat     { box-shadow: none; }
+.risklegacy .rl-panel > :first-child { margin-top: 0; }
+.risklegacy .rl-panel > :last-child  { margin-bottom: 0; }
+
+/* 5.2 cream caption callout with 2pt ink frame (p.4, p.10, p.11) */
+.risklegacy .rl-callout {
+  --rl-peel-under: var(--rl-cream);
+  background: var(--rl-cream);
+  border: var(--rl-border-frame);
+  padding: var(--rl-space-4) var(--rl-space-6);
+  color: var(--rl-ink);
+}
+.risklegacy .rl-callout + .rl-framed { border-top: 0; }
+.risklegacy .rl-framed {                /* photo/diagram frame            */
+  display: block;
+  border: var(--rl-border-frame);
+  background: var(--rl-ink);
+}
+.risklegacy .rl-framed > img { display: block; width: 100%; height: auto; border: 0; }
+
+/* 5.3 grey note box — "A NOTE ON TIMING:" (K30, p.8) */
+.risklegacy .rl-note {
+  --rl-peel-under: var(--rl-k30);
+  background: var(--rl-k30);
+  padding: var(--rl-space-5) var(--rl-space-6);
+  color: var(--rl-ink);
+}
+.risklegacy .rl-note > .rl-label:first-child { display: block; margin-bottom: var(--rl-space-2); }
+
+/* 5.4 legacy "rules addition" brackets (K20, 45° arm tips, p.7/12/13) */
+.risklegacy .rl-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: var(--rl-space-3) calc(var(--rl-bracket-arm) + var(--rl-space-3));
+  font-style: italic;
+  font-size: var(--rl-fs-xs);
+  color: var(--rl-k60);
+}
+.risklegacy .rl-slot::before,
+.risklegacy .rl-slot::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  width: var(--rl-bracket-arm);
+  background: var(--rl-slot-color);
+  pointer-events: none;
+}
+.risklegacy .rl-slot::before {
+  left: 0;
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--rl-bracket-w)) var(--rl-bracket-w),
+    var(--rl-bracket-w) var(--rl-bracket-w), var(--rl-bracket-w) calc(100% - var(--rl-bracket-w)),
+    calc(100% - var(--rl-bracket-w)) calc(100% - var(--rl-bracket-w)), 100% 100%, 0 100%);
+}
+.risklegacy .rl-slot::after {
+  right: 0;
+  clip-path: polygon(100% 0, 0 0, var(--rl-bracket-w) var(--rl-bracket-w),
+    calc(100% - var(--rl-bracket-w)) var(--rl-bracket-w), calc(100% - var(--rl-bracket-w)) calc(100% - var(--rl-bracket-w)),
+    var(--rl-bracket-w) calc(100% - var(--rl-bracket-w)), 0 100%, 100% 100%);
+}
+.risklegacy .rl-slot--power { --rl-slot-color: var(--rl-power); color: var(--rl-on-page-muted); }
+.risklegacy .rl-slot.is-filled { font-style: normal; font-size: inherit; color: inherit; }
+
+/* 5.5 power sticker (green sticker on the faction card, p.6) */
+.risklegacy .rl-sticker {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: var(--rl-space-3) var(--rl-space-5);
+  background: var(--rl-power);
+  border: 3px solid #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / .45);
+  color: var(--rl-ink);
+  font-size: var(--rl-fs-sm);
+  line-height: var(--rl-lh-snug);
+}
+.risklegacy .rl-sticker--peel::after {  /* lifted corner, like the peeling sticker on p.6 */
+  content: "";
+  position: absolute; right: -3px; top: -3px;
+  width: 14px; height: 14px;
+  background: linear-gradient(225deg, var(--rl-peel-under, var(--rl-page)) 0 48%, #e9e9e6 50% 70%, #c8c8c4);
+  box-shadow: -1px 1px 2px rgb(0 0 0 / .35);
+}
+
+/* 5.6 numbered red discs (turn steps, p.8) */
+.risklegacy .rl-num {
+  display: inline-grid;
+  place-items: center;
+  width: 1.3em; height: 1.3em;
+  border-radius: 50%;
+  background: var(--rl-red-bright);
+  color: #fff;
+  font-family: var(--rl-font-display);
+  font-weight: 900;
+  font-style: normal;
+  font-size: .8em;
+  line-height: 1;
+  vertical-align: .1em;
+}
+.risklegacy .rl-steps { counter-reset: rlstep; list-style: none; margin: 0; padding: 0; }
+.risklegacy .rl-steps > li {
+  counter-increment: rlstep;
+  display: flex; align-items: center; gap: var(--rl-space-3);
+  font-weight: 700; font-style: italic;
+  font-size: var(--rl-fs-md);
+  line-height: 1.35;
+  color: var(--rl-red-bright);
+}
+.risklegacy .rl-steps > li::before {
+  content: counter(rlstep);
+  flex: 0 0 18px; height: 18px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--rl-red-bright);
+  color: #fff;
+  font: normal 900 12px/1 var(--rl-font-display);
+}
+.risklegacy .rl-steps > li.is-current { color: var(--rl-ink); }
+.risklegacy .rl-steps > li.is-current::before { background: var(--rl-ink); }
+
+/* 5.7 hazard tape */
+.risklegacy .rl-hazard {
+  display: block;
+  height: 14px;
+  background: var(--rl-svg-hazard) repeat-x left center / auto 100%;
+}
+.risklegacy .rl-hazard--thin { height: 8px; background: var(--rl-grad-hazard); }
+
+/* 5.8 barbed-wire divider (use on <hr class="rl-wire">) */
+.risklegacy .rl-wire {
+  display: block;
+  height: 30px;
+  border: 0;
+  margin: var(--rl-space-3) 0;
+  background: var(--rl-svg-wire) repeat-x left center / auto 30px;
+  filter: var(--rl-wire-filter);
+}
+
+/* 5.9 steel rail divider & steel plate */
+.risklegacy .rl-rail {
+  display: block;
+  height: 7px;
+  border: 0;
+  margin: var(--rl-space-4) 0;
+  background: linear-gradient(180deg, var(--rl-steel-lo) 0 1px, #fff 1px 2px, var(--rl-steel-1) 2px 5px, var(--rl-steel-lo) 5px 6px, rgb(0 0 0 / .3) 6px 7px);
+  clip-path: polygon(7px 0, 100% 0, 100% 100%, 0 100%, 0 7px);
+}
+.risklegacy .rl-plate {
+  background: var(--rl-grad-steel);
+  box-shadow: var(--rl-bevel-steel);
+  color: var(--rl-ink);
+  padding: var(--rl-space-3) var(--rl-space-5);
+}
+
+/* 5.10 chamfered name tab (faction card "IMPERIAL BALKANIA", "YOUR FACTIONS") */
+.risklegacy .rl-tab-plate {
+  position: relative;
+  display: inline-block;
+  padding: var(--rl-space-2) calc(var(--rl-space-7) + 6px) 9px var(--rl-space-5);
+  background: linear-gradient(180deg, #fff, var(--rl-steel-1));
+  color: var(--rl-ink);
+  font-family: var(--rl-font-display);
+  font-weight: 900;
+  font-size: var(--rl-fs-lg);
+  line-height: 1.05;
+  letter-spacing: var(--rl-track-display);
+  text-transform: uppercase;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 100%, 0 100%);
+}
+.risklegacy .rl-tab-plate::after {      /* faction-colour bar under the name */
+  content: "";
+  position: absolute; left: var(--rl-space-5); right: 14px; bottom: 3px;
+  height: 4px;
+  background: var(--rl-faction);
+  clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 100%, 0 100%);
+}
+
+/* 5.11 marker annotations */
+.risklegacy .rl-circled {               /* hand-drawn loop around text   */
+  position: relative;
+  display: inline-block;
+  padding: .2em .6em;
+}
+.risklegacy .rl-circled::after {
+  content: "";
+  position: absolute; inset: -.35em -.4em;
+  background: var(--rl-ink);
+  -webkit-mask: var(--rl-svg-loop) center / 100% 100% no-repeat;
+          mask: var(--rl-svg-loop) center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+.risklegacy .rl-circled--red::after { background: var(--rl-red); }
+.risklegacy .rl-arrow {                 /* tintable marker arrow           */
+  display: inline-block;
+  width: 120px; height: 84px;
+  background: currentColor;
+  -webkit-mask: var(--rl-svg-arrow) center / contain no-repeat;
+          mask: var(--rl-svg-arrow) center / contain no-repeat;
+}
+.risklegacy .rl-strike {                /* marker cross-out ("destroy the card") */
+  text-decoration: line-through;
+  text-decoration-color: var(--rl-red);
+  text-decoration-thickness: 2px;
+}
+
+/* 5.12 surfaces */
+.risklegacy .rl-grid-paper {
+  background: #fff var(--rl-svg-grid) repeat;
+  background-size: 28px 28px;
+  color: var(--rl-ink);
+}
+.risklegacy .rl-legal {                 /* "Opening New Packages" note    */
+  position: relative;
+  padding: var(--rl-space-5) var(--rl-space-6) var(--rl-space-6);
+  background: var(--rl-legal) var(--rl-tex-legal);
+  background-size: 300px;
+  box-shadow: var(--rl-shadow-note);
+  transform: rotate(-1.2deg);
+  color: var(--rl-ink);
+}
+.risklegacy .rl-legal > .rl-hand:first-child { display: block; font-size: 30px; color: var(--rl-red); margin-bottom: var(--rl-space-2); }
+
+/* 5.13 tokens & counters */
+.risklegacy .rl-token {
+  display: inline-block;
+  flex: none;
+  width: 40px; height: 40px;
+  background: var(--rl-svg-star) center / contain no-repeat;
+  vertical-align: middle;
+}
+.risklegacy .rl-token--missile { width: 20px; height: 48px; background-image: var(--rl-svg-missile); }
+.risklegacy .rl-counter {
+  display: inline-flex; align-items: center; gap: var(--rl-space-3);
+}
+.risklegacy .rl-counter__value {
+  font-family: var(--rl-font-display);
+  font-weight: 900;
+  font-size: var(--rl-fs-2xl);
+  line-height: 1;
+  color: inherit;
+}
+.risklegacy .rl-counter__label { display: block; }
+
+/* 5.14 dice — attack = black, defence = red (p.5) */
+.risklegacy .rl-dice { display: inline-flex; gap: var(--rl-space-2); align-items: center; }
+.risklegacy .rl-die {
+  position: relative;
+  display: inline-grid; place-items: center;
+  width: 30px; height: 30px;
+  border-radius: 5px;
+  font-family: var(--rl-font-display);
+  font-weight: 900;
+  font-size: 19px;
+  line-height: 1;
+  color: #fff;
+  background: linear-gradient(160deg, #3a3a3a, #121212);
+  box-shadow: inset 0 -3px 0 rgb(0 0 0 / .45), inset 0 1px 0 rgb(255 255 255 / .2), 0 1px 2px rgb(0 0 0 / .45);
+}
+.risklegacy .rl-die--defend { background: linear-gradient(160deg, #e2262d, #a8121a); }
+.risklegacy .rl-die.is-lost { opacity: .45; }
+.risklegacy .rl-die[data-mod]::after {  /* marker-written modified value  */
+  content: attr(data-mod);
+  position: absolute; right: -9px; top: -12px;
+  font-family: var(--rl-font-hand);
+  font-size: 22px;
+  color: var(--rl-red);
+  text-shadow: 0 0 2px #fff, 0 0 2px #fff;
+  transform: rotate(-8deg);
+}
+
+
+/* --------------------------------------------------------------------------
+   6. FORM CONTROLS
+   -------------------------------------------------------------------------- */
+.risklegacy :is(input[type="text"], input[type="number"], input[type="search"], input:not([type]), select, textarea) {
+  font-family: var(--rl-font-body);
+  font-size: var(--rl-fs-base);
+  color: var(--rl-ink);
+  background: #fff;
+  border: 1px solid var(--rl-k60);
+  border-radius: 0;
+  box-shadow: var(--rl-inset-field);
+  padding: 3px 6px;
+  min-height: 28px;
+  outline: none;
+}
+.risklegacy :is(input, select, textarea):focus-visible {
+  border-color: var(--rl-ink);
+  box-shadow: var(--rl-inset-field), 0 0 0 2px var(--rl-focus);
+}
+.risklegacy :is(input, textarea)::placeholder { color: var(--rl-k50); font-style: italic; }
+.risklegacy input[type="number"] { font-family: var(--rl-font-display); font-weight: 800; font-size: var(--rl-fs-md); text-align: center; }
+/* "write on your game": names, signatures, slogans */
+.risklegacy input.rl-input--hand,
+.risklegacy .rl-input--hand {
+  font-family: var(--rl-font-hand);
+  font-size: 20px;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid currentColor;
+  box-shadow: none;
+  padding: 0 2px;
+  color: var(--rl-on-page);
+}
+.risklegacy :is(.rl-panel, .rl-callout, .rl-note, .rl-legal, .rl-card, .rl-plate, .rl-grid-paper) .rl-input--hand { color: var(--rl-ink); }
+.risklegacy :is(.form-group > label, .rl-field > label) {
+  font-family: var(--rl-font-body);
+  font-weight: 700;
+  font-size: var(--rl-fs-sm);
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+}
+.risklegacy .rl-field { display: grid; gap: var(--rl-space-2); }
+.risklegacy .rl-field > .hint { font-size: var(--rl-fs-xs); font-style: italic; color: var(--rl-k70); }
+/* checkbox = box you mark with a red marker "x" */
+.risklegacy input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  margin: 0;
+  background: #fff;
+  border: 2px solid var(--rl-ink);
+  border-radius: 0;
+  vertical-align: middle;
+  cursor: pointer;
+}
+.risklegacy input[type="checkbox"]:checked {
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3 4.5c4 3 8.5 8 13.5 12.8M16.6 2.8C12 7 7.5 12 3.6 17.4' fill='none' stroke='%23b11116' stroke-width='2.8' stroke-linecap='round'/%3E%3C/svg%3E") center / 22px no-repeat;
+}
+.risklegacy input[type="checkbox"]:focus-visible { box-shadow: 0 0 0 2px var(--rl-focus); }
+
+/* buttons — opt-in via .rl-btn (DialogV2 footer buttons are styled automatically).
+   Never style bare <button>: Foundry icon controls (.header-control, editor menus,
+   file pickers) carry Font Awesome classes on the button itself. */
+.risklegacy :is(.rl-btn, .form-footer > button) {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--rl-space-3);
+  min-height: 32px;
+  padding: 6px 16px 4px;
+  border: 0;
+  border-radius: 0;
+  font-family: var(--rl-font-display);
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+  color: var(--rl-ink);
+  background: var(--rl-grad-steel);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -2px 0 rgb(0 0 0 / .22), inset 0 0 0 1px var(--rl-steel-lo);
+  clip-path: polygon(0 0, calc(100% - var(--rl-chamfer)) 0, 100% var(--rl-chamfer), 100% 100%, 0 100%);
+  cursor: pointer;
+}
+.risklegacy :is(.rl-btn, .form-footer > button):hover { background: linear-gradient(180deg, #fff, var(--rl-steel-1) 60%, var(--rl-steel-2)); }
+.risklegacy :is(.rl-btn, .form-footer > button):active { box-shadow: inset 0 2px 3px rgb(0 0 0 / .3), inset 0 0 0 1px var(--rl-steel-lo); }
+.risklegacy :is(.rl-btn, .form-footer > button):focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--rl-focus), inset 0 -2px 0 rgb(0 0 0 / .22); }
+.risklegacy :is(.rl-btn, .form-footer > button):disabled { opacity: .5; cursor: not-allowed; }
+.risklegacy :is(.rl-btn, .form-footer > button) > i { font-size: .85em; }
+.risklegacy :is(.rl-btn, .form-footer > button).rl-btn--primary,
+.risklegacy .form-footer > button[autofocus] {
+  color: #fff;
+  background: var(--rl-grad-red);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .25), inset 0 -2px 0 rgb(0 0 0 / .35);
+}
+.risklegacy :is(.rl-btn, .form-footer > button).rl-btn--primary:hover,
+.risklegacy .form-footer > button[autofocus]:hover { background: linear-gradient(180deg, #dc252c, #be151b 55%, #970e13); }
+.risklegacy :is(.rl-btn, .form-footer > button).rl-btn--primary:focus-visible,
+.risklegacy .form-footer > button[autofocus]:focus-visible { box-shadow: inset 0 0 0 2px var(--rl-hazard); }
+.risklegacy :is(.rl-btn, .form-footer > button).rl-btn--destroy {   /* DESTROY / tear up a card */
+  color: #fff;
+  background: var(--rl-grad-hazard) left / 16px 100% no-repeat, linear-gradient(180deg, #3b3b3c, var(--rl-ink-rich));
+  padding-left: 26px;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .15), inset 0 -2px 0 rgb(0 0 0 / .5);
+}
+.risklegacy :is(.rl-btn, .form-footer > button).rl-btn--icon { padding: 6px 8px 4px; min-height: 28px; }
+.risklegacy :is(.rl-btn, .form-footer > button).rl-btn--icon.rl-btn--destroy { padding-left: 26px; }
+
+/* tabs (core markup: nav.sheet-tabs.tabs > a[data-tab]) */
+.risklegacy :is(nav.tabs, .rl-tabs) {
+  display: flex;
+  gap: 3px;
+  margin: 0 0 var(--rl-space-6);
+  padding: 0;
+  border: 0;
+  border-bottom: 3px solid var(--rl-page-rule);
+}
+.risklegacy :is(nav.tabs, .rl-tabs) > :is(a, button, [data-tab]) {
+  flex: 0 0 auto;
+  display: inline-flex; align-items: center; gap: 6px;
+  margin: 0;
+  padding: 7px 22px 4px 12px;
+  border: 0;
+  font-family: var(--rl-font-display);
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+  color: var(--rl-tab-fg);
+  background: var(--rl-tab-bg);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .5);
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+  text-shadow: none;
+  cursor: pointer;
+}
+.risklegacy :is(nav.tabs, .rl-tabs) > :is(a, button, [data-tab]):hover { color: var(--rl-tab-hover); }
+.risklegacy :is(nav.tabs, .rl-tabs) > :is(a, button, [data-tab]).active {
+  color: var(--rl-red);
+  background: linear-gradient(180deg, #fff, var(--rl-steel-1));
+  box-shadow: inset 0 -4px 0 var(--rl-red);
+}
+
+
+/* --------------------------------------------------------------------------
+   7. CARDS (printed objects — identical in light & dark)
+   -------------------------------------------------------------------------- */
+.risklegacy .rl-card {
+  --rl-card-w: 260px;
+  --rl-peel-under: var(--rl-card-paper);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: var(--rl-card-w);
+  aspect-ratio: 88 / 63;
+  overflow: hidden;
+  border-radius: var(--rl-radius-card);
+  background: var(--rl-card-paper) var(--rl-tex-paper);
+  background-size: 300px;
+  background-blend-mode: multiply;
+  box-shadow: var(--rl-shadow-card);
+  color: var(--rl-ink);
+  font-family: var(--rl-font-body);
+  font-size: var(--rl-fs-sm);
+  line-height: var(--rl-lh-snug);
+  text-align: center;
+}
+.risklegacy .rl-card--portrait { --rl-card-w: 190px; aspect-ratio: 63 / 88; }
+.risklegacy .rl-card__title {
+  font-family: var(--rl-font-display);
+  font-weight: 800;
+  font-size: var(--rl-fs-lg);
+  line-height: 1;
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+  text-align: left;
+}
+.risklegacy .rl-card__strip {           /* pale-yellow instruction strip  */
+  background: var(--rl-card-strip);
+  font-style: italic;
+  text-align: left;
+  padding: var(--rl-space-2) var(--rl-space-5);
+}
+.risklegacy .rl-card__body { flex: 1; display: grid; align-content: center; gap: var(--rl-space-3); padding: var(--rl-space-3) var(--rl-space-5); }
+.risklegacy .rl-card__code { position: absolute; right: 8px; bottom: 4px; }
+
+/* scar card: title between heavy rules, instruction strip, sticker art (cf. bunker.jpg) */
+.risklegacy .rl-card--scar .rl-card__title {
+  margin: 10px 10px 0;
+  padding: 3px 2px 2px;
+  border-top: 7px solid var(--rl-ink);
+  border-bottom: 4px solid var(--rl-ink);
+}
+.risklegacy .rl-card--scar .rl-card__strip { margin: 4px 10px 0; }
+.risklegacy .rl-card--scar .rl-card__body { padding-right: 96px; }
+.risklegacy .rl-card--scar .rl-card__art {
+  position: absolute; right: 10px; bottom: 16px;
+  width: 84px; height: 84px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / .4));
+}
+
+/* event card (portrait): image band header, footer strip (cf. riots.jpg) */
+.risklegacy .rl-card--event .rl-card__banner {
+  position: relative;
+  height: 52px;
+  margin: 8px 8px 0;
+  background: var(--rl-gunmetal) center / cover;
+  border-bottom: 3px solid var(--rl-missile);
+}
+.risklegacy .rl-card--event .rl-card__banner .rl-card__title {
+  position: absolute; left: 0; top: 4px;
+  padding: 3px 14px 2px 6px;
+  font-size: var(--rl-fs-md);
+  background: linear-gradient(180deg, #fff, var(--rl-steel-1));
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 100%, 0 100%);
+}
+.risklegacy .rl-card--event .rl-card__strip { margin: 0 8px 18px; font-size: var(--rl-fs-xs); }
+
+/* mission card (landscape): label + red-star token (cf. imperial_might.jpg) */
+.risklegacy .rl-card--mission { background-color: #e6e8e7; }
+.risklegacy .rl-card--mission .rl-card__label { position: absolute; left: 12px; top: 10px; font: 800 var(--rl-fs-lg)/1 var(--rl-font-display); text-transform: uppercase; letter-spacing: var(--rl-track-caps); }
+.risklegacy .rl-card--mission .rl-token { position: absolute; right: 10px; top: 8px; width: 46px; height: 46px; }
+.risklegacy .rl-card--mission .rl-card__body { padding: 44px 20px 14px; font-size: var(--rl-fs-md); }
+.risklegacy .rl-card--mission strong { font-weight: 700; font-size: 1.1em; }
+
+/* power card: sticker on card stock with type icon */
+.risklegacy .rl-card--power { aspect-ratio: auto; text-align: left; }
+.risklegacy .rl-card--power .rl-card__head {
+  display: flex; align-items: center; gap: var(--rl-space-4);
+  padding: var(--rl-space-4) var(--rl-space-5) var(--rl-space-3);
+}
+.risklegacy .rl-card--power .rl-card__icon {
+  flex: none;
+  width: 42px; height: 42px;
+  padding: 5px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--rl-power);
+  box-shadow: 0 1px 2px rgb(0 0 0 / .35);
+}
+.risklegacy .rl-card--power .rl-card__type { display: block; font: 700 italic var(--rl-fs-xs)/1 var(--rl-font-body); text-transform: uppercase; color: var(--rl-k70); }
+.risklegacy .rl-card--power .rl-sticker { margin: 0 var(--rl-space-5) var(--rl-space-6); width: auto; }
+
+/* territory / coin card (portrait amber with six resource slots) */
+.risklegacy .rl-card--territory { background: var(--rl-card-paper); }
+.risklegacy .rl-card--territory .rl-card__title { font-size: var(--rl-fs-sm); padding: 9px 10px 4px; }
+.risklegacy .rl-card--territory .rl-card__window {
+  height: 38%;
+  margin: 0 10px;
+  background: linear-gradient(180deg, #8f9a8c, #c9d0c4);
+  display: grid; place-items: center;
+  color: #fff; font: 900 26px/1 var(--rl-font-display);
+}
+.risklegacy .rl-card--territory .rl-coins { flex: 1; margin: 8px 10px 22px; background: var(--rl-coin-amber); }
+.risklegacy .rl-coins {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  place-items: center;
+  gap: 4px;
+  padding: 6px;
+}
+.risklegacy .rl-coin {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / .25);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / .25);
+}
+.risklegacy .rl-coin.is-filled {
+  background: radial-gradient(circle at 40% 35%, #f9df8a, #d5a43a 45%, #8a5a12 72%, var(--rl-coin-brown) 74%, #a8751f 86%, #5a3507);
+  box-shadow: 0 1px 2px rgb(0 0 0 / .45);
+}
+
+/* faction card (sheet header art with colour slots) */
+.risklegacy .rl-faction-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  border: var(--rl-border-frame);
+  background: var(--rl-gunmetal) center / cover no-repeat;
+  min-height: 210px;
+  overflow: hidden;
+  color: var(--rl-ink);
+}
+.risklegacy .rl-faction-card > .rl-tab-plate { position: absolute; left: 0; top: 10px; }
+
+
+/* --------------------------------------------------------------------------
+   8. DIALOGS (DialogV2: .application.dialog > .window-content >
+      .dialog-content + footer.form-footer)
+   -------------------------------------------------------------------------- */
+.application.dialog.risklegacy .dialog-content { display: grid; gap: var(--rl-space-5); }
+.application.dialog.risklegacy .dialog-content > p { margin: 0; }
+.risklegacy .form-footer {
+  display: flex; gap: var(--rl-space-4);
+  margin-top: var(--rl-space-6);
+  padding-top: var(--rl-space-5);
+  border-top: 2px solid var(--rl-page-rule);
+}
+.risklegacy .form-footer > button { flex: 1; }
+.application.dialog.risklegacy .dialog-form > .form-footer { margin-top: 0; }   /* core .standard-form gap is 16 px */
+
+
+/* --------------------------------------------------------------------------
+   9. CHAT CARDS — printed dispatch, same in both themes
+      Markup: <div class="risklegacy rl-chat-card"> inside .message-content.
+      Optionally add `risklegacy` to the <li class="chat-message"> via
+      Hooks.on("renderChatMessageHTML") to restyle the message frame.
+   -------------------------------------------------------------------------- */
+.chat-message.risklegacy {
+  background: var(--rl-paper) var(--rl-tex-paper);
+  background-size: 300px;
+  background-blend-mode: multiply;
+  border: 1px solid var(--rl-k60);
+  border-radius: 0;
+  color: var(--rl-ink);
+  font-family: var(--rl-font-body);
+}
+.chat-message.risklegacy .message-sender {
+  font-family: var(--rl-font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: var(--rl-track-caps);
+  color: var(--rl-ink);
+}
+.risklegacy.rl-chat-card,
+.risklegacy .rl-chat-card {
+  color: var(--rl-ink);
+  background: #fff;
+  border: var(--rl-border-frame);
+  font-size: 13px;
+  line-height: var(--rl-lh-snug);
+}
+.risklegacy .rl-chat-card__head {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--rl-space-2) var(--rl-space-4);
+  padding: var(--rl-space-3) var(--rl-space-5) 5px;
+  background: var(--rl-grad-steel);
+  box-shadow: var(--rl-bevel-steel);
+}
+.risklegacy .rl-chat-card__title {
+  flex: 1 1 auto;
+  margin: 0;
+  font-family: var(--rl-font-display);
+  font-weight: 900;
+  font-size: 19px;
+  line-height: 1;
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+  color: var(--rl-red);
+}
+.risklegacy .rl-chat-card__sub { font: 700 italic var(--rl-fs-xs)/1 var(--rl-font-body); text-transform: uppercase; color: var(--rl-k70); }
+.risklegacy .rl-chat-card__body { display: grid; gap: var(--rl-space-4); padding: var(--rl-space-4) var(--rl-space-5); }
+.risklegacy .rl-chat-card__row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--rl-space-1) var(--rl-space-4); }
+.risklegacy .rl-chat-card__row > :last-child:nth-child(2) { margin-left: auto; text-align: right; }   /* label + value: a wrapped value stays right */
+.risklegacy .rl-chat-card__result {
+  background: var(--rl-cream);
+  border-top: var(--rl-border-frame);
+  padding: var(--rl-space-4) var(--rl-space-5);
+  font-weight: 700;
+}
+
+
+/* --------------------------------------------------------------------------
+   9. FOUNDRY CORE COMPATIBILITY: fixes for core v14 rules that leak into
+      every .risklegacy window (found while building the sheets; apply to all
+      areas' windows, so they live here rather than in an area stylesheet).
+   -------------------------------------------------------------------------- */
+/* Core draws Font Awesome squares in checkbox pseudo-elements over the marker-X box. */
+.risklegacy input[type="checkbox"]::before,
+.risklegacy input[type="checkbox"]::after { content: none; display: none; }
+
+/* Core fixes the header height, which squeezed the title under the hazard tape. */
+.application.risklegacy.rl-hazard-header .window-header {
+  flex: 0 0 auto;
+  height: auto;
+  min-height: calc(var(--header-height) + 12px);
+}
+
+/* Tabs sit left-aligned on their rule (core spreads them with space-evenly). */
+.application.risklegacy .window-content nav.sheet-tabs { justify-content: flex-start; }
+
+/* Core colours h1–h6 itself; our headings take the colour of what they are printed on. */
+.application.risklegacy .window-content :where(h1, h2, h3, h4, h5, h6) { color: inherit; border: 0; }
+
+/* Text written straight on the page follows the theme (no red on concrete); printed objects keep their ink. */
+.application.risklegacy .window-content .rl-subhead { color: var(--rl-page-heading); }
+.application.risklegacy .window-content :is(.rl-panel, .rl-callout, .rl-note, .rl-legal, .rl-card, .rl-plate, .rl-chat-card, .rl-sticker) .rl-subhead { color: var(--rl-red); }
+
+/* Core fixes every <button> at 2em tall, which clipped our multi-line buttons (power choices, stickers, long labels).
+   Only our own buttons grow; core controls (header, editor menus, file pickers) keep their size. :where() keeps the
+   specificity low, so a component that needs a fixed size (marker boxes, icon buttons) still sets its own height. */
+.risklegacy :where(button[class*="rl-"], .form-footer > button) { height: auto; }
+.risklegacy :is(.rl-btn, .form-footer > button) { white-space: normal; text-align: center; }
+
+/* Core gives tables and figures margins, and makes images in table cells blocks. Zero specificity: any component
+   rule still wins. */
+:where(.application.risklegacy .window-content) :where(table, figure, figcaption) { margin: 0; }
+:where(.application.risklegacy .window-content) :where(td, th) > img { display: inline-block; vertical-align: middle; }
+
+/* Card codes printed straight on the page follow the theme (K70 is too faint on concrete). */
+.application.risklegacy .window-content .rl-code { color: var(--rl-on-page-muted); }
+.application.risklegacy .window-content :is(.rl-panel, .rl-callout, .rl-note, .rl-legal, .rl-card, .rl-plate, .rl-chat-card, .rl-sticker) .rl-code { color: var(--rl-k70); }

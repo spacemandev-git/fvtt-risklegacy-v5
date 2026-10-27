@@ -1,0 +1,80 @@
+<section class="tab rl-cs-tab-territories {{tab.cssClass}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <div class="rl-cs-terr__bar">
+    <div class="rl-ui-filters" role="toolbar" aria-label="{{localize "RL.Sheet.Campaign.Filter.label"}}">
+      {{#each terr.filters as |f|}}
+      <button type="button" class="rl-ui-filter{{#if (eq f @root.terr.state.filter)}} active{{/if}}" data-action="filterTerritories" data-filter="{{f}}">
+        {{localize (concat "RL.Sheet.Campaign.Filter." f)}} <b>{{lookup @root.terr.counts f}}</b>
+      </button>
+      {{/each}}
+    </div>
+    <div class="rl-cs-terr__tools">
+      <input type="search" class="rl-cs-terr__search" placeholder="{{localize "RL.Sheet.Campaign.Search"}}" aria-label="{{localize "RL.Sheet.Campaign.Search"}}">
+      <div class="rl-cs-terr__sort">
+        <span class="rl-label">{{localize "RL.Sheet.Campaign.Sort.label"}}</span>
+        {{#each terr.sorts as |s|}}
+        <button type="button" class="rl-ui-filter rl-ui-filter--flat{{#if (eq s @root.terr.state.sort)}} active{{/if}}" data-action="sortTerritories" data-sort="{{s}}">{{localize (concat "RL.Sheet.Campaign.Sort." s)}}</button>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+  <div class="rl-cs-terr__scroll">
+    <table class="rl-cs-terr">
+      <thead>
+        <tr>
+          <th class="c-name">{{localize "RL.Sheet.Campaign.Col.territory"}}</th>
+          <th class="c-city">{{localize "RL.Sheet.Campaign.Col.city"}}</th>
+          <th class="c-fort">{{localize "RL.Sheet.Campaign.Col.fortification"}}</th>
+          <th class="c-scar">{{localize "RL.Sheet.Campaign.Col.scar"}}</th>
+          <th class="c-marks">{{localize "RL.Sheet.Campaign.Col.marks"}}</th>
+          {{#if canManage}}<th class="c-edit"></th>{{/if}}
+        </tr>
+      </thead>
+      {{#each terr.groups as |g|}}
+      <tbody class="rl-cs-terr__group">
+        {{#if g.label}}
+        <tr class="rl-cs-terr__ghead"{{#if g.color}} style="--rl-continent: {{g.color}}"{{/if}}>
+          <th colspan="{{#if @root.canManage}}6{{else}}5{{/if}}"><span class="rl-cs-terr__swatch"></span>{{g.label}}{{#if g.name}} <span class="rl-hand rl-cs-terr__gname">{{g.name}}</span>{{/if}}</th>
+        </tr>
+        {{/if}}
+        {{#each g.rows as |r|}}
+        <tr class="rl-cs-terr__row{{#unless r.marked}} is-unmarked{{/unless}}" data-territory="{{r.id}}" data-tags="{{r.tags}}" data-search="{{r.search}}">
+          <td class="c-name">
+            <span class="rl-cs-terr__name">{{r.name}}</span>
+            {{#if r.cardDestroyed}}<span class="rl-hand rl-hand--red rl-cs-terr__x" data-tooltip="RL.Sheet.Campaign.CardDestroyed">x</span>{{/if}}
+          </td>
+          <td class="c-city">
+            {{#if r.city}}
+            <span class="rl-cs-terr__city rl-cs-terr__city--{{r.city.type}}">
+              <img class="rl-cs-terr__cityart" src="{{r.city.art}}" alt="">
+              <span class="rl-cs-terr__citytext">
+                <span class="rl-hand rl-cs-terr__cityname">{{#if r.city.name}}{{r.city.name}}{{else}}?{{/if}}</span>
+                <span class="rl-cs-terr__meta">{{r.city.label}} · {{localize "RL.Sheet.Campaign.Pop" pop=r.city.population}}{{#if r.city.founder}} · <span class="rl-hand">{{r.city.founder}}</span>{{/if}}</span>
+              </span>
+            </span>
+            {{/if}}
+          </td>
+          <td class="c-fort">
+            {{#if r.fort}}
+            <span class="rl-cs-fort{{#if r.fort.worn}} is-worn{{/if}}" data-tooltip="{{localize "RL.Sheet.Campaign.FortLeft" left=r.fort.left}}">
+              <span class="rl-cs-fort__boxes">{{#each r.fort.boxes}}<span class="rl-cs-fort__box{{#if used}} is-used{{/if}}"></span>{{/each}}</span>
+              <span class="rl-cs-terr__meta">{{localize "RL.Sheet.Campaign.FortLeft" left=r.fort.left}}</span>
+            </span>
+            {{/if}}
+          </td>
+          <td class="c-scar">
+            {{#if r.scar}}<span class="rl-cs-terr__scar"{{#if r.scar.text}} data-tooltip="{{r.scar.text}}"{{/if}}>{{#if r.scar.img}}<img src="{{r.scar.img}}" alt="">{{/if}}<span>{{r.scar.label}}</span></span>{{/if}}
+          </td>
+          <td class="c-marks">
+            {{#each r.marks as |mk|}}<span class="rl-ui-tag"{{#if mk.text}} data-tooltip="{{mk.text}}"{{/if}}>{{#if mk.img}}<img src="{{mk.img}}" alt="">{{/if}}{{mk.label}}</span>{{/each}}
+          </td>
+          {{#if @root.canManage}}
+          <td class="c-edit"><button type="button" class="rl-ui-icon" data-action="editTerritory" data-tooltip="RL.Sheet.Campaign.EditTerritory" aria-label="{{localize "RL.Sheet.Campaign.EditTerritory"}}"><i class="fa-solid fa-pen" inert></i></button></td>
+          {{/if}}
+        </tr>
+        {{/each}}
+      </tbody>
+      {{/each}}
+    </table>
+    <p class="rl-cs-terr__none rl-caption" hidden>{{localize "RL.Sheet.Campaign.NoMatch"}}</p>
+  </div>
+</section>

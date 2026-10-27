@@ -1,0 +1,11 @@
+namespace: beam_down.events.thirtytroops.risklegacy.spacemandev
+imgPath: beam_down.jpg
+qty: 2
+---
+namespace: die_humans.events.thirtytroops.risklegacy.spacemandev
+imgPath: die_humans.jpg
+qty: 3
+---
+namespace: mysterious_island.events.thirtytroops.risklegacy.spacemandev
+imgPath: mysterious_island.jpg
+qty: 2

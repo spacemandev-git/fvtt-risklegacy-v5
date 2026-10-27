@@ -1,0 +1,14 @@
+<div class="rl-hazard rl-board-banner__tape" aria-hidden="true"></div>
+<div class="rl-board-banner__plate">
+  {{#if factionName}}
+  <span class="rl-board-banner__faction" style="--rl-faction: {{factionColor}}">{{factionName}}</span>
+  {{/if}}
+  <span class="rl-board-banner__prompt">{{prompt}}</span>
+  {{#if hasReserve}}
+  <span class="rl-board-banner__count"><b>{{reserve}}</b> {{localize "RL.Canvas.Banner.toPlace"}}</span>
+  {{/if}}
+  <span class="rl-board-banner__hint">{{hint}}</span>
+  <button type="button" class="rl-btn rl-board-banner__cancel" data-action="cancel">
+    <i class="fa-solid fa-xmark" inert></i> {{localize "RL.Canvas.Banner.cancel"}}
+  </button>
+</div>

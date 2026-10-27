@@ -1,0 +1,39 @@
+<div class="rl-camp-step rl-camp-step--players">
+  <h2 class="rl-title">{{localize "RL.Wizard.Setup.playersTitle" n=gameNumber}}</h2>
+  <p class="rl-lead">{{localize "RL.Wizard.Setup.playersLead"}}</p>
+  {{#if draft}}<div class="rl-legal rl-camp-setup-draftnote"><span class="rl-hand">{{localize "RL.Wizard.Setup.draftRules"}}</span>{{localize "RL.Wizard.Setup.draftRulesText"}}</div>{{/if}}
+  <ol class="rl-camp-seat-list">
+    {{#each players}}
+    <li class="rl-camp-seat">
+      <span class="rl-num">{{n}}</span>
+      <span class="rl-camp-seat__dot" style="--dot: {{color}}"></span>
+      <span class="rl-camp-seat__name">{{name}}</span>
+      {{#if bot}}<span class="rl-bot-tag">{{bot}}</span>{{else}}{{#unless active}}<span class="rl-caption">{{localize "RL.Wizard.Setup.offline"}}</span>{{/unless}}{{/if}}
+      <span class="rl-camp-seat__tokens">
+        {{#if redStar}}<span class="rl-token" data-tooltip="RL.Wizard.Setup.redStarToken"></span>
+        {{else}}<span class="rl-counter"><span class="rl-token rl-token--missile"></span><span class="rl-counter__value">{{missiles}}</span></span>{{/if}}
+      </span>
+      <span class="rl-camp-seat__controls">
+        <button type="button" class="rl-btn rl-btn--icon" data-action="movePlayer" data-user="{{userId}}" data-dir="up" {{disabled first}} aria-label="{{localize "RL.Wizard.Setup.moveUp"}}"><i class="fa-solid fa-arrow-up" inert></i></button>
+        <button type="button" class="rl-btn rl-btn--icon" data-action="movePlayer" data-user="{{userId}}" data-dir="down" {{disabled last}} aria-label="{{localize "RL.Wizard.Setup.moveDown"}}"><i class="fa-solid fa-arrow-down" inert></i></button>
+        <button type="button" class="rl-btn rl-btn--icon" data-action="togglePlayer" data-user="{{userId}}" {{disabled ../deployed}} aria-label="{{localize "RL.Wizard.Setup.remove"}}" data-tooltip="RL.Wizard.Setup.remove"><i class="fa-solid fa-user-minus" inert></i></button>
+      </span>
+    </li>
+    {{else}}
+    <li class="rl-slot">{{localize "RL.Wizard.Setup.noPlayers"}}</li>
+    {{/each}}
+  </ol>
+  {{#unless countOk}}<p class="rl-hand rl-hand--red">{{localize "RL.Wizard.Setup.countHint" n=count}}</p>{{/unless}}
+  {{#if (or others.length (not deployed))}}
+  <div class="rl-camp-setup-others">
+    <span class="rl-label">{{localize "RL.Wizard.Setup.addPlayer"}}</span>
+    {{#each others}}
+    <button type="button" class="rl-camp-chip" data-action="togglePlayer" data-user="{{userId}}">
+      {{#if bot}}<i class="fa-solid fa-robot" inert></i>{{else if gm}}<i class="fa-solid fa-crown" inert></i>{{else}}<i class="fa-solid fa-user-plus" inert></i>{{/if}} {{name}}
+    </button>
+    {{/each}}
+    {{#unless deployed}}<button type="button" class="rl-camp-chip rl-bot-addchip" data-action="addBot" data-tooltip="RL.Bots.Setup.addBotHint"><i class="fa-solid fa-plus" inert></i> {{localize "RL.Bots.Setup.addBot"}}</button>{{/unless}}
+  </div>
+  {{/if}}
+  <div class="rl-note"><span class="rl-label">{{localize "RL.Wizard.Setup.tokensLabel"}}</span> {{localize "RL.Wizard.Setup.tokensNote"}}</div>
+</div>

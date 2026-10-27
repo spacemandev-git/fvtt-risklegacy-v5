@@ -1,0 +1,54 @@
+<section class="tab rl-cs-tab-world {{tab.cssClass}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <div class="rl-cs-world">
+    <div class="rl-cs-world__left">
+      <div class="rl-cs-pact">
+        <p class="rl-cs-pact__text">{{localize "RL.Sheet.Campaign.Pact"}}</p>
+        <ul class="rl-cs-pact__signatures">
+          {{#each signatures}}<li class="rl-hand">{{this}}</li>{{else}}<li class="rl-cs-pact__nobody">{{localize "RL.Sheet.Campaign.NoSignatures"}}</li>{{/each}}
+        </ul>
+        <p class="rl-cs-pact__date">
+          <span>{{localize "RL.Sheet.Campaign.WarsStarted"}}</span>
+          <span class="rl-hand">{{foundingDate}}</span>
+        </p>
+        {{#if canManage}}
+        <div class="rl-cs-pact__gm">
+          <button type="button" class="rl-btn rl-ui-small" data-action="addSignature"><i class="fa-solid fa-signature" inert></i> {{localize "RL.Sheet.Campaign.Sign"}}</button>
+          <button type="button" class="rl-btn rl-ui-small" data-action="editFounding"><i class="fa-solid fa-calendar" inert></i> {{localize "RL.Sheet.Campaign.EditDate"}}</button>
+        </div>
+        {{/if}}
+      </div>
+
+      <div class="rl-panel rl-cs-world__facts">
+        <h4 class="rl-subhead">{{localize "RL.Sheet.Campaign.TheWorldSoFar"}}</h4>
+        <dl class="rl-cs-factgrid">
+          {{#each facts as |f|}}<div><dd>{{f.value}}</dd><dt>{{localize f.label}}</dt></div>{{/each}}
+        </dl>
+        {{#if leaders.length}}
+        <p class="rl-cs-world__leaders"><span class="rl-label">{{localize "RL.Sheet.Campaign.MostSignatures"}}</span>
+          {{#each leaders as |l|}}<span class="rl-ui-tag"><span class="rl-hand">{{l.player}}</span> ×{{l.count}}</span>{{/each}}</p>
+        {{/if}}
+      </div>
+
+      <div class="rl-cs-world__links">
+        <button type="button" class="rl-btn" data-action="openWarRoom"><i class="fa-solid fa-chess-board" inert></i> {{localize "RL.UI.WarRoom.Title"}}</button>
+        <button type="button" class="rl-btn" data-action="openReference"><i class="fa-solid fa-book-open" inert></i> {{localize "RL.UI.Reference.Title"}}</button>
+      </div>
+    </div>
+
+    <div class="rl-cs-victors">
+      <h3 class="rl-cs-victors__title">{{localize "RL.Sheet.Campaign.Victors"}}</h3>
+      <ol class="rl-cs-victors__lines">
+        {{#each victorLines as |v|}}
+        <li class="rl-cs-victors__line{{#if v.signed}} is-signed{{/if}}">
+          <span class="rl-cs-victors__n">{{v.n}}</span>
+          {{#if v.signed}}
+          <span class="rl-cs-victors__sig rl-hand">{{v.player}}</span>
+          {{#if v.motto}}<span class="rl-cs-victors__motto rl-hand rl-hand--red">{{v.motto}}</span>{{/if}}
+          <span class="rl-cs-victors__meta">{{localize "RL.Sheet.Campaign.GameN" game=v.game}}{{#if v.faction}} · {{v.faction}}{{/if}}{{#if v.date}} · {{v.date}}{{/if}}{{#if v.reward}} · {{v.reward}}{{/if}}</span>
+          {{/if}}
+        </li>
+        {{/each}}
+      </ol>
+    </div>
+  </div>
+</section>

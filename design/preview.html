@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Risk Legacy — Foundry VTT design system preview</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* ---- preview-page scaffolding only (pv-*); not part of the design system ---- */
+  *, *::before, *::after { box-sizing: border-box; }   /* = Foundry core @layer reset */
+  html { background: #2a2a28; }
+  body.risklegacy { margin: 0; }
+  .pv-page {
+    max-width: 1280px; margin: 0 auto; position: relative;
+    background: #fff; isolation: isolate;
+    box-shadow: 0 0 40px rgb(0 0 0 / .6);
+  }
+  .pv-page::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--rl-tex-grunge) 0 0 / 520px; opacity: .45; }
+  .pv-plate { height: 56px; background: var(--rl-grad-steel); position: relative; box-shadow: inset 0 -1px 0 var(--rl-steel-lo); }
+  .pv-plate::after { content: ""; position: absolute; left: 0; right: 0; bottom: -8px; height: 8px;
+    background: linear-gradient(180deg, var(--rl-steel-lo) 0 1px, #fff 1px 2px, #dcdddf 2px 6px, var(--rl-steel-lo) 6px 7px, rgb(0 0 0 / .25) 7px 8px);
+    clip-path: polygon(0 0, 30% 0, calc(30% + 8px) 100%, 100% 100%, 100% 0); }
+  .pv-plate--foot { margin-top: 48px; display: flex; align-items: center; justify-content: flex-end; padding: 0 56px; box-shadow: inset 0 1px 0 #fff; }
+  .pv-plate--foot::after { top: -8px; bottom: auto; transform: scaleY(-1); clip-path: polygon(0 0, 62% 0, calc(62% + 8px) 100%, 100% 100%, 100% 0); }
+  .pv-hero { position: relative; padding: 18px 56px 10px; overflow: hidden; }
+  .pv-hero .rl-hazard { position: absolute; left: -40px; top: 34px; width: 520px; height: 34px; transform: rotate(-9deg); box-shadow: 0 3px 6px rgb(0 0 0 / .35); }
+  .pv-hero .rl-hazard--r { left: auto; right: -60px; top: auto; bottom: 26px; width: 420px; transform: rotate(-9deg); }
+  .pv-hero h1.rl-hero { margin: 64px 0 0 70px; }
+  .pv-hero .pv-tag { margin: 6px 0 0 76px; font: 700 18px/1.2 var(--rl-font-body); text-transform: uppercase; }
+  .pv-hero .pv-intro { max-width: 760px; margin: 12px 0 0 76px; font-size: 15px; }
+  .pv-section { padding: 26px 56px 6px; }
+  .pv-section > .rl-title { display: flex; align-items: baseline; gap: 14px; }
+  .pv-section > .rl-title small { font: italic 400 14px/1 var(--rl-font-body); color: var(--rl-red); text-transform: none; letter-spacing: 0; }
+  .pv-rule { height: 1px; background: var(--rl-crimson); margin: 0 0 16px; }
+  .pv-grid { display: grid; gap: 16px; }
+  .pv-cols-2 { grid-template-columns: 1fr 1fr; }
+  .pv-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .pv-cols-4 { grid-template-columns: repeat(4, 1fr); }
+  /* swatches */
+  .pv-swatch-group { margin-bottom: 16px; }
+  .pv-swatch-group > .rl-subhead { margin-bottom: 6px; }
+  .pv-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .pv-swatch { background: #fff; border: 1px solid var(--rl-k20); box-shadow: 0 1px 2px rgb(0 0 0 / .15); font-size: 12px; line-height: 1.25; }
+  .pv-swatch > div:first-child { height: 54px; border-bottom: 1px solid rgb(0 0 0 / .12); }
+  .pv-swatch > div:last-child { padding: 5px 7px 6px; }
+  .pv-swatch b { display: block; font-family: var(--rl-font-display); font-weight: 800; font-size: 14px; letter-spacing: .02em; }
+  .pv-swatch code { font: 12px/1.2 ui-monospace, Menlo, monospace; }
+  .pv-swatch .pv-role { color: var(--rl-k70); }
+  .pv-swatch .pv-src { font-style: italic; color: var(--rl-k60); font-size: 11px; }
+  /* type table */
+  .pv-type { display: grid; grid-template-columns: 220px 1fr; gap: 10px 22px; align-items: center; }
+  .pv-type > .pv-meta { font-size: 12px; color: var(--rl-k70); border-top: 1px solid var(--rl-k20); padding-top: 8px; }
+  .pv-type > .pv-meta b { display: block; color: var(--rl-ink); font-size: 13px; }
+  .pv-type > .pv-sample { border-top: 1px solid var(--rl-k20); padding-top: 8px; }
+  .pv-specimens { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+  .pv-specimens figure { margin: 0; }
+  .pv-specimens img { width: 100%; display: block; border: 1px solid var(--rl-k30); }
+  .pv-specimens figcaption { font-size: 12px; color: var(--rl-k70); margin-top: 4px; }
+  .pv-scale { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; margin-top: 14px; }
+  .pv-scale span { font-family: var(--rl-font-display); font-weight: 900; text-transform: uppercase; line-height: 1; }
+  .pv-scale em { font: 11px var(--rl-font-body); color: var(--rl-k60); display: block; }
+  /* decoration catalogue */
+  .pv-deco { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .pv-deco > figure { margin: 0; display: grid; gap: 6px; align-content: start; }
+  .pv-deco figcaption { font-size: 12px; color: var(--rl-k70); }
+  .pv-deco figcaption b { color: var(--rl-ink); font-family: var(--rl-font-display); font-weight: 800; font-size: 14px; letter-spacing: .03em; text-transform: uppercase; display: block; }
+  .pv-demo { min-height: 86px; display: grid; place-items: center; }
+  /* tabletop band for window mockups */
+  .pv-table {
+    margin: 26px 0 0; padding: 30px 40px 34px;
+    background: radial-gradient(ellipse at 30% 0%, #4b5248, #23261f 70%);
+    box-shadow: inset 0 8px 18px rgb(0 0 0 / .45), inset 0 -8px 18px rgb(0 0 0 / .45);
+  }
+  .pv-table > .rl-title { color: #e0e1e2; }
+  .pv-table > p.pv-note { color: #cfd0d2; margin: -2px 0 16px; font-size: 13px; max-width: 900px; }
+  .pv-windows { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; }
+  /* minimal stand-in for Foundry's core window layout (core CSS provides this in-game) */
+  .application { display: flex; flex-direction: column; position: relative; }
+  .application .window-content { display: flex; flex-direction: column; overflow: hidden; }
+  .application .window-header .header-control { font: 16px/1 system-ui; display: grid; place-items: center; cursor: pointer; }
+  .pv-sheet { width: 720px; }
+  .pv-dialog { width: 430px; }
+  /* faction sheet internals (would live in the sheet's own CSS) */
+  .pv-fs-top { display: grid; grid-template-columns: 1fr 220px; gap: 14px; }
+  .pv-fcard { position: relative; height: 236px; border: 2px solid var(--rl-ink);
+    background: linear-gradient(105deg, rgb(28 28 26 / .0) 40%, rgb(28 28 26 / .55)), var(--rl-tex-concrete) 0 0 / 300px, var(--rl-concrete);
+    overflow: hidden; }
+  .pv-fcard::before { content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgb(255 210 150 / .28), transparent 55%), radial-gradient(ellipse at 70% 30%, rgb(255 236 200 / .35), transparent 60%); }
+  .pv-fcard > img.pv-fig { position: absolute; right: 18px; bottom: -6px; height: 250px; filter: drop-shadow(-4px 4px 6px rgb(0 0 0 / .55)); }
+  .pv-fcard > .rl-tab-plate { position: absolute; left: 0; top: 12px; }
+  .pv-fslots { position: absolute; left: 12px; top: 62px; bottom: 10px; display: grid; grid-template-rows: repeat(6, 1fr); gap: 4px; width: 46%; }
+  .pv-fslots .rl-slot { min-height: 0; padding-top: 0; padding-bottom: 0; --rl-bracket-arm: 12px; --rl-bracket-w: 3px; }
+  .pv-fslots .rl-slot .rl-sticker { font-size: 10.5px; padding: 1px 5px; border-width: 2px; }
+  .pv-fs-side { display: grid; gap: 8px; align-content: start; }
+  .pv-counters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pv-counters .rl-plate { display: flex; align-items: center; gap: 8px; padding: 6px 8px; }
+  .pv-counters .rl-label { font-size: 11px; color: var(--rl-k80); }
+  .pv-power-list { display: grid; gap: 8px; }
+  .pv-power-row { display: grid; grid-template-columns: 32px 1fr; gap: 10px; align-items: center; }
+  .pv-power-row img { width: 32px; height: 32px; object-fit: contain; }
+  .pv-table-log { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; }
+  .pv-table-log th { font: 800 12px/1 var(--rl-font-display); text-transform: uppercase; letter-spacing: .05em; color: #fff; background: var(--rl-faction); padding: 5px 6px 4px; text-align: left; }
+  .pv-table-log td { border-bottom: 1px solid var(--rl-faction); border-right: 1px solid color-mix(in srgb, var(--rl-faction) 35%, white); padding: 2px 6px; height: 26px; }
+  .pv-table-log td:first-child { font: 800 13px var(--rl-font-display); color: var(--rl-faction); width: 34px; text-align: center; }
+  .pv-table-log td.c { text-align: center; width: 30px; }
+  /* cards row */
+  .pv-cards { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+  .pv-cards > figure { margin: 0; display: grid; gap: 8px; justify-items: start; width: min-content; }
+  .pv-cards figcaption { color: #cfd0d2; font-size: 12px; }
+  .pv-cards figcaption b { color: #fff; font: 800 13px var(--rl-font-display); letter-spacing: .04em; text-transform: uppercase; }
+  /* chat log mock */
+  .pv-chatlog { width: 300px; padding: 8px; display: grid; gap: 8px; list-style: none; margin: 0; background: rgb(20 20 22 / .92); border: 1px solid #000; }
+  .pv-chatlog.pv-light { background: #e8e6df; border-color: #999; }
+  .pv-chatlog .chat-message { padding: 6px 8px 8px; display: flex; flex-direction: column; gap: 4px; }
+  .pv-chatlog .message-header { display: flex; align-items: baseline; font-size: 12px; }
+  .pv-chatlog .message-sender { flex: 1; margin: 0; font-size: 14px; }
+  .pv-chatlog .message-metadata { font-size: 11px; color: var(--rl-k70); }
+  .pv-chatlog .flavor-text { display: block; width: 100%; font-style: italic; font-size: 12px; color: var(--rl-k80); }
+  .pv-chatlog .message-header { flex-wrap: wrap; }
+  .pv-chat-cols { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; }
+  .pv-chat-cols > div > .pv-cap { color: #cfd0d2; font-size: 12px; margin-bottom: 6px; }
+  .pv-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .pv-dos .rl-callout b { font-family: var(--rl-font-display); font-weight: 900; text-transform: uppercase; letter-spacing: .04em; }
+</style>
+</head>
+<body class="risklegacy">
+<div class="pv-page">
+
+  <!-- ================= HERO ================= -->
+  <div class="pv-plate"></div>
+  <header class="pv-hero">
+    <span class="rl-hazard"></span>
+    <h1 class="rl-hero">Well, this is new.</h1>
+    <p class="pv-tag">It's your world. It's your war. It's your legacy. <span class="rl-hand rl-hand--red rl-hand--tilt" style="font-size:24px;text-transform:none;margin-left:10px">Foundry edition</span></p>
+    <p class="pv-intro">A design system for the Risk Legacy Foundry VTT game system, derived from the 2011 rulebook:
+      gunmetal plates and hazard tape, raised stone panels, cream captions in 2-pt ink frames, red condensed headlines,
+      and a marker pen that scribbles on everything. Everything below is rendered from <code>tokens.css</code>.</p>
+    <span class="rl-hazard rl-hazard--r"></span>
+  </header>
+
+  <!-- ================= PALETTE ================= -->
+  <section class="pv-section" id="palette">
+    <h2 class="rl-title">Palette <small>exact = CMYK vector via the PDF's SWOP profile · ≈ = sampled from rasters/card art</small></h2>
+    <div class="pv-rule"></div>
+    <div id="pv-palette"></div>
+  </section>
+
+  <!-- ================= TYPE ================= -->
+  <section class="pv-section" id="type">
+    <h2 class="rl-title">Typography <small>original → free (OFL) substitute</small></h2>
+    <div class="pv-rule"></div>
+    <div class="pv-type">
+      <div class="pv-meta"><b>Display — Big Shoulders Display 900</b>United Sans Cond Heavy → section titles, window titles, tabs, buttons, numbers</div>
+      <div class="pv-sample"><div class="rl-title" style="margin:0">Before the first turn</div></div>
+      <div class="pv-meta"><b>Stencil — Big Shoulders Stencil Display 900 + distress mask</b>BatteryPark → one hero line per view; stamps</div>
+      <div class="pv-sample"><div class="rl-hero" style="font-size:54px">It's your war.</div></div>
+      <div class="pv-meta"><b>Sub-head — Roboto Condensed 700 italic</b>Helvetica Neue Bold Cond Oblique → panel titles</div>
+      <div class="pv-sample"><div class="rl-subhead">Sealed components</div></div>
+      <div class="pv-meta"><b>Body — Roboto Condensed 400/500/700</b>Helvetica Neue Condensed / Medium / Bold Cond</div>
+      <div class="pv-sample"><span class="rl-term">Scar:</span> A scar is a mark. Most scars modify a territory. One scar will go onto faction cards. A territory can only have ONE Scar on it at any given time. <span class="rl-lead">But all that will change.</span></div>
+      <div class="pv-meta"><b>Hand — Gochi Hand</b>Felt Tip Roman → annotations, player-written names, flavour</div>
+      <div class="pv-sample"><span class="rl-hand" style="font-size:24px">As you play and open envelopes, you will get stickers…</span> &nbsp; <span class="rl-hand rl-hand--concept" style="font-size:15px">Enclave of the Bear HQ concepts</span></div>
+      <div class="pv-meta"><b>Label / caption</b>Roboto Condensed 700 caps · 400 italic K50</div>
+      <div class="pv-sample"><span class="rl-label">A note on timing:</span> &nbsp; <span class="rl-caption">1-troop pieces</span> &nbsp; <span class="rl-code">A56s</span> &nbsp; <span class="rl-folio">Page 7</span></div>
+    </div>
+    <div class="pv-scale">
+      <div><span style="font-size:72px">74</span><em>hero 72px</em></div>
+      <div><span style="font-size:46px">32</span><em>3xl 46px</em></div>
+      <div><span style="font-size:36px">26</span><em>2xl 36px</em></div>
+      <div><span style="font-size:28px">20</span><em>xl 28px</em></div>
+      <div><span style="font-size:22px">16</span><em>lg 22px</em></div>
+      <div><span style="font-size:17px">12</span><em>md 17px</em></div>
+      <div><span style="font-size:14px">10</span><em>base 14px</em></div>
+      <div><span style="font-size:11px">8</span><em>xs 11px</em></div>
+      <div style="align-self:center;font-size:12px;color:var(--rl-k70);max-width:260px">Rulebook point sizes × 1.4 → px. Body leading 1.3 (rulebook ≈ 1.21).</div>
+    </div>
+    <div class="pv-specimens">
+      <figure><img src="assets/specimens/display-united-vs-bigshoulders.webp" alt="United Sans vs Big Shoulders"><figcaption>United Sans Cond Heavy (p.7) vs Big Shoulders Display 900</figcaption></figure>
+      <figure><img src="assets/specimens/stencil-batterypark-vs-bigshoulders-stencil.webp" alt="BatteryPark vs Big Shoulders Stencil"><figcaption>BatteryPark (p.2) vs Big Shoulders Stencil Display + distress mask</figcaption></figure>
+      <figure><img src="assets/specimens/body-helvetica-cond-vs-roboto-cond.webp" alt="Helvetica Neue Condensed vs Roboto Condensed"><figcaption>Helvetica Neue Condensed (p.2) vs Roboto Condensed</figcaption></figure>
+      <figure><img src="assets/specimens/hand-felttip-vs-gochi.webp" alt="Felt Tip Roman vs Gochi Hand"><figcaption>Felt Tip Roman (p.7, p.15) vs Gochi Hand</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- ================= DECORATIONS ================= -->
+  <section class="pv-section" id="decorations">
+    <h2 class="rl-title">Decorations <small>CSS + inline SVG + four small textures</small></h2>
+    <div class="pv-rule"></div>
+    <div class="pv-deco">
+      <figure>
+        <div class="rl-panel"><h4 class="rl-subhead">Plastic pieces</h4>Raised stone panel — bevel light from above, stone grain multiplied over sage.</div>
+        <figcaption><b>Panel · sage</b><code>.rl-panel</code> (p.4–5)</figcaption>
+      </figure>
+      <figure>
+        <div class="pv-grid pv-cols-3" style="gap:8px">
+          <div class="rl-panel rl-panel--tan" style="min-height:62px"><span class="rl-label">Tan</span></div>
+          <div class="rl-panel rl-panel--gold" style="min-height:62px"><span class="rl-label">Gold</span></div>
+          <div class="rl-panel rl-panel--lavender" style="min-height:62px"><span class="rl-label">Lavender</span></div>
+        </div>
+        <figcaption><b>Panel stocks</b><code>--tan</code> glossary · <code>--gold</code> goal · <code>--lavender</code> combat rules</figcaption>
+      </figure>
+      <figure>
+        <div><div class="rl-callout">While attacking Siberia, Khan Industries is about to lose two troops.</div><div class="rl-framed" style="height:38px;background:linear-gradient(90deg,#6c7a2c,#8b9a3a)"></div></div>
+        <figcaption><b>Caption callout</b><code>.rl-callout</code> Y20 cream in a 2-pt ink frame, docked on a framed image</figcaption>
+      </figure>
+      <figure>
+        <div class="rl-note"><span class="rl-label">A note on timing:</span>If it is unclear who declared first, priority goes to the current player.</div>
+        <figcaption><b>Note box</b><code>.rl-note</code> flat K30, caps label (p.8)</figcaption>
+      </figure>
+      <figure>
+        <div class="rl-slot">Rules addition A will go here.</div>
+        <figcaption><b>Legacy bracket slot</b><code>.rl-slot</code> K20 brackets with 45° arm tips — empty sticker / unlock spaces</figcaption>
+      </figure>
+      <figure>
+        <ol class="rl-steps"><li>Start of Turn</li><li class="is-current">Join the War or Recruit Troops</li><li>Expand &amp; Attack (optional)</li></ol>
+        <figcaption><b>Numbered discs</b><code>.rl-steps</code> / <code>.rl-num</code> M100Y100K20 (p.8)</figcaption>
+      </figure>
+      <figure>
+        <div class="pv-demo" style="gap:10px;width:100%"><span class="rl-hazard" style="width:100%"></span><span class="rl-hazard rl-hazard--thin" style="width:100%"></span></div>
+        <figcaption><b>Hazard tape</b><code>.rl-hazard</code> SVG bar · <code>--thin</code> CSS gradient</figcaption>
+      </figure>
+      <figure>
+        <div class="pv-demo" style="width:100%"><hr class="rl-wire" style="width:100%"><hr class="rl-rail" style="width:100%"></div>
+        <figcaption><b>Dividers</b><code>hr.rl-wire</code> barbed wire · <code>hr.rl-rail</code> steel bevel rail</figcaption>
+      </figure>
+      <figure>
+        <div class="pv-demo" style="background:var(--rl-concrete) var(--rl-tex-concrete);background-size:300px;place-items:start;padding:10px 0"><span class="rl-tab-plate rl-faction--khan">Kahn Industries</span></div>
+        <figcaption><b>Chamfered name plate</b><code>.rl-tab-plate</code> + faction underline (faction cards, p.4/6)</figcaption>
+      </figure>
+      <figure>
+        <div class="pv-demo"><span><span class="rl-circled rl-hand" style="font-size:26px">Rob Daviau</span> &nbsp; <span class="rl-arrow" style="width:90px;height:60px;color:var(--rl-ink)"></span></span></div>
+        <figcaption><b>Marker annotations</b><code>.rl-circled</code> loop · <code>.rl-arrow</code> (vector traced from p.7) · <code>.rl-hand</code></figcaption>
+      </figure>
+      <figure>
+        <div class="rl-legal" style="margin:6px 4px"><span class="rl-hand">Opening New Packages</span><b>PACK 1: Open when the 9th Minor City is founded.</b> This will be opened at the end of a game.</div>
+        <figcaption><b>Legal-pad note</b><code>.rl-legal</code> rotated −1.2°, Gochi title (p.15)</figcaption>
+      </figure>
+      <figure>
+        <div class="pv-demo" style="gap:14px;grid-auto-flow:column">
+          <span class="rl-counter"><span class="rl-token"></span><span class="rl-counter__value">2</span></span>
+          <span class="rl-counter"><span class="rl-token rl-token--missile"></span><span class="rl-counter__value">1</span></span>
+          <span class="rl-dice"><span class="rl-die">6</span><span class="rl-die">3</span><span class="rl-die rl-die--defend" data-mod="6">5</span></span>
+          <span class="rl-stamp">Eliminated</span>
+        </div>
+        <figcaption><b>Tokens, dice, stamp</b>Red Star &amp; Missile SVGs traced from p.5/7 · black attack / red defence dice · stencil stamp</figcaption>
+      </figure>
+      <figure>
+        <div class="rl-grid-paper" style="height:90px;padding:8px 10px;position:relative"><span class="rl-hand rl-hand--concept" style="font-size:15px">Imperial Balkania troop concepts</span></div>
+        <figcaption><b>Concept grid paper</b><code>.rl-grid-paper</code> (p.6, 8, 9, 14)</figcaption>
+      </figure>
+      <figure>
+        <div class="pv-demo" style="background:#fff;display:flex;gap:10px;justify-content:center">
+          <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" checked> <span class="rl-label">Won</span></label>
+          <label style="display:flex;gap:6px;align-items:center"><input type="checkbox"> <span class="rl-label">Held on</span></label>
+          <input type="text" class="rl-input--hand" value="BenTown" style="width:110px">
+        </div>
+        <figcaption><b>Mark it, write on it</b>marker-X checkbox · <code>.rl-input--hand</code> for names you write on the board</figcaption>
+      </figure>
+      <figure>
+        <div class="pv-demo" style="gap:10px;grid-auto-flow:column">
+          <button class="rl-btn" type="button">Cancel</button>
+          <button class="rl-btn rl-btn--primary" type="button">Attack</button>
+          <button class="rl-btn rl-btn--destroy" type="button">Destroy</button>
+        </div>
+        <figcaption><b>Buttons</b>steel · red primary · <code>--destroy</code> hazard edge; 10px chamfer</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ================= MOCKUPS ON THE TABLE ================= -->
+  <section class="pv-table" id="sheets">
+    <h2 class="rl-title">Faction sheet <small style="color:#cfd0d2">ApplicationV2 markup · theme-light and theme-dark</small></h2>
+    <p class="pv-note">Only the "table surface" changes between Foundry's light and dark themes — white rulebook page vs. concrete wall.
+      Panels, stickers, callouts and cards are printed objects and stay identical.</p>
+    <div class="pv-windows">
+
+      <!-- LIGHT -->
+      <div class="application sheet actor risklegacy themed theme-light rl-faction--balkania pv-sheet">
+        <header class="window-header">
+          <i class="window-icon" style="font-style:normal">★</i>
+          <h1 class="window-title">Imperial Balkania</h1>
+          <button type="button" class="header-control">⋮</button>
+          <button type="button" class="header-control">✕</button>
+        </header>
+        <section class="window-content">
+          <div class="pv-fs-top">
+            <div class="pv-fcard">
+              <img class="pv-fig" src="../assets/unlocks/base/factions/images/balkania.png" alt="" onerror="this.remove()">
+              <span class="rl-tab-plate">Imperial Balkania</span>
+              <div class="pv-fslots">
+                <div class="rl-slot" style="--rl-slot-color:#f4f4f2;color:#e0e1e2">Scar</div>
+                <div class="rl-slot rl-slot--power rl-power--mission" style="color:#e0e1e2">Mission</div>
+                <div class="rl-slot rl-slot--power rl-power--weakness" style="color:#e0e1e2">Weakness</div>
+                <div class="rl-slot rl-slot--power rl-power--missile" style="color:#e0e1e2">Missile</div>
+                <div class="rl-slot rl-slot--power rl-power--knockout" style="color:#e0e1e2">Knockout</div>
+                <div class="rl-slot rl-slot--power rl-power--starter is-filled"><span class="rl-sticker">Round up when recruiting.</span></div>
+              </div>
+            </div>
+            <div class="pv-fs-side">
+              <div class="rl-field"><label>Commander</label><input type="text" class="rl-input--hand" value="Rob D."></div>
+              <div class="pv-counters">
+                <div class="rl-plate"><span class="rl-token" style="width:34px;height:34px"></span><span><span class="rl-counter__value" style="font-size:28px">2</span><span class="rl-label">Red Stars</span></span></div>
+                <div class="rl-plate"><span class="rl-token rl-token--missile" style="width:15px;height:36px"></span><span><span class="rl-counter__value" style="font-size:28px">1</span><span class="rl-label">Missiles</span></span></div>
+              </div>
+              <div class="rl-field"><label>Starting troops</label><input type="number" value="8"></div>
+              <div class="rl-note" style="padding:6px 10px"><span class="rl-label">HQ:</span> Eastern Europe <span class="rl-hand rl-hand--red" style="font-size:17px">fortified!</span></div>
+            </div>
+          </div>
+          <nav class="sheet-tabs tabs" style="margin-top:14px">
+            <a class="active" data-tab="powers">Powers</a><a data-tab="scars">Scars</a><a data-tab="history">History</a><a data-tab="notes">Notes</a>
+          </nav>
+          <div class="pv-power-list">
+            <div class="rl-panel">
+              <h4 class="rl-subhead">Starting power</h4>
+              <div class="pv-power-row rl-power--starter">
+                <img src="../assets/unlocks/base/powers/starter.png" alt="" onerror="this.style.visibility='hidden'">
+                <span class="rl-sticker rl-sticker--peel">When recruiting troops, round up when dividing your territory and population by 3, not down.</span>
+              </div>
+            </div>
+            <div class="rl-slot rl-slot--power rl-power--mission">Mission power will go here.</div>
+            <div class="rl-slot rl-slot--power rl-power--missile">Missile power — unlocked when 3 Missiles are used in one combat roll.</div>
+          </div>
+        </section>
+      </div>
+
+      <!-- DARK -->
+      <div class="application sheet actor risklegacy themed theme-dark rl-faction--khan pv-sheet">
+        <header class="window-header">
+          <i class="window-icon" style="font-style:normal">★</i>
+          <h1 class="window-title">Khan Industries</h1>
+          <button type="button" class="header-control">⋮</button>
+          <button type="button" class="header-control">✕</button>
+        </header>
+        <section class="window-content">
+          <div style="display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:10px">
+            <div>
+              <div class="rl-title rl-title--sm" style="margin:0">People and guns are cheap to make.</div>
+              <div style="color:var(--rl-on-page-muted);font-size:13px">Well-armed but not well-trained · 3 games played on this board</div>
+            </div>
+            <span class="rl-stamp" style="color:var(--rl-hazard)">Held on</span>
+          </div>
+          <nav class="sheet-tabs tabs">
+            <a data-tab="powers">Powers</a><a data-tab="scars">Scars</a><a class="active" data-tab="history">History</a><a data-tab="notes">Notes</a>
+          </nav>
+          <div class="pv-grid" style="grid-template-columns:1fr 230px;gap:14px">
+            <div class="rl-panel rl-panel--white" style="padding:8px">
+              <table class="pv-table-log">
+                <thead><tr><th>Game</th><th>Player</th><th>Starting territory</th><th>W</th><th>H</th><th>E</th></tr></thead>
+                <tbody>
+                  <tr><td>1</td><td class="rl-hand">Sam</td><td class="rl-hand">Siberia</td><td class="c"></td><td class="c"><input type="checkbox" checked></td><td class="c"></td></tr>
+                  <tr><td>2</td><td class="rl-hand">Sam</td><td class="rl-hand">Yakutsk</td><td class="c"><input type="checkbox" checked></td><td class="c"></td><td class="c"></td></tr>
+                  <tr><td>3</td><td class="rl-hand rl-hand--red">X</td><td class="rl-caption">did not play</td><td class="c"></td><td class="c"></td><td class="c"></td></tr>
+                  <tr><td>4</td><td></td><td></td><td class="c"><input type="checkbox"></td><td class="c"><input type="checkbox"></td><td class="c"><input type="checkbox"></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="display:grid;gap:10px;align-content:start">
+              <div class="rl-panel rl-panel--lavender"><h4 class="rl-subhead" style="color:var(--rl-ink)">Scar</h4>
+                <div style="display:flex;gap:8px;align-items:center"><img src="../assets/unlocks/base/scars/images/scar_ammo_shortage.png" alt="" style="width:44px" onerror="this.remove()"> Ammo Shortage: defender's highest die −1.</div></div>
+              <div class="rl-callout" style="font-size:13px">Every HQ you control counts as a Red Star.</div>
+              <button class="rl-btn rl-btn--destroy" type="button">Destroy faction card</button>
+            </div>
+          </div>
+          <hr class="rl-wire">
+          <div style="display:flex;gap:10px;justify-content:flex-end"><button class="rl-btn" type="button">Join the war</button><button class="rl-btn rl-btn--primary" type="button">Recruit</button></div>
+        </section>
+      </div>
+    </div>
+
+    <h2 class="rl-title" style="margin-top:34px">Cards <small style="color:#cfd0d2">printed objects — scar, power, event, mission, territory</small></h2>
+    <div class="pv-cards">
+      <figure>
+        <article class="rl-card rl-card--scar">
+          <h3 class="rl-card__title">Bunker</h3>
+          <div class="rl-card__strip">You may play this card prior to an attack roll.<br>Place this bunker scar onto the defending territory as long as it's unscarred.</div>
+          <div class="rl-card__body">The defender adds 1 to his higher die when defending this territory.</div>
+          <img class="rl-card__art" src="../assets/unlocks/base/scars/images/scar_bunker.png" alt="" onerror="this.remove()">
+          <span class="rl-card__code rl-code">A56s</span>
+        </article>
+        <figcaption><b>Scar card</b> · <code>.rl-card--scar</code></figcaption>
+      </figure>
+      <figure>
+        <article class="rl-card rl-card--power rl-power--missile">
+          <div class="rl-card__head">
+            <img class="rl-card__icon" src="../assets/unlocks/threemissiles/powers/images/missile.png" alt="" onerror="this.remove()">
+            <div><span class="rl-card__type">Missile power</span><h3 class="rl-card__title">EMP</h3></div>
+          </div>
+          <span class="rl-sticker rl-sticker--peel">Activate before a combat roll. Dice rolled for combat in that territory can't be modified for the rest of the turn.</span>
+        </article>
+        <figcaption><b>Power card</b> · <code>.rl-card--power .rl-power--*</code></figcaption>
+      </figure>
+      <figure>
+        <article class="rl-card rl-card--portrait rl-card--event">
+          <div class="rl-card__banner" style="background-image:linear-gradient(180deg,rgb(0 0 0 / 0),rgb(0 0 0 / .35)),repeating-linear-gradient(90deg,#6d6f71 0 8px,#58595b 8px 13px,#808285 13px 22px)"><h3 class="rl-card__title">Riots</h3></div>
+          <div class="rl-card__body" style="font-size:11.5px">Every player who controls a major city must roll a die, adding 1 to the roll for each troop and HQ in that territory. If your modified roll is lower than 6, remove troops equal to your natural die roll and DEMOLISH any HQs in that territory.</div>
+          <div class="rl-card__strip">DISCARD this card.</div>
+          <span class="rl-card__code rl-code">B77</span>
+        </article>
+        <figcaption><b>Event card</b> · <code>.rl-card--event</code></figcaption>
+      </figure>
+      <figure>
+        <article class="rl-card rl-card--mission">
+          <span class="rl-card__label">Mission</span>
+          <span class="rl-token"></span>
+          <div class="rl-card__body"><strong>Imperial Might:</strong>Have a current total continent bonus of 7+.</div>
+          <span class="rl-card__code rl-code">D119</span>
+        </article>
+        <figcaption><b>Mission card</b> · <code>.rl-card--mission</code></figcaption>
+      </figure>
+      <figure>
+        <article class="rl-card rl-card--portrait rl-card--territory" style="--rl-card-w:140px">
+          <h3 class="rl-card__title">Eastern Australia</h3>
+          <div class="rl-card__window">EA</div>
+          <div class="rl-coins"><span class="rl-coin is-filled"></span><span class="rl-coin is-filled"></span><span class="rl-coin is-filled"></span><span class="rl-coin"></span><span class="rl-coin"></span><span class="rl-coin"></span></div>
+          <span class="rl-card__code rl-code">A43</span>
+        </article>
+        <figcaption><b>Territory card</b> · 3 / 6 resources</figcaption>
+      </figure>
+    </div>
+
+    <h2 class="rl-title" style="margin-top:34px">Dialog &amp; chat <small style="color:#cfd0d2">DialogV2 markup · chat-message markup</small></h2>
+    <div class="pv-windows">
+      <div class="application dialog risklegacy themed theme-light rl-hazard-header pv-dialog">
+        <header class="window-header">
+          <h1 class="window-title">Destroy a territory card?</h1>
+          <button type="button" class="header-control">✕</button>
+        </header>
+        <section class="window-content">
+          <div class="dialog-content standard-form">
+            <div class="rl-callout">The card is removed from the game <b>permanently</b>. Rip it up. Throw it in the trash. <span class="rl-hand rl-hand--red" style="font-size:17px">(Tough to do, we know.)</span></div>
+            <div style="display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center">
+              <article class="rl-card rl-card--portrait rl-card--territory" style="--rl-card-w:92px;font-size:9px">
+                <h3 class="rl-card__title" style="font-size:9px;padding:5px 6px 2px">Alaska</h3>
+                <div class="rl-card__window" style="margin:0 6px;font-size:16px">AK</div>
+                <div class="rl-coins" style="margin:5px 6px 14px;gap:2px;padding:3px"><span class="rl-coin is-filled" style="width:18px;height:18px"></span><span class="rl-coin is-filled" style="width:18px;height:18px"></span><span class="rl-coin" style="width:18px;height:18px"></span></div>
+              </article>
+              <div style="display:grid;gap:8px">
+                <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" checked><span>Write a small <span class="rl-hand rl-hand--red">x</span> near ALASKA on the board</span></label>
+                <div class="rl-field"><label>Reason (for the history)</label><input type="text" placeholder="Too strong. Way too strong."></div>
+              </div>
+            </div>
+          </div>
+          <footer class="form-footer">
+            <button type="button">Cancel</button>
+            <button type="button" class="rl-btn--destroy">Destroy</button>
+          </footer>
+        </section>
+      </div>
+
+      <div class="pv-chat-cols">
+        <div>
+          <div class="pv-cap">Chat log — dark interface</div>
+          <ol class="pv-chatlog">
+            <li class="chat-message message risklegacy">
+              <header class="message-header"><h4 class="message-sender">Khan Industries</h4><span class="message-metadata"><time>2m ago</time></span><span class="flavor-text">attacks Siberia from Yakutsk</span></header>
+              <div class="message-content">
+                <div class="risklegacy rl-chat-card">
+                  <span class="rl-hazard rl-hazard--thin"></span>
+                  <div class="rl-chat-card__head"><h3 class="rl-chat-card__title">Attack · Siberia</h3><span class="rl-chat-card__sub">3 vs 2</span></div>
+                  <div class="rl-chat-card__body">
+                    <div class="rl-chat-card__row"><span class="rl-label">Khan Industries</span><span class="rl-dice"><span class="rl-die">6</span><span class="rl-die">4</span><span class="rl-die is-lost">2</span></span></div>
+                    <div class="rl-chat-card__row"><span class="rl-label">Die Mechaniker</span><span class="rl-dice"><span class="rl-die rl-die--defend" data-mod="6">5</span><span class="rl-die rl-die--defend">5</span></span></div>
+                    <div class="rl-hand rl-hand--red" style="font-size:16px;text-align:right">Bunker +1 to the higher die</div>
+                  </div>
+                  <div class="rl-chat-card__result">Khan Industries loses 1 troop. Die Mechaniker loses 1 troop.</div>
+                </div>
+              </div>
+            </li>
+            <li class="chat-message message risklegacy">
+              <header class="message-header"><h4 class="message-sender">Imperial Balkania</h4><span class="message-metadata"><time>just now</time></span></header>
+              <div class="message-content">
+                <div class="risklegacy rl-chat-card">
+                  <div class="rl-chat-card__body" style="grid-template-columns:auto 1fr;align-items:center">
+                    <span class="rl-token" style="width:44px;height:44px"></span>
+                    <div><b class="rl-label" style="font-size:13px">Red Star purchased</b><br>Turned in 4 Resource cards. <span class="rl-hand rl-hand--red" style="font-size:15px">3 of 4!</span></div>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ol>
+        </div>
+        <div>
+          <div class="pv-cap">Chat log — light interface</div>
+          <ol class="pv-chatlog pv-light">
+            <li class="chat-message message risklegacy">
+              <header class="message-header"><h4 class="message-sender">Gamemaster</h4><span class="message-metadata"><time>5m ago</time></span></header>
+              <div class="message-content">
+                <div class="risklegacy rl-chat-card">
+                  <div class="rl-chat-card__head"><h3 class="rl-chat-card__title">Package opened</h3><span class="rl-chat-card__sub">Pack 1</span></div>
+                  <div class="rl-chat-card__body">
+                    <div class="rl-legal" style="transform:rotate(-.8deg);padding:8px 10px 10px;margin:2px"><span class="rl-hand" style="font-size:20px">The War Progresses</span>The 9th Minor City has been founded. New cards, marks and rules enter the world.</div>
+                  </div>
+                  <div class="rl-chat-card__result" style="display:flex;justify-content:space-between;align-items:center">Read the cards aloud, in order. <span class="rl-stamp" style="font-size:16px;border-width:2px">Opened</span></div>
+                </div>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DO / DON'T ================= -->
+  <section class="pv-section" id="rules">
+    <h2 class="rl-title">Do &amp; don't</h2>
+    <div class="pv-rule"></div>
+    <div class="pv-dos">
+      <div class="rl-callout"><b>Do</b> — keep one red display headline per view; set body in Roboto Condensed at 14px; let the marker font annotate (names, flavour, modifiers) rather than explain rules; reserve brackets for real empty slots that a later unlock will fill.</div>
+      <div class="rl-callout"><b>Don't</b> — put red text on concrete or gunmetal (1.0:1); stencil whole paragraphs; round corners on anything but physical cards; recolour Foundry's core UI; use the RISK / LEGACY logotypes (trademarks, not part of this system).</div>
+    </div>
+  </section>
+
+  <div class="pv-plate pv-plate--foot"><span class="rl-folio">Page 1</span></div>
+</div>
+
+<script>
+  // palette swatches (data mirrors tokens.css)
+  const P = [
+    ["Ink & paper", [
+      ["--rl-ink","#231f20","K100","Body text, frames","exact"],
+      ["--rl-ink-rich","#111213","Hazard black","Deepest shadow, die faces","≈"],
+      ["--rl-paper","#ffffff","Page","Light-theme surface","exact"],
+      ["--rl-paper-grunge","#efeeee","Page edge speckle","Texture tint","≈"],
+      ["--rl-map","#dfdfde","Faded world map","Watermarks","≈"]]],
+    ["Reds", [
+      ["--rl-red","#b11116","M100 Y100 K30","Headlines, sub-heads, primary","exact"],
+      ["--rl-red-bright","#c4151c","M100 Y100 K20","Number discs, step labels","exact"],
+      ["--rl-red-star","#c01f25","Red Star token","Star icon fill","≈"],
+      ["--rl-crimson","#b10069","M100 K30","Glossary hairline","exact"]]],
+    ["K tints & caption ink", [
+      ["--rl-k20","#d1d3d4","K20","Legacy brackets","exact"],
+      ["--rl-k30","#bcbec0","K30","Note box","exact"],
+      ["--rl-k40","#a7a9ac","K40","Placeholder (decorative)","exact"],
+      ["--rl-k50","#939598","K50","Captions ≥ 11px","exact"],
+      ["--rl-k70","#6d6f71","K70","Muted UI text","exact"],
+      ["--rl-k80","#58595b","K80","Muted on panels","exact"],
+      ["--rl-concept","#b2bdc3","C31 M19 Y18","Concept-art hand captions","exact"]]],
+    ["Steel, hazard & concrete", [
+      ["--rl-steel-hi","#fbfcfc","Plate highlight","Bevel top","≈"],
+      ["--rl-steel-1","#e0e1e2","Plate face","Window header, tabs","≈"],
+      ["--rl-steel-2","#cfd0d2","Plate mid","Gradient stop","≈"],
+      ["--rl-steel-lo","#9c9d9f","Plate shadow line","Bevel rail","≈"],
+      ["--rl-gunmetal","#4a4b4d","Hazard bar","Dark tabs, frames","≈"],
+      ["--rl-gunmetal-2","#404142","C68 M61 Y59 K46","Missile frame","exact"],
+      ["--rl-hazard","#fcdc07","Hazard stripe","Dark-theme focus/accent","≈"],
+      ["--rl-concrete","#5c5b55","Concrete wall p.4–5","Dark-theme surface","≈"]]],
+    ["Panels & paper stocks", [
+      ["--rl-cream","#fffcd5","Y20","Caption callouts","exact"],
+      ["--rl-sage","#d8dbcc","Stone panel","Default panel","≈"],
+      ["--rl-tan","#c4b69d","Key-terms manila","Glossary / reference","≈"],
+      ["--rl-gold","#f2dfa6","Goal panel","Objectives, victory","≈"],
+      ["--rl-lavender","#bebdca","Combat panels p.11","Rules asides","≈"],
+      ["--rl-legal","#fcefc3","Legal-pad note p.15","Unlock notes","≈"],
+      ["--rl-panel-white","#e5e6e7","Factions plate p.3","Tables, lists","≈"],
+      ["--rl-blueprint","#cfe0ea","Concept grid","Grid-paper lines","≈"]]],
+    ["Cards & stickers (scans)", [
+      ["--rl-card-paper","#f4f4f0","Card stock","Card face","≈"],
+      ["--rl-card-strip","#fcf6c0","Instruction strip","Play/discard text","≈"],
+      ["--rl-coin-amber","#e3a312","Coin card","Resource fields","≈"],
+      ["--rl-coin-brown","#6d4009","Coin rim","Coin stroke","≈"],
+      ["--rl-city-navy","#112a6e","Major city sticker","City badges","≈"],
+      ["--rl-fort-blue","#0a4f9a","Fortification","Fortify marks","≈"],
+      ["--rl-scar-orange","#da8811","Scar sticker rim","Scar badges","≈"],
+      ["--rl-missile","#f37123","Missile token","Missile accents","≈"]]],
+    ["Power slots (faction-card brackets)", [
+      ["--rl-power-mission","#c23b40","Red slot","Mission powers","≈"],
+      ["--rl-power-weakness","#e3c34f","Yellow slot","Weakness powers","≈"],
+      ["--rl-power-missile","#d9781e","Orange slot","Missile powers","≈"],
+      ["--rl-power-knockout","#2f9fd0","Blue slot","Knockout powers","≈"],
+      ["--rl-power-starter","#8db540","Green sticker","Starting powers","≈"]]],
+    ["Faction accents (HQ tokens)", [
+      ["--rl-faction-balkania","#6f38ad","Purple","Imperial Balkania","≈"],
+      ["--rl-faction-enclave","#17a838","Green","Enclave of the Bear","≈"],
+      ["--rl-faction-khan","#5f6062","Black/grey","Khan Industries","≈"],
+      ["--rl-faction-mechaniker","#9a0b0c","Red","Die Mechaniker","≈"],
+      ["--rl-faction-saharan","#c9b400","Yellow","Saharan Republic","≈"]]],
+  ];
+  const root = document.getElementById("pv-palette");
+  for (const [group, items] of P) {
+    const g = document.createElement("div"); g.className = "pv-swatch-group";
+    g.innerHTML = `<h4 class="rl-subhead">${group}</h4><div class="pv-swatches">${items.map(([t,h,src,role,q]) =>
+      `<div class="pv-swatch"><div style="background:${h}"></div><div><b>${t.replace("--rl-","")}</b><code>${h}</code> <span class="pv-src">${q}</span><br><span class="pv-role">${role}</span><br><span class="pv-src">${src}</span></div></div>`).join("")}</div>`;
+    root.append(g);
+  }
+</script>
+</body>
+</html>

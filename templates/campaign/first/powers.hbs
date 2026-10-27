@@ -1,0 +1,35 @@
+<div class="rl-camp-step rl-camp-step--powers">
+  <h2 class="rl-title">{{localize "RL.Wizard.First.powersTitle"}}</h2>
+  <p class="rl-lead">{{localize "RL.Wizard.First.powersLead"}}</p>
+  <div class="rl-camp-power-choice">
+    {{#each factions}}
+    <section class="rl-camp-power-choice__faction rl-faction--{{key}}" style="--rl-faction: {{color}}">
+      <header>
+        <img class="rl-camp-power-choice__art" src="{{img}}" alt="">
+        <div class="rl-tab-plate">{{name}}</div>
+        {{#unless placed}}
+        <button type="button" class="rl-btn rl-btn--icon" data-action="flipCoin" data-faction="{{key}}" data-tooltip="RL.Wizard.First.flipCoin" aria-label="{{localize "RL.Wizard.First.flipCoin"}}">
+          <i class="fa-solid fa-coins" inert></i>
+        </button>
+        {{#if flip}}<span class="rl-hand rl-hand--red rl-camp-power-choice__flip">{{localize (concat "RL.Wizard.First." flip)}}</span>{{/if}}
+        {{/unless}}
+      </header>
+      {{#if placed}}
+      <div class="rl-slot rl-slot--power rl-power--starter is-filled"><span class="rl-sticker rl-sticker--peel">{{placed.text}}</span></div>
+      <p class="rl-caption">{{localize "RL.Wizard.First.alreadyPlaced"}}</p>
+      {{else}}
+      <div class="rl-camp-power-choice__card rl-power--starter">
+        <div class="rl-camp-power-choice__type"><img src="systems/fvtt-risklegacy-v5/assets/unlocks/base/powers/starter.png" alt=""> {{localize "RL.Wizard.First.firstGamePower"}}</div>
+        {{#each options}}
+        <button type="button" class="rl-camp-power-choice__option {{#if chosen}}is-chosen{{/if}} {{#if destroyed}}is-destroyed{{/if}}"
+          data-action="choosePower" data-faction="{{../key}}" data-item="{{id}}" aria-pressed="{{#if chosen}}true{{else}}false{{/if}}">
+          <span class="rl-sticker {{#if chosen}}rl-sticker--peel{{/if}}">{{text}}</span>
+        </button>
+        {{/each}}
+      </div>
+      {{/if}}
+    </section>
+    {{/each}}
+    <p class="rl-hand rl-hand--red rl-camp-power-choice__aside">{{localize "RL.Wizard.First.pickAndDestroy"}}</p>
+  </div>
+</div>

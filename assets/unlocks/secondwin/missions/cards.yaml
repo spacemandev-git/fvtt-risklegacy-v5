@@ -1,0 +1,23 @@
+namespace: amphibious_onslaught.missions.secondwin.risklegacy.spacemandev
+imgPath: amphibious_onslaught.jpg
+---
+namespace: explore_the_world.missions.secondwin.risklegacy.spacemandev
+imgPath: explore_the_world.jpg
+---
+namespace: imperial_might.missions.secondwin.risklegacy.spacemandev
+imgPath: imperial_might.jpg
+---
+namespace: reign_of_terror.missions.secondwin.risklegacy.spacemandev
+imgPath: reign_of_terror.jpg
+---
+namespace: superior_infrastructure.missions.secondwin.risklegacy.spacemandev
+imgPath: superior_infrastructure.jpg
+---
+namespace: unexpected_attack.missions.secondwin.risklegacy.spacemandev
+imgPath: unexpected_attack.jpg
+---
+namespace: urban_assault.missions.secondwin.risklegacy.spacemandev
+imgPath: urban_assault.jpg
+---
+namespace: world_capital.missions.secondwin.risklegacy.spacemandev
+imgPath: world_capital.jpg

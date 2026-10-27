@@ -1,0 +1,19 @@
+namespace: DEFENSIVE-BRAINS.mass_hypnosis.secretmutantpowers.threemissiles.risklegacy.spacemandev
+data:
+  description: When turning in cards, you may pick one of those territories. Until the beginning of your next turn, that territory cannot be attacked.  
+  type: weakness #not really weakness, but we want it to be yellow
+---
+namespace: DEFENSIVE-BODIES.unstable_cloning.secretmutantpowers.threemissiles.risklegacy.spacemandev
+data:
+  description: When defending, if you roll natural doubles, add 1 additional defending troop to the territory if you still own it after the battle.
+  type: weakness #not really weakness, but we want it to be yellow
+---
+namespace: OFFENSIVE-BRAINS.mindshackle.secretmutantpowers.threemissiles.risklegacy.spacemandev
+data:
+  description: After collecting a resource card, you may trade it for a random card from the hand of a player whose territory you conquered this turn. 
+  type: weakness #not really weakness, but we want it to be yellow
+---
+namespace: OFFENSIVE-BODIES.unnatural_strength.secretmutantpowers.threemissiles.risklegacy.spacemandev
+data:
+  description: When attacking, your 6's beat the defender's 6's.
+  type: weakness #not really weakness, but we want it to be yellow

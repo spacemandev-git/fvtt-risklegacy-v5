@@ -1,0 +1,24 @@
+namespace: cautious.scars.thirtytroops.risklegacy.spacemandev
+data:
+  tokenImg: cautious.jpg
+imgPath: cautious.jpg
+---
+namespace: primitive.scars.thirtytroops.risklegacy.spacemandev
+data:
+  tokenImg: primitive.jpg
+imgPath: primitive.jpg
+---
+namespace: purist.scars.thirtytroops.risklegacy.spacemandev
+data:
+  tokenImg: purist.jpg
+imgPath: purist.jpg
+---
+namespace: short_sighted.scars.thirtytroops.risklegacy.spacemandev
+data:
+  tokenImg: short_sighted.jpg
+imgPath: short_sighted.jpg
+---
+namespace: unpopular.scars.thirtytroops.risklegacy.spacemandev
+data:
+  tokenImg: unpopular.jpg
+imgPath: unpopular.jpg

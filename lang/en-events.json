@@ -1,0 +1,186 @@
+{
+  "RL": {
+    "Events": {
+      "title": "Event",
+      "sub": "Event card",
+      "stamp": "Does not occur",
+      "notOccur": "The event does not occur: {reason}",
+      "declined": "{faction} chose not to act.",
+      "Settings": {
+        "automation": {
+          "name": "Automate event cards",
+          "hint": "Carry out revealed event cards automatically: the controlling player chooses on their own screen (the GM decides if they are offline or don't answer within a minute), the board is updated and the card is disposed of. Turn this off to resolve events by hand from the chat card."
+        }
+      },
+      "status": {
+        "waiting": "Waiting for {user} to choose for {faction} ({s} s per step)…",
+        "waitingGM": "The GM chooses for {faction}…",
+        "fallback": "{user} did not answer in time: the GM chooses for {faction}.",
+        "chosenBy": "Chosen by {user}.",
+        "failed": "The automation could not finish ({error}). Carry the event out by hand.",
+        "noCard": "Dry run: no event card was used."
+      },
+      "notify": {
+        "fallback": "{user} did not answer the event for {faction}: you choose."
+      },
+      "error": {
+        "notAutomated": "There is no automation for the event \"{id}\"."
+      },
+      "reason": {
+        "tie": "tie for the largest population ({names}: {n} each).",
+        "noPopulation": "no faction controls a city (nobody has a population).",
+        "noWar": "no faction is playing a war.",
+        "notInGame": "{faction} is not in this game.",
+        "knockedOut": "{faction} is knocked out.",
+        "eliminated": "{faction} has been eliminated.",
+        "noTerritory": "{territory} is not on the board.",
+        "nobody": "nobody controls {territory}.",
+        "noFallout": "there is no fallout territory on the board.",
+        "noBoard": "the board isn't set up."
+      },
+      "who": {
+        "largestPopulation": "Largest population",
+        "alien": "The Alien player",
+        "mutant": "The mutant player",
+        "controller": "Controls {territory}"
+      },
+      "ask": {
+        "hotSeat": "You are choosing for {faction}.",
+        "timer": "You have {s} seconds; after that the GM decides.",
+        "escOnlyOne": "Esc: only one city",
+        "cancelNothing": "Cancel: do nothing.",
+        "cancelBack": "Cancel: back to the options."
+      },
+      "label": {
+        "troops": "Troops"
+      },
+      "hint": {
+        "noCity": "You control no city.",
+        "noManeuver": "No legal maneuver.",
+        "noFortification": "No fortification marks left.",
+        "noMission": "The mission deck is empty.",
+        "noRuins": "No ruin marks left."
+      },
+      "prompt": {
+        "city": "pick one of your cities ({n} troops)",
+        "secondCity": "pick a second city (+{n} troops)",
+        "fortify": "pick the city to fortify",
+        "maneuverFrom": "maneuver FROM which territory?",
+        "maneuverTo": "maneuver from {from} TO which territory?",
+        "maneuverCount": "How many troops move from {from} to {to}?",
+        "split": "pick a city for your troops ({n} left)",
+        "splitCount": "How many troops go to {territory}? ({n} left)",
+        "unoccupiedCity": "pick an unoccupied city territory ({n} troops)",
+        "minorCity": "pick the Minor City to ruin"
+      },
+      "row": {
+        "placed": "+{n} {faction}",
+        "removed": "−{n} {faction}",
+        "moved": "{n} troops",
+        "fortified": "Fortified",
+        "hqDemolished": "HQ demolished",
+        "knockedOut": "Knocked out",
+        "ruined": "{name} is gone: ruins",
+        "notRuined": "The city is still there",
+        "cleared": "−{n} troops"
+      },
+      "control_the_people": {
+        "prompt": "gain troops in one of your cities, or make an immediate maneuver.",
+        "troops": "+{n} troops in one city you control",
+        "maneuver": "Make an immediate maneuver",
+        "maneuverHint": "Between connected territories you control; leave one troop behind.",
+        "doneTroops": "{faction} gains {n} troops in {territory}.",
+        "doneManeuver": "{faction} maneuvers {n} troops from {from} to {to}."
+      },
+      "fortify": {
+        "prompt": "fortify one of your cities, or add troops to up to two of them.",
+        "fortify": "Fortify one of your cities (DESTROYS this card)",
+        "fortifyHint": "{n} fortification marks left.",
+        "troops": "+{n} troops in each of up to two cities",
+        "doneFortify": "{faction} fortifies {territory}.",
+        "doneTroops": "{faction} adds {n} troops to {count} cities.",
+        "failed": "{territory} could not be fortified."
+      },
+      "resistance": {
+        "done": "{n} Minor Cities lose a troop.",
+        "none": "No Minor City holds 1 or 2 troops."
+      },
+      "riots": {
+        "riot": "Riot!",
+        "calm": "{faction}: calm",
+        "done": "{n} Major Cities rolled; {riots} rioted.",
+        "none": "Nobody controls a Major City."
+      },
+      "join_the_cause": {
+        "prompt": "receive troops in your cities, or choose a new mission.",
+        "troops": "Receive {n} troops in one or more of your cities",
+        "mission": "Choose a new mission from the mission deck",
+        "missionHint": "The current mission is discarded and the deck reshuffled.",
+        "pickMission": "choose the new face-up mission.",
+        "replaces": "It replaces {name}.",
+        "reward": "Reward: {n} Red Star(s)",
+        "discarded": "Discarded",
+        "newMission": "New mission",
+        "doneTroops": "{faction} receives {n} troops.",
+        "doneMission": "{faction} chooses a new mission: {name}."
+      },
+      "beam_down": {
+        "prompt": "you may place troops into one unoccupied city territory.",
+        "beam": "Beam down {n} troops",
+        "beamHint": "{n} unoccupied city territories.",
+        "no": "Don't beam down",
+        "none": "There is no unoccupied city territory: nothing happens.",
+        "done": "{faction} beams {n} troops down into {territory}."
+      },
+      "die_humans": {
+        "prompt": "you may ruin a Minor City: its troops are removed and any HQ there is demolished.",
+        "ruin": "Ruin a Minor City (DESTROYS this card)",
+        "ruinHint": "{n} Minor Cities on the board.",
+        "spare": "Spare the humans",
+        "none": "There is no Minor City on the board: nothing happens.",
+        "done": "{faction} ruins {name} in {territory}. That city is gone.",
+        "failed": "{territory} could not be ruined."
+      },
+      "mysterious_island": {
+        "prompt": "you may take any one face-up territory card. If an even card is turned over in slot 1, another event occurs.",
+        "slot": "Slot {n}",
+        "took": "takes {name} ({n})",
+        "second": "Slot 1",
+        "secondValue": "Even: a second event occurs",
+        "none": "There are no face-up territory cards.",
+        "done": "{faction} takes {name}."
+      },
+      "agent_of_chaos": {
+        "blocked": "A human faction holds a continent bonus: the Mutants collect nothing.",
+        "done": "{faction} collect one Red Star token ({total} / 4 Red Stars)."
+      },
+      "fallout": {
+        "zone": "Fallout territory",
+        "immune": "{faction}: unaffected",
+        "done": "{n} territories rolled and lost {lost} troops.",
+        "none": "No troops stand next to the fallout territory."
+      },
+      "mutants_evolve": {
+        "prompt": {
+          "approach": "do the Mutants evolve OFFENSIVELY or DEFENSIVELY?",
+          "target": "what evolves on the Mutants: their BODIES or their BRAINS?"
+        },
+        "axis": {
+          "approach": "Evolution",
+          "target": "What evolves"
+        },
+        "choice": {
+          "offensive": "Offensively",
+          "defensive": "Defensively",
+          "bodies": "Their bodies",
+          "brains": "Their brains"
+        },
+        "mustChoose": "The mutant player must choose.",
+        "noChoice": "No choice was made: scratch the card by hand.",
+        "done": "{faction} evolve: {choice}. The choice is scratched off and the card is kept.",
+        "scratch": "Both Mutants Evolve cards are scratched: scratch off the {code} box on the {faction} faction card.",
+        "revealed": "Evolved power"
+      }
+    }
+  }
+}

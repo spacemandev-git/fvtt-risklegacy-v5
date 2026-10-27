@@ -1,0 +1,212 @@
+// Integration test: a whole game of Risk Legacy driven by a simple AI through the public APIs of every area.
+// campaign.createCampaign → starting powers → createWar → placement → turns (stars, recruit, place, attack,
+// expand, draw) until someone wins (or the turn budget runs out) → end of war.
+// Run on a fresh world (function body for fvtt-browser eval):
+//   node $S/fvtt-browser.mjs eval --file tools/qa/e2e-full-game.eval
+const RL = game.risklegacy;
+const T0 = Date.now();
+const BUDGET_MS = 9 * 60 * 1000;
+const MAX_TURNS = Number(globalThis.RL_E2E_TURNS ?? 40);
+const log = [];
+const problems = [];
+const stats = { turns: 0, battles: 0, conquests: 0, expansions: 0, cardsDrawn: 0, starsBought: 0, joins: 0, refusals: 0 };
+const step = (name, data) => log.push({ t: Math.round((Date.now() - T0) / 1000), step: name, ...(data ?? {}) });
+const wait = ms => new Promise(r => setTimeout(r, ms));
+async function waitFor(fn, ms = 20000) {
+  const t0 = Date.now();
+  while ( Date.now() - t0 < ms ) {
+    try { if ( fn() ) return true; } catch(e) { /* keep waiting */ }
+    await wait(100);
+  }
+  return false;
+}
+async function attempt(label, fn) {
+  try {
+    const r = await fn();
+    if ( r === null ) { stats.refusals++; problems.push({ label, refused: true }); }
+    return r;
+  } catch(err) {
+    problems.push({ label, error: err.message, stack: err.stack?.split("\n").slice(0, 3).join(" | ") });
+    return undefined;
+  }
+}
+// Close only this system's windows (never core sidebar apps: the chat log must stay rendered)
+const closeWindows = async () => { for ( const app of [...foundry.applications.instances.values()] ) { if ( app.options?.classes?.includes("risklegacy") ) await app.close?.({ animate: false }).catch(() => {}); } };
+
+await waitFor(() => RL.state.isLoaded());
+
+/* ---------- Campaign ---------- */
+await attempt("createCampaign", () => RL.campaign.createCampaign({ variant: globalThis.RL_E2E_VARIANT ?? "original", date: "2026-10-26", signatures: ["Ana", "Ben", "Cy"] }));
+await closeWindows();
+const campaign = RL.state.getCampaign();
+const scene = RL.state.getBoardScene();
+step("campaign", {
+  campaign: !!campaign, scene: scene?.name, regions: scene?.regions.size, factions: RL.state.getFactions().map(f => f.system.key),
+  stacks: Object.keys(campaign?.system.documents ?? {}), rulebook: RL.state.getCampaignDocument("rulebook")?.pages.size,
+  stickers: campaign?.system.stickers, powers: game.items.filter(i => i.type === "power").length
+});
+// createCampaign activates the board scene; let the canvas finish drawing it (switching scenes mid-draw races core)
+await waitFor(() => canvas.ready && (canvas.scene?.id === scene?.id), 30000);
+if ( scene && (canvas.scene?.id !== scene.id) ) { await scene.view(); await waitFor(() => canvas.ready && canvas.scene?.id === scene.id, 30000); }
+await wait(1500);
+
+/* ---------- Before your first game: first starting power for each faction ---------- */
+for ( const f of RL.state.getFactions() ) {
+  const options = game.items.filter(i => (i.type === "power") && (i.system.faction === f.system.key) && (i.system.slot === "starter"));
+  const pick = options.find(i => i.system.key.endsWith("_1")) ?? options[0];
+  if ( pick ) await f.createEmbeddedDocuments("Item", [pick.toObject()]);
+  for ( const i of options ) await i.delete();
+}
+await campaign.update({ "system.firstGameReady": true });
+
+/* ---------- Players and war ---------- */
+const names = ["Ana", "Ben", "Cy"];
+const users = [];
+for ( const name of names ) users.push(game.users.getName(name) ?? await User.create({ name, role: 1 }));
+const factions = ["khan", "balkania", "enclave"].map(k => RL.state.getFactionByKey(k));
+await attempt("createWar", () => RL.turn.createWar({ participants: factions.map((f, i) => ({ faction: f.id, userId: users[i].id, seat: i })) }));
+await attempt("dealScars", () => RL.cards.dealScars({ factions: factions.map(f => f.id) }));
+await attempt("setupSideboard", () => RL.cards.setupSideboard({}));
+await attempt("beginPlacement", () => RL.turn.beginPlacement({ order: factions.map(f => f.id) }));
+const war = RL.state.getWar();
+for ( const f of factions ) {
+  const legal = RL.rules.legalStartingTerritories(RL.turn.snapshot(), f.id, {});
+  const choice = legal[Math.floor(Math.random() * legal.length)];
+  await attempt(`placeStart ${f.system.key}`, () => RL.turn.placeStartingForces({ faction: f.id, territory: choice }));
+}
+await waitFor(() => war.system.stage === "playing");
+step("placed", {
+  stage: war.system.stage, row: RL.cards.getRow().map(c => `${c.system.slot}:${c.system.territory}`),
+  starts: factions.map(f => `${f.system.key}@${f.system.war.startingTerritory} stars=${f.system.war.redStarTokens}`),
+  scars: factions.map(f => RL.cards.getScarCards?.(f.id)?.length ?? "?")
+});
+
+/* ---------- AI helpers ---------- */
+const snap = () => RL.turn.snapshot();
+function bestPlacement(s, fid) {
+  const mine = s.factions[fid].territories;
+  let best = mine[0]; let score = -Infinity;
+  for ( const id of mine ) {
+    const t = s.territories[id];
+    const enemies = t.neighbors.map(n => s.territories[n]).filter(n => n.owner && (n.owner !== fid));
+    const empties = t.neighbors.map(n => s.territories[n]).filter(n => !n.owner && !n.hq);
+    const sc = (enemies.length ? 10 - Math.min(...enemies.map(e => e.troops)) : 0) + empties.length + (t.hq === fid ? 2 : 0);
+    if ( sc > score ) { score = sc; best = id; }
+  }
+  return best;
+}
+function bestAttack(s, fid) {
+  let best = null;
+  for ( const id of s.factions[fid].territories ) {
+    const t = s.territories[id];
+    if ( t.troops < 3 ) continue;
+    for ( const n of t.neighbors ) {
+      const target = s.territories[n];
+      if ( !target.owner || (target.owner === fid) ) continue;
+      if ( s.turn?.log?.protected?.includes(n) ) continue;
+      const ratio = (t.troops - 1) / Math.max(1, target.troops);
+      if ( ratio >= 1.5 && (!best || ratio > best.ratio) ) best = { from: id, to: n, ratio, dice: Math.min(3, t.troops - 1) };
+    }
+  }
+  return best;
+}
+function bestExpansion(s, fid) {
+  for ( const id of s.factions[fid].territories ) {
+    const t = s.territories[id];
+    if ( t.troops < 3 ) continue;
+    const empty = t.neighbors.find(n => !s.territories[n].owner && !s.territories[n].hq && !s.territories[n].city);
+    if ( empty ) return { from: id, to: empty, count: Math.floor(t.troops / 2) };
+  }
+  return null;
+}
+async function waitTurnReady(fid) {
+  // Same condition the turn controller uses for "the turn is still starting"
+  return waitFor(() => (war.combatant?.actorId === fid) && (war.system.turn.faction === fid), 20000);
+}
+
+/* ---------- Play ---------- */
+while ( (stats.turns < MAX_TURNS) && (Date.now() - T0 < BUDGET_MS) && (war.system.stage === "playing") ) {
+  const fid = war.combatant?.actorId;
+  const actor = game.actors.get(fid);
+  if ( !(await waitTurnReady(fid)) ) { problems.push({ label: "turnNotReady", faction: actor?.name, turn: war.system.turn.faction, phase: war.system.phase }); await wait(1500); }
+  stats.turns++;
+  const turnLog = { faction: actor.system.key, status: actor.system.war.status };
+
+  // 1. Start: buy Red Stars with 4 resource cards
+  const res = RL.cards.getResourceCards(fid);
+  if ( res.length >= 4 ) {
+    const bought = await attempt("buyRedStars", () => RL.turn.buyRedStars({ faction: fid, cardIds: res.slice(0, 4).map(c => c.id) }));
+    if ( bought ) { stats.starsBought++; turnLog.bought = bought; }
+    if ( war.system.stage !== "playing" ) break;
+  }
+
+  // 2. Join the War or recruit
+  if ( actor.system.war.status === "knockedOut" || !snap().factions[fid].territories.length ) {
+    const legal = RL.rules.legalStartingTerritories(snap(), fid, { joining: true });
+    if ( legal.length ) { await attempt("joinWar", () => RL.turn.joinWar({ faction: fid, territory: legal[0] })); stats.joins++; turnLog.joined = legal[0]; }
+  }
+  else {
+    const r = await attempt("recruit", () => RL.turn.recruit({ faction: fid }));
+    turnLog.recruit = r?.total;
+    let guard = 0;
+    while ( (actor.system.war.reserve > 0) && (guard++ < 5) ) {
+      const where = bestPlacement(snap(), fid);
+      await attempt("placeReserve", () => RL.turn.placeReserve({ faction: fid, territory: where, count: actor.system.war.reserve }));
+    }
+  }
+
+  // 3. Attack while it looks favourable, then expand
+  let attacks = 0;
+  while ( (attacks < 12) && (war.system.stage === "playing") ) {
+    const a = bestAttack(snap(), fid);
+    if ( !a ) break;
+    attacks++;
+    const r = await attempt(`attack ${a.from}->${a.to}`, () => RL.turn.attack({ faction: fid, from: a.from, to: a.to, dice: a.dice }));
+    const id = r?.messageId ?? r?.message ?? (typeof r === "string" ? r : null);
+    if ( !id ) break;
+    stats.battles++;
+    // A battle pauses before the roll when someone could react (a scar card, EMP): the attacker clicks Roll
+    await waitFor(() => game.messages.get(id)?.system.status !== "declared" || game.messages.get(id)?.system.preRoll, 5000);
+    if ( game.messages.get(id)?.system.preRoll ) await attempt("rollBattle", () => RL.battle.rollBattle({ message: id }));
+    const ok = await waitFor(() => ["resolved", "cancelled"].includes(game.messages.get(id)?.system.status), 15000);
+    const msg = game.messages.get(id);
+    if ( !ok ) { problems.push({ label: "battleStuck", status: msg?.system.status, hold: msg?.system.hold }); await attempt("resolve", () => RL.battle.resolve({ message: id })); }
+    if ( msg?.system.result.conquered ) stats.conquests++;
+    await attempt("stopBattle", () => RL.battle.stopBattle({ message: id }));
+    if ( war.system.stage !== "playing" ) break;
+  }
+  turnLog.attacks = attacks;
+  for ( let i = 0; (i < 2) && (war.system.stage === "playing"); i++ ) {
+    const e = bestExpansion(snap(), fid);
+    if ( !e ) break;
+    const r = await attempt(`expand ${e.from}->${e.to}`, () => RL.turn.expand({ faction: fid, from: e.from, to: e.to, count: e.count }));
+    if ( r ) stats.expansions++;
+  }
+  if ( war.system.stage !== "playing" ) break;
+
+  // 5. End of turn: draw a card if eligible
+  const opts = RL.cards.drawOptions(fid);
+  let draw = null;
+  if ( opts.canDraw ) draw = opts.territoryCardIds.length ? { cardId: opts.territoryCardIds[0] } : (opts.coinAllowed ? { coin: true } : null);
+  const handBefore = RL.cards.getResourceCards(fid).length;
+  await attempt("turn.end", () => RL.actions.run("turn.end", { faction: fid, draw, completeMission: false }));
+  if ( RL.cards.getResourceCards(fid).length > handBefore ) stats.cardsDrawn++;
+  turnLog.drew = draw ? (draw.coin ? "coin" : "territory") : (opts.eligible ? "nothing allowed" : "-");
+  const s = snap();
+  turnLog.after = Object.fromEntries(factions.map(f => [f.system.key, `${s.factions[f.id].territories.length}t/${s.factions[f.id].troops}tr/${s.factions[f.id].redStars.total}★`]));
+  step("turn", turnLog);
+  await waitFor(() => (war.combatant?.actorId !== fid) || (war.system.stage !== "playing"), 15000);
+}
+
+/* ---------- Result ---------- */
+await wait(1500);
+const s = snap();
+step("end", {
+  stage: war.system.stage, winner: game.actors.get(war.system.winner)?.name,
+  standings: Object.fromEntries(factions.map(f => [f.system.key, { stars: s.factions[f.id].redStars, status: f.system.war.status, territories: s.factions[f.id].territories.length }])),
+  row: RL.cards.getRow().map(c => `${c.system.slot}:${c.system.territory}(${c.system.value})`),
+  coinPile: RL.cards.coinCount?.(), deck: RL.state.getCardStack("territoryDeck")?.availableCards?.length,
+  discard: RL.state.getCardStack("discard")?.cards.size, messages: game.messages.size,
+  openApps: [...foundry.applications.instances.values()].map(a => a.constructor.name)
+});
+return { seconds: Math.round((Date.now() - T0) / 1000), stats, problems: problems.slice(0, 40), log };

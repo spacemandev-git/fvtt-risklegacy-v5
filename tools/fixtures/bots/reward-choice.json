@@ -1,0 +1,119 @@
+{
+ "name": "reward-choice",
+ "description": "Khan won and picks a winner's reward (it usually starts in Asia).",
+ "me": "khan",
+ "difficulty": "normal",
+ "factions": {
+  "khan": {
+   "name": "Khan Industries",
+   "key": "khan",
+   "redStarTokens": 2,
+   "startingTerritory": "china"
+  },
+  "balkania": {
+   "name": "Imperial Balkania",
+   "key": "balkania",
+   "redStarTokens": 1
+  },
+  "saharan": {
+   "name": "Saharan Republic",
+   "key": "saharan",
+   "redStarTokens": 1
+  },
+  "enclave": {
+   "name": "Enclave of the Bear",
+   "key": "enclave",
+   "redStarTokens": 1
+  }
+ },
+ "marks": {
+  "india": {
+   "scar": "ammo_shortage"
+  },
+  "mongolia": {
+   "city": "minor"
+  }
+ },
+ "pieces": {
+  "china": {
+   "khan": {
+    "troops": 9,
+    "hq": true
+   }
+  },
+  "india": {
+   "khan": 4
+  },
+  "mongolia": {
+   "khan": 3
+  },
+  "siberia": {
+   "khan": 2
+  },
+  "afghanistan": {
+   "khan": 3
+  },
+  "northern_europe": {
+   "balkania": {
+    "troops": 5,
+    "hq": true
+   }
+  },
+  "russia": {
+   "balkania": 4
+  },
+  "egypt": {
+   "saharan": {
+    "troops": 3,
+    "hq": true
+   }
+  },
+  "kamchatka": {
+   "enclave": {
+    "troops": 2,
+    "hq": true
+   }
+  }
+ },
+ "turn": {
+  "faction": "khan",
+  "phase": "end",
+  "stage": "ended"
+ },
+ "calls": [
+  {
+   "fn": "chooseOption",
+   "args": {
+    "kind": "winnerReward",
+    "title": "Winner's reward",
+    "options": [
+     {
+      "value": "nameContinent",
+      "label": "Name a continent",
+      "hint": "You (this player) get +1 troop whenever you hold that whole continent, in every future game."
+     },
+     {
+      "value": "foundMajorCity",
+      "label": "Found a major city",
+      "hint": "Population 2 in a territory you control; only you may start there in future games."
+     },
+     {
+      "value": "fortifyCity",
+      "label": "Fortify a city",
+      "hint": "+1 to both defence dice there for 10 uses; costs 2 extra troops to expand into."
+     },
+     {
+      "value": "cancelScar",
+      "label": "Cancel a scar",
+      "hint": "Remove a scar from a territory for good."
+     },
+     {
+      "value": "destroyTerritoryCard",
+      "label": "Destroy a territory card",
+      "hint": "That territory's resource card leaves the game for good."
+     }
+    ]
+   }
+  }
+ ]
+}

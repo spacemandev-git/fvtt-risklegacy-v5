@@ -1,0 +1,126 @@
+{
+  "RL": {
+    "Canvas": {
+      "Scene": {
+        "name": "The World",
+        "level": "The Board"
+      },
+      "Settings": {
+        "showCounts": {
+          "name": "Show troop totals on the board",
+          "hint": "Draw a numbered disc in the controlling faction's colour on every occupied territory."
+        },
+        "showTooltip": {
+          "name": "Territory hover info",
+          "hint": "Hovering a territory shows its owner, troops, city, scar and fortification."
+        },
+        "autoArrange": {
+          "name": "Tidy pieces after moves",
+          "hint": "After a piece is dragged into another territory, arrange the pieces of both territories onto their placement spots."
+        }
+      },
+      "Keys": {
+        "cancel": "Cancel board prompt",
+        "cancelHint": "Cancels picking a territory or placing troops on the world board."
+      },
+      "Controls": {
+        "group": "Risk Legacy: World Board",
+        "inspect": "Inspect territories",
+        "arrange": "Tidy all pieces onto their spots",
+        "counts": "Show troop totals",
+        "tooltip": "Show territory info on hover",
+        "setTroops": "Set troops in a territory (GM)",
+        "setTroopsPrompt": "Pick a territory to set troops in",
+        "setTroopsTitle": "Troops in {name}",
+        "chooseFaction": "Whose troops?",
+        "troops": "Troops",
+        "rebuild": "Rebuild the board scene and territory regions (GM)",
+        "rebuildConfirm": "Rebuild the world board scene from the board definition? Territory regions are reset to the traced shapes; pieces stay where they are.",
+        "clear": "Remove all pieces from the board (GM)",
+        "clearConfirm": "Remove every troop and HQ piece from the world board?"
+      },
+      "HUD": {
+        "split": "Split into three 1-troop pieces",
+        "merge": "Merge three 1-troop pieces"
+      },
+      "Banner": {
+        "pick": "Pick a territory",
+        "pickHint": "Click a highlighted territory. Esc or right-click to cancel.",
+        "placeHint": "Click: place 1 troop · Shift-click: place 3 · Esc or right-click to stop.",
+        "toPlace": "to place",
+        "cancel": "Cancel",
+        "place": {
+          "reserve": "Place your troops",
+          "starting": "Choose your starting territory",
+          "join": "Join the War: choose a starting territory"
+        },
+        "point": "Choose a spot on the board",
+        "pointHint": "Move the sticker to a free spot and click to place it. Esc or right-click to cancel."
+      },
+      "Hint": {
+        "expand": "Expand",
+        "maneuver": "Maneuver",
+        "advance": "Move in",
+        "attack": "Attack ×{dice}",
+        "outside": "Off the map",
+        "hq": "HQ"
+      },
+      "Tooltip": {
+        "unoccupied": "Unoccupied",
+        "hq": "HQ",
+        "unnamed": "(unnamed)",
+        "population": "pop. {n}",
+        "founder": "Founded by {name}",
+        "fortification": "Fortified",
+        "usesLeft": "{left}/{total} uses left",
+        "depleted": "worn out",
+        "scar": "Scar",
+        "mark": "Mark",
+        "cardDestroyed": "x  Territory card destroyed",
+        "seaLines": "Sea line to",
+        "noContinent": "No continent"
+      },
+      "Reason": {
+        "outside": "Pieces must stay inside a territory.",
+        "hqFixed": "HQs never move.",
+        "oneGroup": "Move troops from one territory into one other territory at a time."
+      },
+      "Notify": {
+        "noBattle": "Battles aren't available yet: the move was cancelled.",
+        "notAllowed": "You can't choose {name} now.",
+        "rebuilt": "The world board scene was rebuilt.",
+        "badPoint": "That spot isn't allowed."
+      },
+      "Error": {
+        "noScene": "There is no world board scene. A GM can build it from the Risk Legacy scene controls.",
+        "noBoard": "The board definition \"{variant}\" isn't loaded.",
+        "noFaction": "\"{id}\" is not a faction.",
+        "noFactions": "There are no factions yet.",
+        "noTerritory": "\"{id}\" is not a territory.",
+        "gmOnly": "Only the GM (or the turn controller) can do that.",
+        "notYours": "You don't control that faction.",
+        "notTriple": "That isn't a 3-troop piece.",
+        "notSingle": "That isn't a 1-troop piece.",
+        "needThree": "Three 1-troop pieces are needed in the same territory."
+      },
+      "Water": {
+        "noBoard": "The board definition isn't loaded.",
+        "offBoard": "Too close to the edge of the board.",
+        "land": "Touches {name}.",
+        "sticker": "Overlaps {name}.",
+        "furniture": "Covers the {what}.",
+        "seaLine": "Covers the sea line between {a} and {b}.",
+        "Furniture": {
+          "referenceStickers": "reference sticker slots",
+          "victors": "victors' section",
+          "worldName": "world name",
+          "troopChart": "troop chart",
+          "tradeChart": "trade chart",
+          "starTrade": "Red Star trade",
+          "plate": "{name} bonus plate",
+          "other": "printed board furniture"
+        }
+      }
+    }
+  }
+}

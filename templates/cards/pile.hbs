@@ -1,0 +1,29 @@
+<div class="rl-pile">
+  {{#if empty}}
+  <p class="rl-pile__empty">{{localize "RL.Sideboard.empty"}}</p>
+  {{else}}
+  <div class="rl-pile__cards">
+    {{#each cards}}
+    <figure class="rl-pile-card {{#if landscape}}rl-pile-card--landscape{{/if}} {{#if pending}}is-pending{{/if}}" data-card-id="{{id}}">
+      <img src="{{img}}" alt="{{name}}" data-zoom data-orientation="{{orientation}}">
+      <figcaption>
+        <span class="rl-pile-card__name">{{name}}</span>
+        {{#if value}}<span class="rl-pile-card__value">{{value}}</span>{{/if}}
+        {{#if kept}}<span class="rl-hand rl-hand--red">{{localize "RL.Sideboard.kept"}}</span>{{/if}}
+      </figcaption>
+      {{#if pending}}
+        {{#if @root.isGM}}
+        <div class="rl-pile-card__resolve">
+          <button type="button" class="rl-btn rl-btn--icon" data-action="resolve" data-outcome="box">{{localize "RL.Sideboard.resolve.box"}}</button>
+          <button type="button" class="rl-btn rl-btn--icon" data-action="resolve" data-outcome="keep">{{localize "RL.Sideboard.resolve.keep"}}</button>
+          <button type="button" class="rl-btn rl-btn--icon rl-btn--destroy" data-action="resolve" data-outcome="destroy">{{localize "RL.Sideboard.resolve.destroy"}}</button>
+        </div>
+        {{else}}
+        <span class="rl-pile-card__pending rl-hand rl-hand--red">{{localize "RL.Sideboard.pending"}}</span>
+        {{/if}}
+      {{/if}}
+    </figure>
+    {{/each}}
+  </div>
+  {{/if}}
+</div>

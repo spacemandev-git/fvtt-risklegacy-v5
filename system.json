@@ -1,0 +1,154 @@
+{
+  "id": "fvtt-risklegacy-v5",
+  "title": "Risk Legacy",
+  "description": "<p>Play a full Risk Legacy campaign in Foundry VTT: a persistent world board, faction cards that evolve, the sideboard and resource decks as Foundry Cards, piece tokens with turn and rules enforcement, combat with missiles, and the sealed packages.</p><p>Unofficial fan implementation. Risk Legacy is © Hasbro.</p>",
+  "version": "0.1.0",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "authors": [
+    {
+      "name": "spacemandev"
+    }
+  ],
+  "url": "https://github.com/spacemandev-git/fvtt-risklegacy-v5",
+  "esmodules": [
+    "module/risklegacy.mjs"
+  ],
+  "styles": [
+    {
+      "src": "styles/risklegacy.css",
+      "layer": "system"
+    },
+    {
+      "src": "styles/apps.css",
+      "layer": "system"
+    },
+    {
+      "src": "styles/cards.css",
+      "layer": "system"
+    },
+    {
+      "src": "styles/canvas.css",
+      "layer": "system"
+    },
+    {
+      "src": "styles/campaign.css",
+      "layer": "system"
+    },
+    {
+      "src": "styles/battle.css",
+      "layer": "system"
+    },
+    {
+      "src": "styles/bots.css",
+      "layer": "system"
+    }
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en-turn.json"
+    },
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en-canvas.json"
+    },
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en-cards.json"
+    },
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en-apps.json"
+    },
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en-campaign.json"
+    },
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en-battle.json"
+    },
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en-events.json"
+    },
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en-bots.json"
+    },
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en-bots-driver.json"
+    }
+  ],
+  "documentTypes": {
+    "Actor": {
+      "faction": {
+        "htmlFields": [
+          "notes"
+        ]
+      },
+      "campaign": {
+        "htmlFields": [
+          "notes"
+        ]
+      }
+    },
+    "Item": {
+      "power": {}
+    },
+    "Card": {
+      "territory": {},
+      "coin": {},
+      "scar": {},
+      "mission": {},
+      "event": {},
+      "draft": {}
+    },
+    "Combat": {
+      "war": {}
+    },
+    "ChatMessage": {
+      "battle": {}
+    }
+  },
+  "socket": true,
+  "flags": {
+    "hotReload": {
+      "extensions": [
+        "css",
+        "hbs",
+        "json"
+      ],
+      "paths": [
+        "styles",
+        "templates",
+        "lang"
+      ]
+    }
+  },
+  "grid": {
+    "type": 0,
+    "distance": 1,
+    "units": ""
+  },
+  "initiative": "1d6",
+  "background": "systems/fvtt-risklegacy-v5/assets/board/original.webp"
+}

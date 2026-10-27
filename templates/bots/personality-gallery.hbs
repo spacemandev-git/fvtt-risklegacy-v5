@@ -1,0 +1,53 @@
+{{!-- Personality gallery (module/bots/ui/dialogs.mjs choosePersonality, BOTS-LLM.md §8): "Add chat bot" (personality,
+     level, model) or a new personality for a bot. Strings arrive localized. Styled in styles/bots.css ("Gallery"). --}}
+<div class="rl-bot-gallery">
+  <p class="rl-bot-gallery__lead">{{lead}}</p>
+  <fieldset class="rl-bot-gallery__grid">
+    <legend class="rl-bot-sr">{{localize "RL.Bots.Gallery.personality"}}</legend>
+    {{#each cards as |c|}}
+    <label class="rl-bot-pcard{{#if c.random}} is-random{{/if}}{{#if c.usedBy}} is-used{{/if}}{{#if c.current}} is-current{{/if}}">
+      <input type="radio" name="personality" value="{{c.id}}" {{checked c.checked}}>
+      <span class="rl-bot-pcard__top">
+        <span class="rl-bot-portrait">{{#if c.random}}<i class="fa-solid fa-dice" inert></i>{{else}}<img src="{{c.portrait}}" alt="">{{/if}}</span>
+        <span class="rl-bot-pcard__id">
+          <span class="rl-bot-pcard__title">{{c.title}}</span>
+          <span class="rl-bot-pcard__name">{{c.name}}</span>
+        </span>
+      </span>
+      <span class="rl-bot-pcard__blurb">{{c.blurb}}</span>
+      {{#if c.knobs}}
+      <span class="rl-bot-knobs">
+        {{#each c.knobs as |k|}}
+        <span class="rl-bot-knob" data-tooltip="{{k.tip}}"><span class="rl-bot-knob__label">{{k.label}}</span><span class="rl-bot-knob__bar"><span style="width: {{k.pct}}%"></span></span></span>
+        {{/each}}
+      </span>
+      {{/if}}
+      {{#if c.current}}<span class="rl-bot-pcard__used">{{localize "RL.Bots.Gallery.current"}}</span>
+      {{else if c.usedBy}}<span class="rl-bot-pcard__used">{{c.usedBy}}</span>{{/if}}
+    </label>
+    {{/each}}
+  </fieldset>
+
+  {{#if add}}
+  <div class="rl-bot-gallery__opts">
+    <fieldset class="rl-bot-gallery__level">
+      <legend class="rl-label">{{localize "RL.Bots.Gallery.level"}}</legend>
+      <span class="rl-bot-diff">
+        {{#each levels as |l|}}
+        <label class="rl-bot-diff__opt" data-tooltip="{{l.hint}}">
+          <input type="radio" name="difficulty" value="{{l.value}}" {{checked l.checked}}>
+          <span>{{l.label}}</span>
+        </label>
+        {{/each}}
+      </span>
+    </fieldset>
+    <label class="rl-field rl-bot-gallery__model">
+      <span class="rl-label">{{localize "RL.Bots.Gallery.model"}}</span>
+      <select name="model">
+        {{#each models as |g|}}{{#if g.label}}<optgroup label="{{g.label}}">{{/if}}{{#each g.options as |m|}}<option value="{{m.value}}" {{#if m.selected}}selected{{/if}}>{{m.label}}</option>{{/each}}{{#if g.label}}</optgroup>{{/if}}{{/each}}
+      </select>
+    </label>
+  </div>
+  <p class="rl-bot-gallery__note">{{localize "RL.Bots.Gallery.note"}}</p>
+  {{/if}}
+</div>

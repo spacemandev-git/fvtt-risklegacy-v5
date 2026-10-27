@@ -1,0 +1,14 @@
+{{!-- Table talk (BOTS-LLM.md §8): a chat bot's in-character line, built by module/bots/ui/narration.mjs. Strings arrive
+     localized; the line itself is escaped. A printed speech card: same in both themes. Styled in styles/bots.css
+     ("Table talk"). --}}
+<div class="risklegacy rl-chat-card rl-bot-talk {{factionClass}}"{{#if color}} style="--rl-bot-faction: {{color}}"{{/if}}>
+  <div class="rl-bot-talk__who">
+    <span class="rl-bot-portrait" aria-hidden="true"><img src="{{portrait}}" alt=""></span>
+    <span class="rl-bot-talk__id">
+      <span class="rl-bot-talk__name">{{name}}</span>
+      {{#if title}}<span class="rl-bot-talk__title">{{title}}</span>{{/if}}
+      {{#if sub}}<span class="rl-bot-talk__sub">{{sub}}</span>{{/if}}
+    </span>
+  </div>
+  <blockquote class="rl-bot-talk__quote">{{quote}}</blockquote>
+</div>

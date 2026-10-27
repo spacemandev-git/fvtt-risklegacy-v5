@@ -1,0 +1,13 @@
+<div class="rl-dlg rl-dlg--continent">
+  <div class="rl-field"><label>{{localize "RL.Sheet.Campaign.GivenName"}}</label>
+    <input type="text" name="name" class="rl-input--hand" value="{{c.name}}" placeholder="Awesometonia"></div>
+  <div class="rl-field"><label>{{localize "RL.Sheet.Campaign.NamedBy"}}</label>
+    <input type="text" name="namedBy" class="rl-input--hand" value="{{c.namedBy}}"></div>
+  <div class="rl-ui-row">
+    <div class="rl-field"><label>{{localize "RL.Sheet.Campaign.Modifier"}}</label>
+      <select name="modifier">{{selectOptions modifierChoices selected=c.modifier localize=true}}</select></div>
+    <div class="rl-field rl-ui-narrow"><label>{{localize "RL.Sheet.Campaign.Game"}}</label>
+      <input type="number" name="game" value="{{c.game}}" min="0" step="1"></div>
+  </div>
+  <p class="rl-caption">{{localize "RL.Sheet.Campaign.EditHint"}}</p>
+</div>

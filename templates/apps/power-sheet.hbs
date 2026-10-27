@@ -1,0 +1,51 @@
+<div class="rl-ps-view rl-power--{{system.slot}}">
+  <article class="rl-card rl-card--power rl-ps-card{{#if system.used}} is-used{{/if}}">
+    <div class="rl-card__head">
+      <img class="rl-card__icon" src="{{icon}}" alt="">
+      <div class="rl-ps-card__titles">
+        <span class="rl-card__type">{{slotLabel}}</span>
+        <h3 class="rl-card__title">{{item.name}}</h3>
+      </div>
+    </div>
+    <span class="rl-sticker rl-sticker--peel">{{#if system.text}}{{system.text}}{{else}}<i>{{localize "RL.Sheet.Power.NoText"}}</i>{{/if}}</span>
+    {{#if system.used}}<span class="rl-stamp rl-ps-card__used">{{localize "RL.Sheet.Power.Used"}}</span>{{/if}}
+    <footer class="rl-ps-card__foot">
+      {{#if printedFor}}<span>{{localize "RL.Sheet.Power.PrintedFor" faction=printedFor}}</span>{{/if}}
+      <span>{{packLabel}}</span>
+      {{#if system.key}}<span class="rl-code">{{system.key}}</span>{{/if}}
+    </footer>
+  </article>
+
+  <p class="rl-ps-view__where">
+    {{#if placedOn}}<i class="fa-solid fa-flag" inert></i> {{localize "RL.Sheet.Power.PlacedOn" faction=placedOn}}
+    {{else}}<i class="fa-solid fa-note-sticky" inert></i> {{localize "RL.Sheet.Power.Unplaced"}}{{/if}}
+  </p>
+
+  {{#if canEdit}}
+  <fieldset class="rl-ui-gm rl-ps-view__fields">
+    <legend>{{localize "RL.Sheet.GMControls"}}</legend>
+    <div class="rl-field"><label>{{localize "RL.Sheet.Power.Name"}}</label>
+      <input type="text" name="name" value="{{source.name}}"></div>
+    <div class="rl-ui-row">
+      <div class="rl-field"><label>{{localize "RL.Power.Data.FIELDS.slot.label"}}</label>
+        <select name="system.slot">{{selectOptions slotChoices selected=source.system.slot localize=true}}</select></div>
+      <div class="rl-field"><label>{{localize "RL.Power.Data.FIELDS.timing.label"}}</label>
+        <select name="system.timing">{{selectOptions timingChoices selected=source.system.timing localize=true}}</select></div>
+    </div>
+    <div class="rl-field"><label>{{localize "RL.Power.Data.FIELDS.text.label"}}</label>
+      <textarea name="system.text" rows="3">{{source.system.text}}</textarea></div>
+    <div class="rl-ui-row">
+      <div class="rl-field"><label>{{localize "RL.Power.Data.FIELDS.faction.label"}}</label>
+        <select name="system.faction">{{selectOptions factionChoices selected=source.system.faction localize=true}}</select></div>
+      <div class="rl-field"><label>{{localize "RL.Power.Data.FIELDS.pack.label"}}</label>
+        <select name="system.pack">{{selectOptions packChoices selected=source.system.pack localize=true}}</select></div>
+    </div>
+    <div class="rl-ui-row">
+      <div class="rl-field"><label>{{localize "RL.Power.Data.FIELDS.key.label"}}</label>
+        <input type="text" name="system.key" value="{{source.system.key}}" placeholder="khan_1"></div>
+      <label class="rl-ui-check"><input type="checkbox" name="system.used" {{checked source.system.used}}>
+        <span class="rl-label">{{localize "RL.Power.Data.FIELDS.used.label"}}</span></label>
+    </div>
+  </fieldset>
+  {{/if}}
+</div>

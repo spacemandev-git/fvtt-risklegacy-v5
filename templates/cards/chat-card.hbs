@@ -1,0 +1,31 @@
+<div class="risklegacy rl-chat-card rl-cards-chat rl-cards-chat--{{kind}}">
+  <div class="rl-chat-card__head">
+    <h3 class="rl-chat-card__title">{{title}}</h3>
+    {{#if sub}}<span class="rl-chat-card__sub">{{sub}}</span>{{/if}}
+  </div>
+  {{#if (or images.length text token)}}
+  <div class="rl-chat-card__body">
+    {{#if token}}<span class="rl-token"></span>{{/if}}
+    {{#if images.length}}
+    <div class="rl-cards-chat__images">
+      {{#each images}}
+      <figure class="rl-cards-chat__figure rl-cards-chat__figure--{{orientation}} {{#if destroyed}}is-destroyed{{/if}} {{#if even}}is-even{{/if}}">
+        <img src="{{img}}" alt="{{alt}}">
+        {{#if caption}}<figcaption>{{caption}}</figcaption>{{/if}}
+      </figure>
+      {{/each}}
+    </div>
+    {{/if}}
+    {{#if text}}<div class="rl-cards-chat__text">{{{text}}}</div>{{/if}}
+  </div>
+  {{/if}}
+  {{#if result}}<div class="rl-chat-card__result">{{{result}}}</div>{{/if}}
+  {{#if buttons.length}}
+  <div class="rl-cards-chat__buttons">
+    {{#each buttons}}
+    <button type="button" class="rl-btn {{#if destroy}}rl-btn--destroy{{/if}}" data-rl-cards-action="{{action}}"
+      {{#each data}}data-{{@key}}="{{this}}" {{/each}}>{{label}}</button>
+    {{/each}}
+  </div>
+  {{/if}}
+</div>

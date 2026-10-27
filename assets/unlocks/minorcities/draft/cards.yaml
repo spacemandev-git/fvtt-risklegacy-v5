@@ -1,0 +1,139 @@
+namespace: coin_1.draft.minorcities.risklegacy.spacemandev
+imgPath: coin_1.jpg
+data:
+  type: coin
+  players: 3
+  z: 5
+--- 
+namespace: coin_2.draft.minorcities.risklegacy.spacemandev
+imgPath: coin_2.jpg
+data:
+  type: coin
+  players: 3
+  z: 4
+---
+namespace: coin_3.draft.minorcities.risklegacy.spacemandev
+imgPath: coin_3.jpg
+data:
+  type: coin
+  players: 5
+  z: 3
+---
+namespace: coin_4.draft.minorcities.risklegacy.spacemandev
+imgPath: coin_4.jpg
+data:
+  type: coin
+  players: 3
+  z: 2
+---
+namespace: coin_5.draft.minorcities.risklegacy.spacemandev
+imgPath: coin_5.jpg
+data:
+  type: coin
+  players: 4
+  z: 1
+---
+namespace: placement_1.draft.minorcities.risklegacy.spacemandev
+imgPath: placement_1.jpg
+data:
+  type: placement
+  players: 3
+  z: 5
+--- 
+namespace: placement_2.draft.minorcities.risklegacy.spacemandev
+imgPath: placement_2.jpg
+data:
+  type: placement
+  players: 3
+  z: 4
+---
+namespace: placement_3.draft.minorcities.risklegacy.spacemandev
+imgPath: placement_3.jpg
+data:
+  type: placement
+  players: 3
+  z: 3
+---
+namespace: placement_4.draft.minorcities.risklegacy.spacemandev
+imgPath: placement_4.jpg
+data:
+  type: placement
+  players: 4
+  z: 2
+---
+namespace: placement_5.draft.minorcities.risklegacy.spacemandev
+imgPath: placement_5.jpg
+data:
+  type: placement
+  players: 5
+  z: 1
+---
+namespace: troops_1.draft.minorcities.risklegacy.spacemandev
+imgPath: troops_1.jpg
+data:
+  type: troops
+  players: 3
+  z: 5
+--- 
+namespace: troops_2.draft.minorcities.risklegacy.spacemandev
+imgPath: troops_2.jpg
+data:
+  type: troops
+  players: 4
+  z: 4
+---
+namespace: troops_3.draft.minorcities.risklegacy.spacemandev
+imgPath: troops_3.jpg
+data:
+  type: troops
+  players: 5
+  z: 3
+---
+namespace: troops_4.draft.minorcities.risklegacy.spacemandev
+imgPath: troops_4.jpg
+data:
+  type: troops
+  players: 3
+  z: 2
+---
+namespace: troops_5.draft.minorcities.risklegacy.spacemandev
+imgPath: troops_5.jpg
+data:
+  type: troops
+  players: 3
+  z: 1
+---
+namespace: turn_1.draft.minorcities.risklegacy.spacemandev
+imgPath: turn_1.jpg
+data:
+  type: turn
+  players: 3
+  z: 5
+--- 
+namespace: turn_2.draft.minorcities.risklegacy.spacemandev
+imgPath: turn_2.jpg
+data:
+  type: turn
+  players: 3
+  z: 4
+---
+namespace: turn_3.draft.minorcities.risklegacy.spacemandev
+imgPath: turn_3.jpg
+data:
+  type: turn
+  players: 3
+  z: 3
+---
+namespace: turn_4.draft.minorcities.risklegacy.spacemandev
+imgPath: turn_4.jpg
+data:
+  type: turn
+  players: 4
+  z: 2
+---
+namespace: turn_5.draft.minorcities.risklegacy.spacemandev
+imgPath: turn_5.jpg
+data:
+  type: turn
+  players: 5
+  z: 1

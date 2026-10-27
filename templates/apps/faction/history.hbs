@@ -1,0 +1,44 @@
+<section class="tab rl-fs-tab-history {{tab.cssClass}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <div class="rl-fs-back">
+    <img class="rl-fs-back__ghost" src="{{art}}" alt="">
+    <table class="rl-fs-history">
+      <thead>
+        <tr>
+          <th class="c-game">{{localize "RL.Sheet.Faction.Game"}}</th>
+          <th class="c-player">{{localize "RL.Sheet.Faction.Player"}}</th>
+          <th class="c-territory">{{localize "RL.Sheet.Faction.StartingTerritory"}}</th>
+          {{#each resultColumns as |c|}}<th class="c-res" data-tooltip="{{c.label}}">{{c.short}}</th>{{/each}}
+        </tr>
+      </thead>
+      <tbody>
+        {{#each historyRows as |row|}}
+        <tr class="rl-fs-history__row{{#if row.absent}} is-absent{{/if}}" data-game="{{row.game}}">
+          <td class="c-game">{{row.game}}</td>
+          <td class="c-player">
+            {{#if row.absent}}<span class="rl-hand rl-hand--red rl-fs-history__x">X</span>
+            {{else if @root.canManage}}<input type="text" class="rl-fs-history__input" data-history-field="player" value="{{row.player}}" aria-label="{{localize "RL.Sheet.Faction.Player"}} {{row.game}}">
+            {{else}}<span class="rl-hand">{{row.player}}</span>{{/if}}
+          </td>
+          <td class="c-territory">
+            {{#unless row.absent}}
+            {{#if @root.canManage}}<input type="text" class="rl-fs-history__input" data-history-field="startingTerritory" value="{{row.startingTerritory}}" list="{{@root.rootId}}-territories" aria-label="{{localize "RL.Sheet.Faction.StartingTerritory"}} {{row.game}}">
+            {{else}}<span class="rl-hand">{{row.startingTerritory}}</span>{{/if}}
+            {{/unless}}
+          </td>
+          {{#each row.results as |res|}}
+          <td class="c-res">
+            {{#if @root.canManage}}
+            <button type="button" class="rl-ui-x{{#if res.checked}} is-checked{{/if}}" data-action="toggleResult" data-result="{{res.key}}" aria-pressed="{{res.checked}}" aria-label="{{res.label}}"></button>
+            {{else}}<span class="rl-ui-x{{#if res.checked}} is-checked{{/if}}"></span>{{/if}}
+          </td>
+          {{/each}}
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+  {{#if canManage}}
+  <datalist id="{{rootId}}-territories">{{#each territoryNames}}<option value="{{this}}"></option>{{/each}}</datalist>
+  <p class="rl-caption rl-fs-history__hint">{{localize "RL.Sheet.Faction.HistoryHint"}}</p>
+  {{/if}}
+</section>

@@ -1,0 +1,23 @@
+<section class="tab rl-cs-tab-chronicle {{tab.cssClass}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  {{#if canManage}}
+  <div class="rl-cs-chronicle__bar">
+    <button type="button" class="rl-btn rl-ui-small" data-action="addLog"><i class="fa-solid fa-pen" inert></i> {{localize "RL.Sheet.Campaign.AddLog"}}</button>
+  </div>
+  {{/if}}
+  {{#each chronicle as |g|}}
+  <div class="rl-cs-chronicle__game">
+    <h4 class="rl-cs-chronicle__head">{{#if g.game}}<span class="rl-num">{{g.game}}</span>{{/if}}{{g.label}}</h4>
+    <ol class="rl-cs-chronicle__list">
+      {{#each g.entries as |e|}}
+      <li class="rl-cs-chronicle__entry rl-cs-chronicle__entry--{{e.kind}}" data-index="{{e.index}}">
+        <i class="{{e.icon}} rl-cs-chronicle__icon" inert></i>
+        <span class="rl-cs-chronicle__text">{{e.text}}</span>
+        {{#if e.date}}<time class="rl-cs-chronicle__date">{{e.date}}</time>{{/if}}
+      </li>
+      {{/each}}
+    </ol>
+  </div>
+  {{else}}
+  <div class="rl-callout rl-cs-chronicle__empty">{{localize "RL.Sheet.Campaign.ChronicleEmpty"}} <span class="rl-hand rl-hand--red">{{localize "RL.Sheet.Campaign.ChronicleEmptyNote"}}</span></div>
+  {{/each}}
+</section>

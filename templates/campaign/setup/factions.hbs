@@ -1,0 +1,25 @@
+<div class="rl-camp-step rl-camp-step--factions">
+  <h2 class="rl-title">{{localize "RL.Wizard.Setup.factionsTitle"}}</h2>
+  <p class="rl-lead">{{localize "RL.Wizard.Setup.factionsLead"}}</p>
+  <ol class="rl-camp-pick-list">
+    {{#each orderList}}
+    <li class="rl-camp-pick {{#if current}}is-current{{/if}} {{#if faction}}is-done{{/if}}">
+      <span class="rl-num">{{n}}</span>
+      <span class="rl-camp-pick__player">{{name}}</span>
+      {{#if faction}}
+      <span class="rl-camp-pick__faction rl-faction--{{faction.key}}"><img src="{{faction.img}}" alt=""> <b>{{faction.name}}</b></span>
+      {{else if current}}
+      <span class="rl-hand rl-hand--red">{{localize "RL.Wizard.Setup.choosing"}}</span>
+      {{else}}
+      <span class="rl-caption">{{localize "RL.Wizard.Setup.waiting"}}</span>
+      {{/if}}
+    </li>
+    {{/each}}
+  </ol>
+  {{#unless complete}}
+  <h3 class="rl-subhead">{{localize "RL.Wizard.Setup.availableFactions"}}</h3>
+  <div class="rl-camp-faction-grid rl-camp-faction-grid--small">
+    {{#each available}}{{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/faction-card.hbs" this}}{{/each}}
+  </div>
+  {{/unless}}
+</div>

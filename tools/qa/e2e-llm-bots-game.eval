@@ -1,0 +1,366 @@
+// End-to-end: one game of Risk Legacy played by three chat-model bots (BOTS-LLM.md §7) on a fresh world, through the
+// relay's /nous/v1 route (no API key in the browser), with the real driver, the LLM brain and the end-of-game wizard.
+//
+// Fresh world → campaign → three chat bots (hard on GLM 5.3, normal on GLM 5.3 Flash (US), easy on DeepSeek V4 Flash),
+// random distinct personalities → a Jev-free heuristic-mode check → faction picks asked of the bots → war → placeStart →
+// the driver plays every turn → (if the time, round or spend budget runs out first, the war is ended by hand with the
+// leader as winner) → the end-of-game wizard (results, signature, winner's reward, held-on rewards: the bots answer) →
+// the debriefs write the normal and hard bots' memory. Asserts no stalls, no unhandled errors and that table talk was
+// posted; reports decisions, calls, tokens, cost, average ms per call and per bot turn, and the memories.
+//
+//   node tools/jev-proxy/jev-proxy.mjs --key-file ~/.config/risklegacy/typesafe-key --port 30791 \
+//     --allow-origin http://localhost:30021 --allow-origin http://127.0.0.1:30021      (the Nous key is found by default)
+//   node $S/fvtt-browser.mjs eval --port 30021 \
+//     --sandbox "$SB/sandbox-llm" --file tools/qa/e2e-llm-bots-game.eval
+// Prepend `globalThis.RL_E2E = {...}` to change: relay (default http://127.0.0.1:30791), budgetMs (30 min), maxRounds
+// (20), gameSpend (US$ after which the war is ended by hand, 1.2), spendCap (bots.llmSpendLimit, 1.6), bots
+// ([{difficulty, model, personality}]), factions (keys in seat order).
+const RL = game.risklegacy;
+const B = RL.bots;
+const SYS = "fvtt-risklegacy-v5";
+const CFG = globalThis.RL_E2E ?? {};
+const RELAY = (CFG.relay ?? "http://127.0.0.1:30791").replace(/\/+$/, "");
+const DEAD_RELAY = "http://127.0.0.1:30797"; // nothing listens here
+const BUDGET_MS = CFG.budgetMs ?? 30 * 60 * 1000;
+const MAX_ROUNDS = CFG.maxRounds ?? 20;
+const GAME_SPEND = CFG.gameSpend ?? 1.2;
+const SPEND_CAP = CFG.spendCap ?? 1.6;
+const STALL_MS = 240_000;
+const BOTS = CFG.bots ?? [
+  { difficulty: "hard", model: "z-ai/glm-5.3" },
+  { difficulty: "normal", model: "z-ai/glm-5.3-flash:US" },
+  { difficulty: "easy", model: "deepseek/deepseek-v4-flash" }
+];
+const T0 = Date.now();
+const log = [];
+const problems = [];
+const checks = {};
+const step = (name, data) => log.push({ t: Math.round((Date.now() - T0) / 1000), step: name, ...(data ?? {}) });
+const wait = ms => new Promise(r => setTimeout(r, ms));
+async function waitFor(fn, ms = 20000, every = 200) {
+  const t0 = Date.now();
+  while ( Date.now() - t0 < ms ) {
+    try { if ( fn() ) return true; } catch(e) { /* keep waiting */ }
+    await wait(every);
+  }
+  return false;
+}
+async function attempt(label, fn, ms = 300000) {
+  try {
+    let timer;
+    const r = await Promise.race([fn(), new Promise((_, rej) => { timer = setTimeout(() => rej(new Error(`TIMEOUT after ${ms / 1000}s`)), ms); })]);
+    clearTimeout(timer);
+    return r;
+  } catch(err) {
+    const last = B.getLog({ limit: 2 }).map(r => ({ kind: r.kind, faction: r.factionName, error: r.error, exchanges: r.llm?.map(x => x.error ?? "ok") }));
+    problems.push({ label, error: err.message, stack: err.stack?.split("\n").slice(0, 3).join(" | "), status: B.status(), last });
+    return undefined;
+  }
+}
+const set = (key, value) => game.settings.set(SYS, key, value);
+const errorDialog = () => [...foundry.applications.instances.values()].find(a => a.options?.classes?.includes("rl-bot-error-dialog") && a.rendered);
+/** Error dialogs during the whole run: recorded as problems, then "built-in (this decision)" so the game goes on. */
+const dialogs = [];
+const dialogWatch = setInterval(() => {
+  const dlg = errorDialog();
+  if ( !dlg || dlg._e2eSeen ) return;
+  dlg._e2eSeen = true;
+  const text = dlg.element?.querySelector(".rl-bot-error")?.textContent?.replace(/\s+/g, " ").trim().slice(0, 400);
+  dialogs.push({ t: Math.round((Date.now() - T0) / 1000), round: RL.state.getWar()?.round ?? null, text, lastError: B.status().lastError });
+  problems.push({ label: "errorDialog", text });
+  dlg.element.querySelector('button[data-action="heuristic"]')?.click();
+}, 500);
+const closeWindows = async () => { for ( const app of [...foundry.applications.instances.values()] ) if ( app.options?.classes?.includes("risklegacy") && (app.id !== "rl-end-game") ) await app.close?.({ animate: false }).catch(() => {}); };
+const round4 = n => Math.round((Number(n) || 0) * 10000) / 10000;
+
+await waitFor(() => RL.state.isLoaded());
+
+/* ---------- Settings: chat models through the relay, no key in this browser, fast bots ---------- */
+await set("bots.llmBaseUrl", `${RELAY}/nous/v1`);
+await set("bots.llmApiKey", "");
+await set("bots.relayUrl", RELAY);
+await set("bots.pace", 0);
+await set("bots.reactionWindow", 0);
+await set("bots.onError", "ask");
+await set("bots.narration", "gm");
+await set("bots.tableTalk", "all");
+await set("bots.llmSpendLimit", SPEND_CAP);
+await set("bots.paused", false);
+B.clearLog();
+B.testing.resetStats();
+B.testing.setSessionHeuristic(false);
+B.testing.setBrainOverrides({});
+await B.testing.resetSpend();
+const health = await fetch(`${RELAY}/health`).then(r => r.json()).catch(err => ({ ok: false, error: err.message }));
+step("relay", health);
+if ( !health.nous ) return clearInterval(dialogWatch), { error: "the relay has no Nous route (start it with a Nous key)", health };
+checks.keyNotInBrowser = { ok: game.settings.get(SYS, "bots.llmApiKey") === "" };
+
+const brainSrc = await fetch(`/systems/${SYS}/module/bots/llm/brain/index.mjs`).then(r => r.text()).catch(() => "");
+const placeholderBrain = /PLACEHOLDER/.test(brainSrc);
+step("brain", { placeholder: placeholderBrain });
+
+/* ---------- Live records: per bot and per model ---------- */
+const perBot = {};
+const perModel = {};
+const says = [];
+const debriefRecords = [];
+Hooks.on("risklegacy.botDecision", r => {
+  if ( r.engine !== "llm" ) return;
+  const b = perBot[r.user] ??= { decisions: 0, calls: 0, inTokens: 0, outTokens: 0, reasoningTokens: 0, cost: 0, callMs: 0, says: 0, heuristic: 0, errors: 0, badOutput: 0, callsByKind: {} };
+  b.decisions += 1;
+  if ( r.heuristic ) b.heuristic += 1;
+  if ( r.say ) {
+    b.says += 1;
+    says.push({ user: r.user, kind: r.kind, say: r.say });
+  }
+  if ( r.kind === "debrief" ) debriefRecords.push({ user: r.user, say: r.say, heuristic: r.heuristic, calls: r.llm.length, decision: r.decision && { why: r.decision.why } });
+  for ( const x of r.llm ?? [] ) {
+    if ( !x.response && !x.attempt ) continue;
+    b.calls += 1;
+    b.callsByKind[r.kind] = (b.callsByKind[r.kind] ?? 0) + 1;
+    b.callMs += x.ms ?? 0;
+    const u = x.response?.usage ?? {};
+    b.inTokens += u.prompt_tokens ?? 0;
+    b.outTokens += u.completion_tokens ?? 0;
+    b.reasoningTokens += u.completion_tokens_details?.reasoning_tokens ?? 0;
+    b.cost += Number(x.response?.cost) || 0;
+    if ( x.error ) b.errors += 1;
+    if ( x.code === "bad_output" ) b.badOutput += 1;
+    const m = perModel[x.request?.model ?? "?"] ??= { calls: 0, ms: 0, cost: 0 };
+    m.calls += 1;
+    m.ms += x.ms ?? 0;
+    m.cost += Number(x.response?.cost) || 0;
+  }
+});
+const turnTimes = {};
+let turnOpen = null;
+Hooks.on("risklegacy.turnStarted", (war, actor) => {
+  const now = Date.now();
+  if ( turnOpen ) (turnTimes[turnOpen.fid] ??= []).push(now - turnOpen.t);
+  turnOpen = { fid: actor?.id, t: now };
+});
+
+/* ---------- Models ---------- */
+const models = [...new Set(BOTS.map(b => b.model).filter(Boolean))];
+checks.models = {};
+for ( const m of models ) {
+  const c = await attempt(`checkLLM ${m}`, () => B.checkLLM({ model: m }), 120000);
+  checks.models[m] = c && { ok: c.ok, latencyMs: c.latencyMs, error: c.error, cost: c.cost };
+}
+step("models", checks.models);
+if ( Object.values(checks.models).some(c => !c?.ok) ) return clearInterval(dialogWatch), { error: "a model failed its check", checks, problems };
+
+/* ---------- Campaign ---------- */
+await attempt("createCampaign", () => RL.campaign.createCampaign({ variant: "original", date: "2026-10-27", signatures: [] }));
+await closeWindows();
+const campaign = RL.state.getCampaign();
+const scene = RL.state.getBoardScene();
+await waitFor(() => canvas.ready && (canvas.scene?.id === scene?.id), 30000);
+if ( scene && (canvas.scene?.id !== scene.id) ) { await scene.view(); await waitFor(() => canvas.ready && canvas.scene?.id === scene.id, 30000); }
+await wait(1000);
+for ( const f of RL.state.getFactions() ) {
+  const options = game.items.filter(i => (i.type === "power") && (i.system.faction === f.system.key) && (i.system.slot === "starter"));
+  const pick = options.find(i => i.system.key.endsWith("_1")) ?? options[0];
+  if ( pick ) await f.createEmbeddedDocuments("Item", [pick.toObject()]);
+  for ( const i of options ) await i.delete();
+}
+await campaign.update({ "system.firstGameReady": true });
+
+/* ---------- Chat bots ---------- */
+const bots = [];
+for ( const b of BOTS ) {
+  const user = await B.createBot({ engine: "llm", difficulty: b.difficulty, model: b.model ?? null, personality: b.personality ?? "random" });
+  bots.push({ user, ...b });
+}
+const botLabel = u => {
+  const info = B.botInfo(u);
+  return `${u.name} (${info.difficulty}, ${info.model ?? "default"}, ${info.personality})`;
+};
+checks.bots = { ok: bots.every(b => B.botInfo(b.user)?.engine === "llm") && new Set(bots.map(b => B.botInfo(b.user).personality)).size === bots.length, bots: bots.map(b => botLabel(b.user)) };
+step("bots", checks.bots);
+
+/* ---------- Heuristic mode without Jev (dead Jev relay, session heuristic): no calls of either kind ---------- */
+const askMod = await import(`/systems/${SYS}/module/campaign/ask.mjs`);
+{
+  await set("bots.relayUrl", DEAD_RELAY);
+  B.testing.setSessionHeuristic(true);
+  const options = [{ value: "attack", label: "Attack the leader" }, { value: "defend", label: "Defend the capital" }, { value: "x", label: "Disabled", disabled: true }];
+  const value = await attempt("heuristic option", () => askMod.ask(bots[0].user, "option", { title: "Heuristic mode", options }), 60000);
+  const rec = B.getLog({ kind: "option", limit: 1 })[0];
+  const ctx = B.buildContext(null, { bot: bots[0].user });
+  ctx.chat = null;
+  const name = B.llmBrain.pickName(ctx, { kind: "city", used: [] });
+  B.testing.setSessionHeuristic(false);
+  await set("bots.relayUrl", RELAY);
+  checks.heuristicMode = {
+    ok: ["attack", "defend"].includes(value) && !!rec?.heuristic && !rec.llm.length && !rec.jev.length && !!name?.name,
+    value, heuristic: rec?.heuristic, llmExchanges: rec?.llm.length, jevExchanges: rec?.jev.length, cityName: name?.name
+  };
+  step("heuristicMode", checks.heuristicMode);
+}
+
+/* ---------- Faction picks (asked of the bots through campaign ask) ---------- */
+let available = RL.state.getFactions().map(f => f.id);
+if ( CFG.factions ) available = CFG.factions.map(k => RL.state.getFactionByKey(k)?.id).filter(Boolean);
+for ( const b of bots ) {
+  const t = Date.now();
+  const pick = CFG.factions ? available[bots.indexOf(b)] : await attempt(`faction pick ${b.user.name}`, () => askMod.ask(b.user, "faction", { factions: available, title: `Choose a faction for ${b.user.name}` }));
+  b.faction = game.actors.get(pick) ?? game.actors.get(available[0]);
+  if ( !CFG.factions ) available = available.filter(id => id !== b.faction.id);
+  step("factionPick", { bot: b.user.name, faction: b.faction?.name, ms: Date.now() - t });
+}
+checks.factionPicks = { ok: bots.every(b => !!b.faction) && (new Set(bots.map(b => b.faction.id)).size === bots.length), picks: bots.map(b => b.faction?.name) };
+
+/* ---------- War ---------- */
+const participants = bots.map((b, i) => ({ faction: b.faction.id, userId: b.user.id, seat: i }));
+await attempt("createWar", () => RL.turn.createWar({ participants }));
+await attempt("dealScars", () => RL.cards.dealScars({ factions: participants.map(p => p.faction) }));
+await attempt("setupSideboard", () => RL.cards.setupSideboard({}));
+await attempt("beginPlacement", () => RL.turn.beginPlacement({ order: participants.map(p => p.faction) }));
+const war = RL.state.getWar();
+for ( const b of bots ) {
+  const r = await attempt(`placeStart ${b.user.name}`, () => B.placeStart(b.faction.id), 180000);
+  b.start = r?.territory ?? b.faction.system.war.startingTerritory;
+}
+if ( !(await waitFor(() => war.system.stage === "playing", 30000)) ) return clearInterval(dialogWatch), { error: "never started playing", stage: war.system.stage, problems, log };
+step("placed", { starts: bots.map(b => `${b.faction.name}@${b.start}`) });
+
+/* ---------- The game: the driver plays every turn ---------- */
+const GAME_T0 = Date.now();
+let lastDecisions = -1;
+let lastProgress = Date.now();
+const stalls = [];
+let stopReason = null;
+while ( war.system.stage === "playing" ) {
+  if ( Date.now() - T0 > BUDGET_MS ) { stopReason = "time budget"; break; }
+  if ( war.round > MAX_ROUNDS ) { stopReason = `round ${MAX_ROUNDS} done`; break; }
+  if ( B.llmSpend().usd >= GAME_SPEND ) { stopReason = `spend budget $${GAME_SPEND}`; break; }
+  await wait(1000);
+  if ( errorDialog() || B.status().errorDialog ) {
+    lastProgress = Date.now();
+    continue;
+  }
+  const n = B.logStats().decisions;
+  if ( n !== lastDecisions ) { lastDecisions = n; lastProgress = Date.now(); }
+  else if ( Date.now() - lastProgress > STALL_MS ) {
+    const fid = war.combatant?.actorId;
+    stalls.push({ round: war.round, faction: game.actors.get(fid)?.name, status: B.status() });
+    problems.push({ label: "stall", round: war.round, status: B.status() });
+    B.playTurn(fid).catch(() => null);
+    lastProgress = Date.now();
+  }
+}
+const gameSeconds = Math.round((Date.now() - GAME_T0) / 1000);
+const driverAtGameEnd = B.status();
+const statsAtGameEnd = B.logStats();
+if ( war.system.stage === "playing" ) {
+  // Budget reached: end the war by hand with the leader (most Red Stars, then troops) as the winner.
+  await B.pause();
+  await waitFor(() => !B.status().running, 180000, 500);
+  const s = RL.turn.snapshot();
+  const leader = participants.map(p => s.factions[p.faction]).sort((a, b) => (b.redStars.total - a.redStars.total) || (b.troops - a.troops))[0];
+  await attempt("endWar by hand", () => RL.actions.run("turn.endWar", { winner: leader.id }));
+  await B.resume();
+  step("endedByHand", { reason: stopReason, winner: leader.name });
+}
+const s = RL.turn.snapshot();
+const winnerId = war.system.winner || null;
+step("end", {
+  stage: war.system.stage, round: war.round, winner: game.actors.get(winnerId)?.name ?? null, stopReason,
+  standings: Object.fromEntries(participants.map(p => [game.actors.get(p.faction).name, `${s.factions[p.faction].territories.length}t/${s.factions[p.faction].troops}tr/${s.factions[p.faction].redStars.total}★ ${game.actors.get(p.faction).system.war.status}`]))
+});
+
+/* ---------- End of game: the wizard asks the bots (signature, winner's reward, held-on rewards) ---------- */
+{
+  await waitFor(() => !!foundry.applications.instances.get("rl-end-game"), 20000);
+  const wiz = foundry.applications.instances.get("rl-end-game");
+  if ( wiz ) {
+    const A = wiz.options.actions;
+    await waitFor(() => wiz.end, 10000);
+    await attempt("end confirmResults", () => A.confirmResults.call(wiz), 120000);
+    await attempt("end sign", () => A.sign.call(wiz), 120000);
+    await attempt("end reward", () => A.reward.call(wiz), 300000);
+    await attempt("end heldOn", () => A.heldOn.call(wiz), 600000);
+    checks.endGame = {
+      ok: !!wiz.end.confirmed && (!winnerId || (!!wiz.end.signature?.player && !!wiz.end.reward?.reward))
+        && (wiz.end.results ?? []).filter(r => r.result === "heldOn").every(r => !!wiz.end.heldOn?.[r.faction]),
+      winner: game.actors.get(winnerId)?.name ?? null, signature: wiz.end.signature?.player ?? null, reward: wiz.end.reward,
+      heldOn: Object.fromEntries(Object.entries(wiz.end.heldOn ?? {}).map(([k, v]) => [game.actors.get(k)?.name ?? k, v]))
+    };
+  }
+  else checks.endGame = { ok: false, error: "the end-of-game wizard did not open" };
+  step("endGame", checks.endGame);
+}
+
+/* ---------- Debriefs: normal and hard chat bots write their memory once ---------- */
+const gameNo = war.system.game;
+const debriefers = bots.filter(b => ["normal", "hard"].includes(B.botInfo(b.user).difficulty));
+const debriefed = () => debriefers.every(b => (Number(B.botInfo(b.user).memory?.updated) || 0) >= gameNo);
+let debriefVia = "warEnded";
+if ( !(await waitFor(debriefed, 300000, 1000)) ) {
+  debriefVia = "debriefNow";
+  await attempt("debriefNow", () => B.debriefNow({ warId: war.id }), 300000);
+}
+// A second call must not debrief again (once per war).
+const debriefsBefore = B.status().stats.debriefs;
+await attempt("debriefNow again", () => B.debriefNow({ warId: war.id }), 60000);
+const memories = Object.fromEntries(bots.map(b => [b.user.name, B.botInfo(b.user).memory]));
+checks.debrief = {
+  ok: debriefed() && (B.status().stats.debriefs === debriefsBefore) && !B.botInfo(bots.find(b => b.difficulty === "easy")?.user ?? "")?.memory,
+  via: debriefVia, debriefs: B.status().stats.debriefs, records: debriefRecords
+};
+step("debrief", { ok: checks.debrief.ok, via: debriefVia });
+
+/* ---------- Table talk ---------- */
+await wait(1500);
+const talkMessages = game.messages.contents.filter(m => m.flags?.[SYS]?.bot?.say);
+checks.tableTalk = {
+  ok: talkMessages.length > 0, posted: talkMessages.length, says: says.length,
+  samples: talkMessages.slice(0, 8).map(m => `${m.speaker?.alias}: ${m.flags[SYS].bot.say}`)
+};
+
+/* ---------- Report ---------- */
+clearInterval(dialogWatch);
+const stats = B.logStats();
+const driver = B.status();
+const spend = B.llmSpend();
+const avg = (a) => (a?.length ? Math.round(a.reduce((x, y) => x + y, 0) / a.length) : 0);
+checks.noStalls = { ok: !stalls.length && !driver.stats.stalls, stalls };
+checks.noUnhandledErrors = { ok: !driver.stats.errors && !dialogs.length && !problems.filter(p => p.label !== "errorDialog").length, driverErrors: driver.stats.errors, dialogs, lastError: driver.lastError };
+const openApps = [...foundry.applications.instances.values()].filter(a => a.rendered && a.options?.classes?.includes("risklegacy")).map(a => a.constructor.name);
+return {
+  ok: Object.values(checks).every(c => (typeof c?.ok === "boolean" ? c.ok : true)),
+  seconds: Math.round((Date.now() - T0) / 1000),
+  brain: placeholderBrain ? "placeholder (Jev heuristics, no calls)" : "real LLM brain",
+  game: {
+    seconds: gameSeconds, stage: war.system.stage, rounds: war.round, winner: game.actors.get(winnerId)?.name ?? null, stopReason,
+    seats: bots.map(b => {
+      const f = s.factions[b.faction.id];
+      return { bot: botLabel(b.user), faction: b.faction.name, start: b.start, stars: f.redStars.total, territories: f.territories.length, troops: f.troops, status: f.status };
+    }),
+    driver: {
+      turns: driverAtGameEnd.stats.turns, battles: driverAtGameEnd.stats.battles, conquests: driverAtGameEnd.stats.conquests,
+      expansions: driverAtGameEnd.stats.expansions, maneuvers: driverAtGameEnd.stats.maneuvers, starsBought: driverAtGameEnd.stats.starsBought,
+      missilesFired: driverAtGameEnd.stats.missilesFired, scarsPlayed: driverAtGameEnd.stats.scarsPlayed, refusals: driverAtGameEnd.stats.refusals,
+      guards: driverAtGameEnd.stats.guards, avgTurnMs: driverAtGameEnd.stats.turns ? Math.round(driverAtGameEnd.stats.turnMs / driverAtGameEnd.stats.turns) : 0
+    }
+  },
+  totals: {
+    decisions: stats.decisions, calls: stats.llmRequests, inputTokens: stats.inputTokens, outputTokens: stats.outputTokens,
+    cost: round4(stats.cost), spendSetting: spend, avgMsPerCall: stats.avgMs, heuristic: stats.heuristic, errors: stats.errors,
+    callsDuringGame: statsAtGameEnd.llmRequests, costDuringGame: round4(statsAtGameEnd.cost)
+  },
+  perBot: Object.fromEntries(bots.map(b => {
+    const x = perBot[b.user.id] ?? {};
+    return [botLabel(b.user), {
+      ...x, cost: round4(x.cost), avgMsPerCall: x.calls ? Math.round(x.callMs / x.calls) : 0,
+      avgMsPerTurn: avg(turnTimes[b.faction.id]), turnsTimed: turnTimes[b.faction.id]?.length ?? 0, callMs: undefined
+    }];
+  })),
+  perModel: Object.fromEntries(Object.entries(perModel).map(([m, x]) => [m, { calls: x.calls, avgMs: x.calls ? Math.round(x.ms / x.calls) : 0, cost: round4(x.cost) }])),
+  memories,
+  checks,
+  says: says.slice(0, 30).map(x => `${game.users.get(x.user)?.name} [${x.kind}]: ${x.say}`),
+  openApps, problems: problems.slice(0, 30), log
+};

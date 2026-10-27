@@ -1,0 +1,132 @@
+<section class="tab rl-fs-tab-war {{tab.cssClass}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  {{#unless inWar}}
+  <div class="rl-callout rl-fs-war__idle">
+    {{localize "RL.Sheet.Faction.NotInWarLong"}}
+    <span class="rl-hand rl-hand--red">{{localize "RL.Sheet.Faction.NotInWarNote"}}</span>
+  </div>
+  {{/unless}}
+
+  <div class="rl-fs-war">
+    <div class="rl-fs-war__main">
+      {{!-- Red Stars --}}
+      <div class="rl-panel rl-panel--gold rl-fs-war__stars">
+        <h4 class="rl-subhead">{{localize "RL.Sheet.Faction.RedStars"}}</h4>
+        <div class="rl-fs-war__starrow">
+          {{#each redStars.slots as |s|}}
+          <span class="rl-fs-war__starslot">
+            <span class="rl-ui-star rl-ui-star--{{s.kind}} rl-ui-star--lg"></span>
+            <span class="rl-fs-war__starlabel">{{#unless (eq s.kind "empty")}}{{localize (concat "RL.Sheet.Faction.StarKind." s.kind)}}{{/unless}}</span>
+          </span>
+          {{/each}}
+          <span class="rl-fs-war__startotal"><b>{{redStars.total}}</b><span>/{{redStars.goal}}</span></span>
+        </div>
+        <p class="rl-fs-war__note">{{localize "RL.Sheet.Faction.RedStarsExplain"}}</p>
+        {{#if hqTerritories.length}}
+        <p class="rl-fs-war__hqs"><span class="rl-label">{{localize "RL.Sheet.Faction.HQsHeld"}}</span>
+          {{#each hqTerritories as |h|}}<span class="rl-ui-tag">{{h.name}}</span>{{/each}}</p>
+        {{/if}}
+      </div>
+
+      {{!-- Board numbers --}}
+      {{#if stats}}
+      <div class="rl-ui-stats">
+        {{#each stats as |s|}}
+        <div class="rl-plate rl-ui-stat rl-ui-stat--{{s.key}}">
+          <span class="rl-ui-stat__value">{{s.value}}</span>
+          <span class="rl-ui-stat__label">{{localize s.label}}</span>
+        </div>
+        {{/each}}
+      </div>
+      {{else}}
+      <div class="rl-note"><span class="rl-label">{{localize "RL.Sheet.Faction.NoBoardTitle"}}</span>{{localize "RL.Sheet.Faction.NoBoard"}}</div>
+      {{/if}}
+
+      {{#if continents.length}}
+      <div class="rl-fs-war__continents">
+        <span class="rl-label">{{localize "RL.Sheet.Faction.ContinentsHeld"}}</span>
+        {{#each continents as |c|}}<span class="rl-ui-tag">{{#if c.named}}<span class="rl-hand">{{c.label}}</span>{{else}}{{c.label}}{{/if}} <b>+{{c.value}}</b></span>{{/each}}
+      </div>
+      {{/if}}
+
+      {{!-- Recruit preview --}}
+      {{#if recruit}}
+      <div class="rl-panel rl-fs-war__recruit">
+        <h4 class="rl-subhead">{{localize "RL.Sheet.Faction.RecruitPreview"}}</h4>
+        <div class="rl-ui-sum">
+          <span class="rl-ui-sum__term"><b>{{recruit.territories}}</b><small>{{localize "RL.Sheet.Stat.territories"}}</small></span>
+          <span class="rl-ui-sum__op">+</span>
+          <span class="rl-ui-sum__term"><b>{{recruit.population}}</b><small>{{localize "RL.Sheet.Stat.population"}}</small></span>
+          <span class="rl-ui-sum__op">÷3 →</span>
+          <span class="rl-ui-sum__term"><b>{{recruit.base}}</b><small>{{#if recruit.roundedUp}}{{localize "RL.Sheet.Faction.RoundedUp"}}{{else}}{{localize "RL.Sheet.Faction.Base"}}{{/if}}</small></span>
+          {{#each recruit.continents as |c|}}
+          <span class="rl-ui-sum__op">+</span>
+          <span class="rl-ui-sum__term"><b>{{c.value}}{{#if c.namerBonus}}<i class="rl-hand rl-hand--red">+1</i>{{/if}}</b><small>{{c.label}}</small></span>
+          {{/each}}
+          <span class="rl-ui-sum__op">=</span>
+          <span class="rl-ui-sum__term rl-ui-sum__total"><b>{{recruit.total}}</b><small>{{localize "RL.Sheet.Faction.Troops"}}</small></span>
+        </div>
+      </div>
+      {{/if}}
+    </div>
+
+    <aside class="rl-fs-war__side">
+      <div class="rl-fs-war__field">
+        <span class="rl-label">{{localize "RL.Sheet.Faction.Commander"}}</span>
+        {{#if player}}<span class="rl-hand rl-fs-war__player">{{player}}</span>{{else}}<span class="rl-caption">{{localize "RL.Sheet.Faction.NoPlayer"}}</span>{{/if}}
+      </div>
+      <div class="rl-fs-war__field">
+        <span class="rl-label">{{localize "RL.Sheet.Faction.StartingHQ"}}</span>
+        {{#if startingTerritory}}<span class="rl-hand">{{startingTerritory}}</span>{{else}}<span class="rl-caption">—</span>{{/if}}
+      </div>
+      <div class="rl-fs-war__field">
+        <span class="rl-label">{{localize "RL.Sheet.Faction.Missiles"}}</span>
+        <span class="rl-fs-war__missiles">
+          {{#each missiles}}<span class="rl-token rl-token--missile"></span>{{else}}<span class="rl-caption">{{localize "RL.Sheet.Faction.NoMissiles"}}</span>{{/each}}
+        </span>
+      </div>
+
+      {{#if canManage}}
+      <fieldset class="rl-ui-gm">
+        <legend>{{localize "RL.Sheet.GMControls"}}</legend>
+        <div class="rl-ui-gm-grid">
+          <label>{{localize "RL.Faction.Data.FIELDS.war.redStarTokens.label"}}</label>
+          <input type="number" name="system.war.redStarTokens" value="{{war.redStarTokens}}" min="0" max="9" step="1">
+          <label>{{localize "RL.Faction.Data.FIELDS.war.missiles.label"}}</label>
+          <input type="number" name="system.war.missiles" value="{{war.missiles}}" min="0" max="15" step="1">
+          <label>{{localize "RL.Faction.Data.FIELDS.war.reserve.label"}}</label>
+          <input type="number" name="system.war.reserve" value="{{war.reserve}}" min="0" step="1">
+          <label>{{localize "RL.Faction.Data.FIELDS.war.status.label"}}</label>
+          <select name="system.war.status">{{selectOptions statusChoices selected=war.status localize=true}}</select>
+        </div>
+      </fieldset>
+      {{/if}}
+    </aside>
+  </div>
+
+  {{!-- Hand --}}
+  <div class="rl-fs-war__hand">
+    <h4 class="rl-subhead">{{localize "RL.Sheet.Faction.Hand"}}
+      {{#unless (or hand.html hand.live)}}<span class="rl-fs-war__handcount">{{#if (eq hand.count 1)}}{{localize "RL.Sheet.Faction.HandCountOne"}}{{else}}{{localize "RL.Sheet.Faction.HandCount" count=hand.count}}{{/if}}{{#if hand.coins}} · {{localize "RL.Sheet.Faction.HandCoins" coins=hand.coins}}{{/if}}</span>{{/unless}}
+    </h4>
+    {{#if hand.live}}
+      <rl-hand class="rl-fs-war__handview" faction="{{actor.id}}"{{#unless hand.interactive}} readonly{{/unless}}></rl-hand>
+    {{else if hand.html}}
+      <div class="rl-fs-war__handview">{{{hand.html}}}</div>
+    {{else if hand.cards.length}}
+      <ul class="rl-fs-handlist">
+        {{#each hand.cards as |c|}}
+        <li class="rl-fs-handlist__card rl-fs-handlist__card--{{c.type}}">
+          <span class="rl-fs-handlist__name">{{c.name}}</span>
+          {{#if c.coins}}<span class="rl-fs-handlist__coins">{{#if (gt c.coins 0)}}<span class="rl-coin is-filled"></span>{{/if}}<b>{{c.coins}}</b></span>{{/if}}
+        </li>
+        {{/each}}
+      </ul>
+    {{else if hand.visible}}
+      <p class="rl-caption">{{localize "RL.Sheet.Faction.HandEmpty"}}</p>
+    {{else if hand.exists}}
+      <p class="rl-caption">{{#if (eq hand.count 1)}}{{localize "RL.Sheet.Faction.HandHiddenOne"}}{{else}}{{localize "RL.Sheet.Faction.HandHidden" count=hand.count}}{{/if}}</p>
+    {{else}}
+      <p class="rl-caption">{{localize "RL.Sheet.Faction.NoHand"}}</p>
+    {{/if}}
+  </div>
+</section>

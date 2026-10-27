@@ -1,0 +1,17 @@
+namespace: advanced_tactics.missions.worldcapital.risklegacy.spacemandev
+imgPath: advanced_tactics.jpg
+---
+namespace: advanced_training.missions.worldcapital.risklegacy.spacemandev
+imgPath: advanced_training.jpg
+---
+namespace: forced_occupation.missions.worldcapital.risklegacy.spacemandev
+imgPath: forced_occupation.jpg
+---
+namespace: guerilla_warfare.missions.worldcapital.risklegacy.spacemandev
+imgPath: guerilla_warfare.jpg
+---
+namespace: urban_troop_surge.missions.worldcapital.risklegacy.spacemandev
+imgPath: urban_troop_surge.jpg
+---
+namespace: wide_border.missions.worldcapital.risklegacy.spacemandev
+imgPath: wide_border.jpg

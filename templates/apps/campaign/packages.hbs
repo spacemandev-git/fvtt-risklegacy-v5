@@ -1,0 +1,29 @@
+<section class="tab rl-cs-tab-packages {{tab.cssClass}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <div class="rl-cs-packs">
+    {{#each packs as |p|}}
+    <article class="rl-cs-pack{{#if p.opened}} is-opened{{else}} is-sealed{{/if}}{{#if p.pocket}} rl-cs-pack--pocket{{/if}}" data-pack="{{p.id}}">
+      {{#unless p.opened}}<span class="rl-cs-pack__tape rl-cs-pack__tape--top" aria-hidden="true"></span>{{/unless}}
+      <header class="rl-cs-pack__head">
+        <span class="rl-cs-pack__kind">{{#if p.pocket}}{{localize "RL.Sheet.Campaign.Pocket"}}{{else}}{{localize "RL.Sheet.Campaign.Package"}}{{/if}}</span>
+        <span class="rl-cs-pack__num">{{p.number}}</span>
+      </header>
+      <p class="rl-cs-pack__trigger">{{p.trigger}}</p>
+      <p class="rl-cs-pack__when">{{p.when}}</p>
+      <footer class="rl-cs-pack__foot">
+        {{#if p.opened}}
+          <span class="rl-stamp rl-cs-pack__stamp">{{localize "RL.Sheet.Campaign.Opened"}}</span>
+          <span class="rl-cs-pack__opened">{{#if p.game}}{{localize "RL.Sheet.Campaign.GameN" game=p.game}}{{/if}}{{#if p.date}} · {{p.date}}{{/if}}</span>
+        {{else}}
+          <span class="rl-stamp rl-cs-pack__stamp rl-cs-pack__stamp--sealed">{{localize "RL.Sheet.Campaign.Sealed"}}</span>
+          {{#if p.canTrigger}}<button type="button" class="rl-btn rl-ui-small" data-action="openPack"><i class="fa-solid fa-envelope-open" inert></i> {{localize "RL.Sheet.Campaign.OpenPack"}}</button>{{/if}}
+        {{/if}}
+      </footer>
+      {{#unless p.opened}}<span class="rl-cs-pack__tape rl-cs-pack__tape--bottom" aria-hidden="true"></span>{{/unless}}
+    </article>
+    {{/each}}
+  </div>
+  <div class="rl-legal rl-cs-packs__note">
+    <span class="rl-hand">{{localize "RL.Sheet.Campaign.PacksNoteTitle"}}</span>
+    {{localize "RL.Sheet.Campaign.PacksNote"}}
+  </div>
+</section>

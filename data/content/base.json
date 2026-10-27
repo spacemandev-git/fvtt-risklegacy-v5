@@ -1,0 +1,1714 @@
+{
+  "id": "base",
+  "label": "Base Game",
+  "order": 0,
+  "kind": "box",
+  "trigger": {
+    "key": "start",
+    "text": "Open this pack before the first game.",
+    "when": "beforeFirstGame"
+  },
+  "warProgresses": [],
+  "factions": [
+    {
+      "id": "balkania",
+      "name": "Imperial Balkania",
+      "img": "assets/unlocks/base/factions/images/balkania.png",
+      "color": "#6f38ad",
+      "pieces": {
+        "troop": "assets/unlocks/base/factions/images/balkania_1.png",
+        "triple": "assets/unlocks/base/factions/images/balkania_3.png",
+        "hq": "assets/unlocks/base/factions/images/balkania_hq.png"
+      },
+      "source": {
+        "yaml": "assets/unlocks/base/factions/cards.yaml",
+        "key": "balkania"
+      }
+    },
+    {
+      "id": "enclave",
+      "name": "Enclave of the Bear",
+      "img": "assets/unlocks/base/factions/images/enclave.png",
+      "color": "#17a838",
+      "pieces": {
+        "troop": "assets/unlocks/base/factions/images/enclave_1.png",
+        "triple": "assets/unlocks/base/factions/images/enclave_3.png",
+        "hq": "assets/unlocks/base/factions/images/enclave_hq.png"
+      },
+      "source": {
+        "yaml": "assets/unlocks/base/factions/cards.yaml",
+        "key": "enclave"
+      }
+    },
+    {
+      "id": "khan",
+      "name": "Khan Industries",
+      "img": "assets/unlocks/base/factions/images/khan.png",
+      "color": "#5f6062",
+      "pieces": {
+        "troop": "assets/unlocks/base/factions/images/khan_1.png",
+        "triple": "assets/unlocks/base/factions/images/khan_3.png",
+        "hq": "assets/unlocks/base/factions/images/khan_hq.png"
+      },
+      "source": {
+        "yaml": "assets/unlocks/base/factions/cards.yaml",
+        "key": "khan"
+      }
+    },
+    {
+      "id": "mechaniker",
+      "name": "Die Mechaniker",
+      "img": "assets/unlocks/base/factions/images/mechaniker.png",
+      "color": "#9a0b0c",
+      "pieces": {
+        "troop": "assets/unlocks/base/factions/images/mechaniker_1.png",
+        "triple": "assets/unlocks/base/factions/images/mechaniker_3.png",
+        "hq": "assets/unlocks/base/factions/images/mechaniker_hq.png"
+      },
+      "source": {
+        "yaml": "assets/unlocks/base/factions/cards.yaml",
+        "key": "mechaniker"
+      }
+    },
+    {
+      "id": "saharan",
+      "name": "Saharan Republic",
+      "img": "assets/unlocks/base/factions/images/saharan.png",
+      "color": "#c9b400",
+      "pieces": {
+        "troop": "assets/unlocks/base/factions/images/saharan_1.png",
+        "triple": "assets/unlocks/base/factions/images/saharan_3.png",
+        "hq": "assets/unlocks/base/factions/images/saharan_hq.png"
+      },
+      "source": {
+        "yaml": "assets/unlocks/base/factions/cards.yaml",
+        "key": "saharan"
+      }
+    }
+  ],
+  "powers": [
+    {
+      "id": "khan_1",
+      "faction": "khan",
+      "slot": "starter",
+      "name": "Khan Industries: Starting Power 1",
+      "text": "At the start of your turn, place one troop in each territory that has an HQ that you control.",
+      "img": "assets/unlocks/base/powers/starter.png",
+      "timing": "startOfTurn",
+      "automation": "khan_1",
+      "effect": {
+        "type": "placeTroops",
+        "where": "eachControlledHQ",
+        "count": 1
+      },
+      "textSource": "yaml",
+      "source": {
+        "yaml": "assets/unlocks/base/powers/cards.yaml",
+        "key": "khan_1"
+      }
+    },
+    {
+      "id": "khan_2",
+      "faction": "khan",
+      "slot": "starter",
+      "name": "Khan Industries: Starting Power 2",
+      "text": "When drawing a territory card, you may place one troop into that territory if you control it.",
+      "img": "assets/unlocks/base/powers/starter.png",
+      "timing": "drawCard",
+      "automation": "khan_2",
+      "effect": {
+        "type": "placeTroops",
+        "where": "drawnTerritoryIfControlled",
+        "count": 1,
+        "optional": true
+      },
+      "textSource": "yaml",
+      "source": {
+        "yaml": "assets/unlocks/base/powers/cards.yaml",
+        "key": "khan_2"
+      }
+    },
+    {
+      "id": "mechaniker_1",
+      "faction": "mechaniker",
+      "slot": "starter",
+      "name": "Die Mechaniker: Starting Power 1",
+      "text": "Your starting HQ is always treated as FORTIFIED when you defend it.",
+      "img": "assets/unlocks/base/powers/starter.png",
+      "timing": "defend",
+      "automation": "mechaniker_1",
+      "effect": null,
+      "textSource": "yaml",
+      "source": {
+        "yaml": "assets/unlocks/base/powers/cards.yaml",
+        "key": "mechaniker_1"
+      }
+    },
+    {
+      "id": "mechaniker_2",
+      "faction": "mechaniker",
+      "slot": "starter",
+      "name": "Die Mechaniker: Starting Power 2",
+      "text": "If your defense roll is two natural 6s, that territory cannot be attacked again for the rest of the turn.",
+      "img": "assets/unlocks/base/powers/starter.png",
+      "timing": "defend",
+      "automation": "mechaniker_2",
+      "effect": null,
+      "textSource": "yaml",
+      "source": {
+        "yaml": "assets/unlocks/base/powers/cards.yaml",
+        "key": "mechaniker_2"
+      }
+    },
+    {
+      "id": "enclave_1",
+      "faction": "enclave",
+      "slot": "starter",
+      "name": "Enclave of the Bear: Starting Power 1",
+      "text": "The defender subtracts 1 from their lower defense die in the first territory you attack during your turn.",
+      "img": "assets/unlocks/base/powers/starter.png",
+      "timing": "attack",
+      "automation": "enclave_1",
+      "effect": {
+        "type": "dieMod",
+        "side": "defender",
+        "die": "lowest",
+        "delta": -1,
+        "condition": "firstTerritoryAttackedThisTurn"
+      },
+      "textSource": "yaml",
+      "source": {
+        "yaml": "assets/unlocks/base/powers/cards.yaml",
+        "key": "enclave_1"
+      }
+    },
+    {
+      "id": "enclave_2",
+      "faction": "enclave",
+      "slot": "starter",
+      "name": "Enclave of the Bear: Starting Power 2",
+      "text": "If your attack roll is a natural three of a kind and at least one defending troop is defeated, you conquer the territory. Remove all defending troops.",
+      "img": "assets/unlocks/base/powers/starter.png",
+      "timing": "attack",
+      "automation": "enclave_2",
+      "effect": null,
+      "textSource": "yaml",
+      "source": {
+        "yaml": "assets/unlocks/base/powers/cards.yaml",
+        "key": "enclave_2"
+      }
+    },
+    {
+      "id": "balkania_1",
+      "faction": "balkania",
+      "slot": "starter",
+      "name": "Imperial Balkania: Starting Power 1",
+      "text": "When recruiting troops, round up when dividing your territory and population by 3, not down.",
+      "img": "assets/unlocks/base/powers/starter.png",
+      "timing": "recruit",
+      "automation": "balkania_1",
+      "effect": {
+        "type": "recruitRounding",
+        "mode": "up"
+      },
+      "textSource": "yaml",
+      "source": {
+        "yaml": "assets/unlocks/base/powers/cards.yaml",
+        "key": "balkania_1"
+      }
+    },
+    {
+      "id": "balkania_2",
+      "faction": "balkania",
+      "slot": "starter",
+      "name": "Imperial Balkania: Starting Power 2",
+      "text": "You still draw a resource card at the end of your turn where you expanded into 4+ territories, even if you didn't conquer a territory.",
+      "img": "assets/unlocks/base/powers/starter.png",
+      "timing": "drawCard",
+      "automation": "balkania_2",
+      "effect": null,
+      "textSource": "yaml",
+      "source": {
+        "yaml": "assets/unlocks/base/powers/cards.yaml",
+        "key": "balkania_2"
+      }
+    },
+    {
+      "id": "saharan_1",
+      "faction": "saharan",
+      "slot": "starter",
+      "name": "Saharan Republic: Starting Power 1",
+      "text": "You can make your maneuver at any point during your turn.",
+      "img": "assets/unlocks/base/powers/starter.png",
+      "timing": "maneuver",
+      "automation": "saharan_1",
+      "effect": null,
+      "textSource": "yaml",
+      "source": {
+        "yaml": "assets/unlocks/base/powers/cards.yaml",
+        "key": "saharan_1"
+      }
+    },
+    {
+      "id": "saharan_2",
+      "faction": "saharan",
+      "slot": "starter",
+      "name": "Saharan Republic: Starting Power 2",
+      "text": "When making your maneuver, you may maneuver between any two territories you control, even if they are not connected.",
+      "img": "assets/unlocks/base/powers/starter.png",
+      "timing": "maneuver",
+      "automation": "saharan_2",
+      "effect": null,
+      "textSource": "yaml",
+      "source": {
+        "yaml": "assets/unlocks/base/powers/cards.yaml",
+        "key": "saharan_2"
+      }
+    }
+  ],
+  "territoryCards": [
+    {
+      "id": "afghanistan",
+      "name": "Afghanistan",
+      "continent": "asia",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/afghanistan.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/afghanistan.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/afghanistan.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/afghanistan.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/afghanistan.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/afghanistan.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/afghanistan.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/afghanistan.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/afghanistan.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/afghanistan.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/afghanistan.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/afghanistan.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "afghanistan"
+      }
+    },
+    {
+      "id": "alaska",
+      "name": "Alaska",
+      "continent": "north_america",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/alaska.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/alaska.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/alaska.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/alaska.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/alaska.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/alaska.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/alaska.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/alaska.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/alaska.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/alaska.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/alaska.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/alaska.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "alaska"
+      }
+    },
+    {
+      "id": "alberta",
+      "name": "Alberta",
+      "continent": "north_america",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/alberta.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/alberta.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/alberta.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/alberta.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/alberta.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/alberta.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/alberta.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/alberta.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/alberta.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/alberta.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/alberta.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/alberta.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "alberta"
+      }
+    },
+    {
+      "id": "argentina",
+      "name": "Argentina",
+      "continent": "south_america",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/argentina.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/argentina.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/argentina.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/argentina.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/argentina.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/argentina.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/argentina.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/argentina.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/argentina.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/argentina.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/argentina.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/argentina.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "argentina"
+      }
+    },
+    {
+      "id": "brazil",
+      "name": "Brazil",
+      "continent": "south_america",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/brazil.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/brazil.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/brazil.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/brazil.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/brazil.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/brazil.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/brazil.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/brazil.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/brazil.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/brazil.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/brazil.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/brazil.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "brazil"
+      }
+    },
+    {
+      "id": "central_africa",
+      "name": "Central Africa",
+      "continent": "africa",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/central_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/central_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/central_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/central_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/central_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/central_africa.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/central_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/central_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/central_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/central_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/central_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/central_africa.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "central_africa"
+      }
+    },
+    {
+      "id": "central_america",
+      "name": "Central America",
+      "continent": "north_america",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/central_america.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/central_america.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/central_america.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/central_america.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/central_america.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/central_america.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/central_america.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/central_america.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/central_america.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/central_america.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/central_america.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/central_america.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "central_america"
+      }
+    },
+    {
+      "id": "china",
+      "name": "China",
+      "continent": "asia",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/china.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/china.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/china.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/china.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/china.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/china.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/china.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/china.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/china.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/china.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/china.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/china.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "china"
+      }
+    },
+    {
+      "id": "east_africa",
+      "name": "East Africa",
+      "continent": "africa",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/east_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/east_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/east_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/east_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/east_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/east_africa.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/east_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/east_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/east_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/east_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/east_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/east_africa.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "east_africa"
+      }
+    },
+    {
+      "id": "eastern_australia",
+      "name": "Eastern Australia",
+      "continent": "australia",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/eastern_australia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/eastern_australia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/eastern_australia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/eastern_australia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/eastern_australia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/eastern_australia.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/eastern_australia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/eastern_australia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/eastern_australia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/eastern_australia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/eastern_australia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/eastern_australia.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "eastern_australia"
+      }
+    },
+    {
+      "id": "eastern_canada",
+      "name": "Eastern Canada",
+      "continent": "north_america",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/eastern_canada.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/eastern_canada.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/eastern_canada.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/eastern_canada.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/eastern_canada.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/eastern_canada.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/eastern_canada.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/eastern_canada.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/eastern_canada.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/eastern_canada.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/eastern_canada.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/eastern_canada.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "eastern_canada"
+      }
+    },
+    {
+      "id": "eastern_united_states",
+      "name": "Eastern United States",
+      "continent": "north_america",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/eastern_united_states.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/eastern_united_states.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/eastern_united_states.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/eastern_united_states.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/eastern_united_states.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/eastern_united_states.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/eastern_united_states.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/eastern_united_states.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/eastern_united_states.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/eastern_united_states.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/eastern_united_states.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/eastern_united_states.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "eastern_united_states"
+      }
+    },
+    {
+      "id": "egypt",
+      "name": "Egypt",
+      "continent": "africa",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/egypt.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/egypt.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/egypt.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/egypt.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/egypt.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/egypt.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/egypt.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/egypt.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/egypt.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/egypt.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/egypt.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/egypt.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "egypt"
+      }
+    },
+    {
+      "id": "great_britain",
+      "name": "Great Britain",
+      "continent": "europe",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/great_britain.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/great_britain.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/great_britain.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/great_britain.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/great_britain.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/great_britain.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/great_britain.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/great_britain.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/great_britain.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/great_britain.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/great_britain.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/great_britain.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "great_britain"
+      }
+    },
+    {
+      "id": "greenland",
+      "name": "Greenland",
+      "continent": "north_america",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/greenland.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/greenland.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/greenland.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/greenland.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/greenland.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/greenland.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/greenland.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/greenland.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/greenland.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/greenland.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/greenland.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/greenland.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "greenland"
+      }
+    },
+    {
+      "id": "iceland",
+      "name": "Iceland",
+      "continent": "europe",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/iceland.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/iceland.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/iceland.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/iceland.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/iceland.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/iceland.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/iceland.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/iceland.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/iceland.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/iceland.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/iceland.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/iceland.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "iceland"
+      }
+    },
+    {
+      "id": "india",
+      "name": "India",
+      "continent": "asia",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/india.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/india.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/india.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/india.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/india.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/india.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/india.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/india.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/india.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/india.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/india.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/india.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "india"
+      }
+    },
+    {
+      "id": "indonesia",
+      "name": "Indonesia",
+      "continent": "australia",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/indonesia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/indonesia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/indonesia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/indonesia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/indonesia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/indonesia.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/indonesia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/indonesia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/indonesia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/indonesia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/indonesia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/indonesia.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "indonesia"
+      }
+    },
+    {
+      "id": "irkutsk",
+      "name": "Irkutsk",
+      "continent": "asia",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/irkutsk.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/irkutsk.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/irkutsk.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/irkutsk.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/irkutsk.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/irkutsk.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/irkutsk.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/irkutsk.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/irkutsk.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/irkutsk.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/irkutsk.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/irkutsk.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "irkutsk"
+      }
+    },
+    {
+      "id": "japan",
+      "name": "Japan",
+      "continent": "asia",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/japan.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/japan.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/japan.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/japan.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/japan.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/japan.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/japan.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/japan.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/japan.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/japan.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/japan.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/japan.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "japan"
+      }
+    },
+    {
+      "id": "kamchatka",
+      "name": "Kamchatka",
+      "continent": "asia",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/kamchatka.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/kamchatka.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/kamchatka.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/kamchatka.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/kamchatka.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/kamchatka.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/kamchatka.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/kamchatka.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/kamchatka.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/kamchatka.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/kamchatka.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/kamchatka.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "kamchatka"
+      }
+    },
+    {
+      "id": "madagascar",
+      "name": "Madagascar",
+      "continent": "africa",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/madagascar.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/madagascar.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/madagascar.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/madagascar.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/madagascar.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/madagascar.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/madagascar.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/madagascar.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/madagascar.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/madagascar.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/madagascar.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/madagascar.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "madagascar"
+      }
+    },
+    {
+      "id": "middle_east",
+      "name": "Middle East",
+      "continent": "asia",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/middle_east.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/middle_east.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/middle_east.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/middle_east.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/middle_east.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/middle_east.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/middle_east.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/middle_east.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/middle_east.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/middle_east.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/middle_east.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/middle_east.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "middle_east"
+      }
+    },
+    {
+      "id": "mongolia",
+      "name": "Mongolia",
+      "continent": "asia",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/mongolia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/mongolia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/mongolia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/mongolia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/mongolia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/mongolia.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/mongolia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/mongolia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/mongolia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/mongolia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/mongolia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/mongolia.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "mongolia"
+      }
+    },
+    {
+      "id": "new_guinea",
+      "name": "New Guinea",
+      "continent": "australia",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/new_guinea.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/new_guinea.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/new_guinea.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/new_guinea.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/new_guinea.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/new_guinea.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/new_guinea.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/new_guinea.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/new_guinea.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/new_guinea.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/new_guinea.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/new_guinea.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "new_guinea"
+      }
+    },
+    {
+      "id": "north_africa",
+      "name": "North Africa",
+      "continent": "africa",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/north_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/north_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/north_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/north_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/north_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/north_africa.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/north_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/north_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/north_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/north_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/north_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/north_africa.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "north_africa"
+      }
+    },
+    {
+      "id": "northern_europe",
+      "name": "Northern Europe",
+      "continent": "europe",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/northern_europe.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/northern_europe.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/northern_europe.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/northern_europe.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/northern_europe.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/northern_europe.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/northern_europe.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/northern_europe.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/northern_europe.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/northern_europe.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/northern_europe.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/northern_europe.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "northern_europe"
+      }
+    },
+    {
+      "id": "northwest_territory",
+      "name": "Northwest Territory",
+      "continent": "north_america",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/northwest_territory.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/northwest_territory.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/northwest_territory.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/northwest_territory.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/northwest_territory.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/northwest_territory.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/northwest_territory.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/northwest_territory.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/northwest_territory.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/northwest_territory.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/northwest_territory.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/northwest_territory.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "northwest_territory"
+      }
+    },
+    {
+      "id": "ontario",
+      "name": "Ontario",
+      "continent": "north_america",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/ontario.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/ontario.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/ontario.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/ontario.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/ontario.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/ontario.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/ontario.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/ontario.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/ontario.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/ontario.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/ontario.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/ontario.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "ontario"
+      }
+    },
+    {
+      "id": "peru",
+      "name": "Peru",
+      "continent": "south_america",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/peru.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/peru.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/peru.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/peru.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/peru.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/peru.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/peru.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/peru.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/peru.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/peru.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/peru.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/peru.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "peru"
+      }
+    },
+    {
+      "id": "russia",
+      "name": "Russia",
+      "continent": "europe",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/russia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/russia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/russia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/russia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/russia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/russia.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/russia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/russia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/russia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/russia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/russia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/russia.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "russia"
+      }
+    },
+    {
+      "id": "scandinavia",
+      "name": "Scandinavia",
+      "continent": "europe",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/scandinavia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/scandinavia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/scandinavia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/scandinavia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/scandinavia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/scandinavia.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/scandinavia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/scandinavia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/scandinavia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/scandinavia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/scandinavia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/scandinavia.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "scandinavia"
+      }
+    },
+    {
+      "id": "siberia",
+      "name": "Siberia",
+      "continent": "asia",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/siberia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/siberia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/siberia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/siberia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/siberia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/siberia.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/siberia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/siberia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/siberia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/siberia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/siberia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/siberia.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "siberia"
+      }
+    },
+    {
+      "id": "south_africa",
+      "name": "South Africa",
+      "continent": "africa",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/south_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/south_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/south_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/south_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/south_africa.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/south_africa.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/south_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/south_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/south_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/south_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/south_africa.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/south_africa.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "south_africa"
+      }
+    },
+    {
+      "id": "southeast_asia",
+      "name": "Southeast Asia",
+      "continent": "asia",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/southeast_asia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/southeast_asia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/southeast_asia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/southeast_asia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/southeast_asia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/southeast_asia.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/southeast_asia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/southeast_asia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/southeast_asia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/southeast_asia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/southeast_asia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/southeast_asia.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "southeast_asia"
+      }
+    },
+    {
+      "id": "southern_europe",
+      "name": "Southern Europe",
+      "continent": "europe",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/southern_europe.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/southern_europe.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/southern_europe.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/southern_europe.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/southern_europe.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/southern_europe.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/southern_europe.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/southern_europe.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/southern_europe.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/southern_europe.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/southern_europe.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/southern_europe.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "southern_europe"
+      }
+    },
+    {
+      "id": "ural",
+      "name": "Ural",
+      "continent": "asia",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/ural.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/ural.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/ural.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/ural.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/ural.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/ural.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/ural.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/ural.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/ural.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/ural.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/ural.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/ural.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "ural"
+      }
+    },
+    {
+      "id": "venezuela",
+      "name": "Venezuela",
+      "continent": "south_america",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/venezuela.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/venezuela.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/venezuela.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/venezuela.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/venezuela.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/venezuela.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/venezuela.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/venezuela.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/venezuela.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/venezuela.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/venezuela.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/venezuela.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "venezuela"
+      }
+    },
+    {
+      "id": "western_australia",
+      "name": "Western Australia",
+      "continent": "australia",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/western_australia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/western_australia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/western_australia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/western_australia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/western_australia.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/western_australia.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/western_australia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/western_australia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/western_australia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/western_australia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/western_australia.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/western_australia.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "western_australia"
+      }
+    },
+    {
+      "id": "western_europe",
+      "name": "Western Europe",
+      "continent": "europe",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/western_europe.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/western_europe.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/western_europe.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/western_europe.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/western_europe.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/western_europe.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/western_europe.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/western_europe.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/western_europe.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/western_europe.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/western_europe.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/western_europe.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "western_europe"
+      }
+    },
+    {
+      "id": "western_united_states",
+      "name": "Western United States",
+      "continent": "north_america",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/western_united_states.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/western_united_states.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/western_united_states.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/western_united_states.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/western_united_states.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/western_united_states.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/western_united_states.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/western_united_states.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/western_united_states.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/western_united_states.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/western_united_states.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/western_united_states.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "western_united_states"
+      }
+    },
+    {
+      "id": "yakutsk",
+      "name": "Yakutsk",
+      "continent": "asia",
+      "value": 1,
+      "faces": {
+        "original": [
+          "assets/unlocks/base/territories/images/original/cards.1/yakutsk.jpg",
+          "assets/unlocks/base/territories/images/original/cards.2/yakutsk.jpg",
+          "assets/unlocks/base/territories/images/original/cards.3/yakutsk.jpg",
+          "assets/unlocks/base/territories/images/original/cards.4/yakutsk.jpg",
+          "assets/unlocks/base/territories/images/original/cards.5/yakutsk.jpg",
+          "assets/unlocks/base/territories/images/original/cards.6/yakutsk.jpg"
+        ],
+        "advanced": [
+          "assets/unlocks/base/territories/images/advanced/cards.1/yakutsk.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.2/yakutsk.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.3/yakutsk.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.4/yakutsk.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.5/yakutsk.jpg",
+          "assets/unlocks/base/territories/images/advanced/cards.6/yakutsk.jpg"
+        ]
+      },
+      "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+      "source": {
+        "yaml": "assets/unlocks/base/territories/cards.yaml",
+        "key": "yakutsk"
+      }
+    }
+  ],
+  "coinCards": {
+    "count": 10,
+    "code": "A43",
+    "value": 1,
+    "img": "assets/unlocks/base/territories/images/coin_card.jpg",
+    "back": "assets/unlocks/base/territories/images/resource_card.jpg",
+    "icon": "assets/unlocks/base/territories/images/coin.png",
+    "text": "EVINCO ORBIS TERRARUM / 2124 A.D.",
+    "textSource": "card"
+  },
+  "scars": [
+    {
+      "id": "bunker",
+      "name": "Bunker",
+      "code": "A56s",
+      "qty": 3,
+      "target": "territory",
+      "cardImg": "assets/unlocks/base/scars/images/bunker.jpg",
+      "stickerImg": "assets/unlocks/base/scars/images/scar_bunker.png",
+      "text": "You may play this card prior to an attack roll.\n\nPlace this bunker scar onto the defending territory as long as it's unscarred.\n\nThe defender adds 1 to his higher die when defending this territory.",
+      "play": {
+        "timing": "beforeAttackRoll",
+        "where": "defendingTerritory",
+        "requires": "unscarred"
+      },
+      "effect": {
+        "type": "dieMod",
+        "side": "defender",
+        "die": "highest",
+        "delta": 1
+      },
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/base/scars/cards.yaml",
+        "key": "bunker"
+      }
+    },
+    {
+      "id": "ammo_shortage",
+      "name": "Ammo Shortage",
+      "code": "A53s",
+      "qty": 3,
+      "target": "territory",
+      "cardImg": "assets/unlocks/base/scars/images/ammo_shortage.jpg",
+      "stickerImg": "assets/unlocks/base/scars/images/scar_ammo_shortage.png",
+      "text": "You may play this card prior to an attack roll.\n\nPlace this ammo shortage scar onto the defending territory as long as it's unscarred.\n\nThe defender subtracts 1 from his higher die when defending this territory.",
+      "play": {
+        "timing": "beforeAttackRoll",
+        "where": "defendingTerritory",
+        "requires": "unscarred"
+      },
+      "effect": {
+        "type": "dieMod",
+        "side": "defender",
+        "die": "highest",
+        "delta": -1
+      },
+      "textSource": "card",
+      "source": {
+        "yaml": "assets/unlocks/base/scars/cards.yaml",
+        "key": "ammo_shortage"
+      }
+    }
+  ],
+  "stickers": [
+    {
+      "id": "coin_pregame",
+      "name": "Coin (before your first game)",
+      "qty": 12,
+      "img": "assets/unlocks/base/stickersheet/images/coin.png",
+      "group": "beforeFirstGame",
+      "text": "Remove the 12 Coin stickers from the card and apply them to the Territory cards. You cannot increase a territory's starting resources beyond 3 before the first game (after the first game a territory card may be slowly increased to 6 resources).",
+      "effect": {
+        "type": "upgradeTerritoryCard",
+        "delta": 1,
+        "max": 3
+      },
+      "textSource": "rulebook",
+      "source": {
+        "yaml": "assets/unlocks/base/stickersheet/cards.yaml",
+        "key": "coin_pregame"
+      }
+    },
+    {
+      "id": "fortification",
+      "name": "Fortification",
+      "qty": 5,
+      "img": "assets/unlocks/base/stickersheet/images/fortification.png",
+      "group": "won",
+      "text": "Place a Fortification mark on a city (+1, +1 when defending).\n\nTake one of the five Fortification marks and place it on the game board encircling any city, even one that was previously fortified. If you are covering a previous Fortification, all remaining uses on the previous Fortification are ignored.",
+      "effect": {
+        "type": "fortification",
+        "defenderDieDelta": 1,
+        "expandExtraTroops": 2,
+        "uses": 10,
+        "usedBy": "attackWith3Troops"
+      },
+      "textSource": "rulebook",
+      "source": {
+        "yaml": "assets/unlocks/base/stickersheet/cards.yaml",
+        "key": "fortification"
+      }
+    },
+    {
+      "id": "major_city",
+      "name": "Major City",
+      "qty": 5,
+      "img": "assets/unlocks/base/stickersheet/images/major_city.png",
+      "group": "won",
+      "text": "Name and found a major city (2 population).\n\nTake one of the five Major City marks and place it in any territory that does not already contain a city. Name that city. In future games there will be a Major City there, worth a population of 2, and this territory is now considered a legal starting territory for you and you alone. You may put your initials here to remember you founded it.",
+      "effect": {
+        "type": "city",
+        "cityType": "major",
+        "population": 2,
+        "legalStartFor": "founder"
+      },
+      "textSource": "rulebook",
+      "source": {
+        "yaml": "assets/unlocks/base/stickersheet/cards.yaml",
+        "key": "major_city"
+      }
+    },
+    {
+      "id": "cancel_scar",
+      "name": "Cancel a Scar",
+      "qty": 4,
+      "img": "assets/unlocks/base/stickersheet/images/cancel.png",
+      "group": "won",
+      "text": "Cancel a Scar (Scar is destroyed).\n\nTake one of the four 'white' stickers and place it over any of the Scars that have been placed on the board. This territory no longer has a Scar on it, and a new one can be placed on it in future games. You cannot cancel a city with this reward.",
+      "effect": {
+        "type": "cancelScar"
+      },
+      "textSource": "rulebook",
+      "source": {
+        "yaml": "assets/unlocks/base/stickersheet/cards.yaml",
+        "key": "cancel_scar"
+      }
+    },
+    {
+      "id": "continent_bonus",
+      "name": "Continent Bonus +1",
+      "qty": 1,
+      "img": "assets/unlocks/base/stickersheet/images/plus_one.png",
+      "group": "won",
+      "text": "Change a continent bonus (+1 or -1 to that continent forever).\n\nThere are two continent marks in the game - a +1 and a -1 mark. These are placed next to a continent bonus on the board to permanently affect that continent bonus. A continent can only be changed once (either up or down).",
+      "effect": {
+        "type": "continentBonusMod",
+        "delta": 1
+      },
+      "textSource": "rulebook",
+      "source": {
+        "yaml": "assets/unlocks/base/stickersheet/cards.yaml",
+        "key": "continent_bonus"
+      }
+    },
+    {
+      "id": "continent_penalty",
+      "name": "Continent Bonus -1",
+      "qty": 1,
+      "img": "assets/unlocks/base/stickersheet/images/minus_one.png",
+      "group": "won",
+      "text": "Change a continent bonus (+1 or -1 to that continent forever).\n\nThere are two continent marks in the game - a +1 and a -1 mark. These are placed next to a continent bonus on the board to permanently affect that continent bonus. A continent can only be changed once (either up or down).",
+      "effect": {
+        "type": "continentBonusMod",
+        "delta": -1
+      },
+      "textSource": "rulebook",
+      "source": {
+        "yaml": "assets/unlocks/base/stickersheet/cards.yaml",
+        "key": "continent_penalty"
+      }
+    },
+    {
+      "id": "coin_heldon",
+      "name": "Coin (held on reward)",
+      "qty": 41,
+      "img": "assets/unlocks/base/stickersheet/images/coin.png",
+      "group": "heldOn",
+      "text": "Upgrade a card (+1 resource)\n\nChoose a territory you controlled at the end of the game and find its matching Territory card. Add one resource sticker to it. In future games, the resource value of this card will be worth one more. Note: A Territory card can have no more than 6 total resources on it between starting resources and Resource stickers added, and you cannot place a Resource sticker on a Coin card.",
+      "effect": {
+        "type": "upgradeTerritoryCard",
+        "delta": 1,
+        "max": 6
+      },
+      "textSource": "rulebook",
+      "source": {
+        "yaml": "assets/unlocks/base/stickersheet/cards.yaml",
+        "key": "coin_heldon"
+      }
+    },
+    {
+      "id": "minor_city",
+      "name": "Minor City",
+      "qty": 9,
+      "img": "assets/unlocks/base/stickersheet/images/minor_city.png",
+      "group": "heldOn",
+      "text": "Name and found a Minor City (+1 population).\n\nChoose a territory you controlled at the end of the game that does not already contain a city. Take one of the nine Minor City marks and place it in that territory. Name that city. In future games there will be a Minor City there, worth a population of 1.",
+      "effect": {
+        "type": "city",
+        "cityType": "minor",
+        "population": 1
+      },
+      "textSource": "rulebook",
+      "source": {
+        "yaml": "assets/unlocks/base/stickersheet/cards.yaml",
+        "key": "minor_city"
+      }
+    }
+  ],
+  "events": [],
+  "missions": [],
+  "draft": [],
+  "rules": [],
+  "marks": [],
+  "secretPowers": [],
+  "notes": [
+    "Starting powers have no card scans in assets/; their text comes from base/powers/cards.yaml (textSource \"yaml\"). The rulebook p.6 illustration shows the Khan sticker worded slightly differently (\"...place one troop in each territory with a HQ you control.\").",
+    "Starting power names are not printed on the stickers; the names here are editorial (\"<Faction>: Starting Power 1/2\").",
+    "Faction images (balkania.png etc.) are character art, not scans of the faction cards; there is no faction-card text to transcribe. images/originals/ holds larger alternative art for the 1- and 3-troop pieces and is not referenced.",
+    "base/stickersheet/images/cancel.png (cancel-scar sticker) is a blank white 128x113 placeholder image.",
+    "Sticker texts are the matching reward paragraphs from the rulebook (End of Game, pp.14-15), not card text.",
+    "Card codes printed on scans - territory cards A1..A42 (e.g. Afghanistan A26), coin card A43, Ammo Shortage A53s, Bunker A56s (three copies of each scar, so presumably A53s-A55s and A56s-A58s).",
+    "Territory cards come in two board variants (original / advanced, same art with a different territory colour) and six faces each (1..6 resources). The `value` is the printed starting value (1).",
+    "base/macros/* (0.6-era macro scripts and icons) are not content and are ignored."
+  ]
+}

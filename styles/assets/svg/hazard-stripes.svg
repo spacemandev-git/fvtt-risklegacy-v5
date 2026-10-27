@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 26" width="48" height="26" preserveAspectRatio="none">
+  <title>Hazard stripe bar (repeat-x)</title>
+  <defs>
+    <linearGradient id="hzShade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".22" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".7" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="26" fill="#4a4b4d"/>
+  <g fill="#fcdc07" transform="skewX(-30)"><rect x="-48" y="-2" width="12" height="30"/><rect x="-24" y="-2" width="12" height="30"/><rect x="0" y="-2" width="12" height="30"/><rect x="24" y="-2" width="12" height="30"/><rect x="48" y="-2" width="12" height="30"/><rect x="72" y="-2" width="12" height="30"/></g>
+  <rect width="48" height="26" fill="url(#hzShade)"/>
+  <rect y="0" width="48" height="2" fill="#111213"/>
+  <rect y="23" width="48" height="3" fill="#111213"/>
+</svg>

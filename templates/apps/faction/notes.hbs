@@ -1,0 +1,7 @@
+<section class="tab rl-ui-tab-notes {{tab.cssClass}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  {{#if editable}}
+    {{formInput systemFields.notes value=source.system.notes enriched=notesHTML toggled=true classes="rl-ui-notes"}}
+  {{else}}
+    <div class="rl-ui-notes rl-ui-notes--readonly">{{#if notesHTML}}{{{notesHTML}}}{{else}}<p class="rl-caption">{{localize "RL.Sheet.NoNotes"}}</p>{{/if}}</div>
+  {{/if}}
+</section>

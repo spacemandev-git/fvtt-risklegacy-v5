@@ -1,0 +1,123 @@
+{
+ "name": "event-choice",
+ "description": "Fortify event: Khan (largest population) may permanently fortify one of its cities, or add 2 troops to each of up to two cities. Its HQ city China faces 9 Enclave troops.",
+ "me": "khan",
+ "difficulty": "normal",
+ "factions": {
+  "khan": {
+   "name": "Khan Industries",
+   "key": "khan",
+   "redStarTokens": 1,
+   "startingTerritory": "china"
+  },
+  "enclave": {
+   "name": "Enclave of the Bear",
+   "key": "enclave",
+   "redStarTokens": 1,
+   "startingTerritory": "kamchatka",
+   "hand": {
+    "count": 2,
+    "coins": 5
+   }
+  },
+  "balkania": {
+   "name": "Imperial Balkania",
+   "key": "balkania",
+   "redStarTokens": 1,
+   "startingTerritory": "russia"
+  },
+  "saharan": {
+   "name": "Saharan Republic",
+   "key": "saharan",
+   "redStarTokens": 1,
+   "startingTerritory": "egypt"
+  }
+ },
+ "marks": {
+  "china": {
+   "city": "major",
+   "founder": "Player khan",
+   "founderId": "user-khan"
+  },
+  "india": {
+   "city": "minor"
+  }
+ },
+ "pieces": {
+  "china": {
+   "khan": {
+    "troops": 5,
+    "hq": true
+   }
+  },
+  "india": {
+   "khan": 3
+  },
+  "afghanistan": {
+   "khan": 2
+  },
+  "southeast_asia": {
+   "khan": 2
+  },
+  "mongolia": {
+   "enclave": 9
+  },
+  "kamchatka": {
+   "enclave": {
+    "troops": 4,
+    "hq": true
+   }
+  },
+  "siberia": {
+   "enclave": 3
+  },
+  "russia": {
+   "balkania": {
+    "troops": 4,
+    "hq": true
+   }
+  },
+  "ural": {
+   "balkania": 3
+  },
+  "egypt": {
+   "saharan": {
+    "troops": 4,
+    "hq": true
+   }
+  },
+  "middle_east": {
+   "saharan": 2
+  }
+ },
+ "turn": {
+  "faction": "khan",
+  "phase": "end",
+  "log": {
+   "recruited": true,
+   "conquered": 1
+  }
+ },
+ "calls": [
+  {
+   "fn": "chooseOption",
+   "args": {
+    "kind": "event",
+    "title": "Fortify",
+    "text": "Whomever has the largest population may either fortify one of his cities (if there are still fortification marks left) OR may select up to two cities he controls. Add 2 troops to each of those cities.",
+    "options": [
+     {
+      "value": "fortify",
+      "label": "Fortify one of your cities",
+      "hint": "Permanent: +1 to both defence dice in that city in every future game (10 uses); this card is destroyed."
+     },
+     {
+      "value": "troops",
+      "label": "Add 2 troops to each of up to two of your cities",
+      "hint": "Immediate: up to 4 more troops now."
+     }
+    ]
+   }
+  }
+ ]
+}

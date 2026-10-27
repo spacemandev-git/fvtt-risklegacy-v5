@@ -1,0 +1,265 @@
+// Cards area end-to-end flow. Run as Gamemaster in a fresh world:
+//   node $S/fvtt-browser.mjs eval --port 30013 --sandbox "$SB/sandbox-cards" --no-canvas --file tools/fixtures/cards/e2e/flow.eval
+const SYS = "fvtt-risklegacy-v5";
+const RL = game.risklegacy;
+const C = RL.cards;
+const S = RL.state;
+const out = { steps: [], failures: [] };
+let at = "start";
+const step = (name, data) => { at = name; out.steps.push({ name, ...data }); };
+const expect = (cond, msg, data) => { if ( !cond ) out.failures.push({ msg, data }); };
+const stack = role => S.getCardStack(role);
+const avail = role => stack(role)?.availableCards.length ?? 0;
+const rowSummary = () => C.getRow().map(c => `${c.system.slot}:${c.system.territory}(${c.system.value})`);
+const handOf = f => S.getHand(f);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+await game.settings.set(SYS, "enforcement", "strict");
+const main = async () => {
+
+// --- campaign, decks, hands ---------------------------------------------------------------
+const { campaign, factions } = await RL.dev.createTestCampaign({ variant: "original" });
+const [A, B, Cc] = factions;
+const ids = await C.buildDecks({});
+step("buildDecks", { roles: Object.keys(ids), territory: stack("territoryDeck").cards.size, coins: stack("coinDeck").cards.size, scars: stack("scarDeck").cards.size });
+expect(stack("territoryDeck").cards.size === 42, "42 territory cards");
+expect(stack("coinDeck").cards.size === 10, "10 coin cards");
+expect(stack("scarDeck").cards.size === 6, "6 base scars");
+expect(campaign.system.documents.territoryDeck === ids.territoryDeck, "documents recorded");
+const again = await C.buildDecks({});
+expect(stack("territoryDeck").cards.size === 42 && again.row === ids.row, "buildDecks idempotent");
+for ( const f of [A, B, Cc] ) await C.ensureHand({ faction: f.id });
+expect(!!handOf(A) && handOf(A).ownership.default === CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED, "hand LIMITED by default");
+expect(stack("territoryDeck").ownership.default === CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED, "secret deck LIMITED");
+expect(stack("row").ownership.default === CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER, "row OBSERVER");
+
+// --- pre-game coin stickers ------------------------------------------------------------------
+await C.setTerritoryValue({ territory: "brazil", value: 3 });
+let blocked = null;
+try { await C.setTerritoryValue({ territory: "brazil", value: 4 }); } catch(err) { blocked = err.message; }
+step("setTerritoryValue", { brazil: C.territoryValue("brazil"), blocked });
+expect(C.territoryValue("brazil") === 3 && !!blocked, "max 3 before first game");
+expect(campaign.flags[SYS]?.cards?.values?.brazil === 3, "value recorded on campaign");
+
+// --- scene + tokens so the snapshot has owners -------------------------------------------------
+const board = S.getBoard("original");
+let scene = game.scenes.find(s => s.getFlag(SYS, "board"));
+scene ??= await Scene.implementation.create({ name: "Cards test board", width: 6000, height: 4000, padding: 0,
+  grid: { type: 0, size: 100 }, flags: { [SYS]: { board: "original" } } });
+await campaign.update({ "system.documents.scene": scene.id });
+const place = async (actor, territories) => {
+  const data = territories.map(t => {
+    const [x, y] = board.territories[t].center;
+    return { actorId: actor.id, name: actor.name, x: x - 50, y: y - 50, width: 1, height: 1, actorLink: true,
+      texture: { src: actor.system.pieces.troop || "icons/svg/mystery-man.svg" }, flags: { [SYS]: { piece: "troop" } } };
+  });
+  await scene.createEmbeddedDocuments("Token", data);
+};
+
+// --- sideboard --------------------------------------------------------------------------------
+const setup = await C.setupSideboard();
+step("setupSideboard", { row: rowSummary(), deck: avail("territoryDeck"), coins: avail("coinDeck") });
+expect(setup.row.length === 4 && avail("territoryDeck") === 38 && avail("coinDeck") === 10, "4 dealt, 38 left, 10 coins");
+expect(C.getRow().map(c => c.system.slot).join() === "1,2,3,4", "slots 1..4");
+
+// A controls the territory in slot 2 and two more; B controls one far territory; C nothing
+const row0 = C.getRow();
+const slot2 = row0[1];
+const others = board.ids.filter(t => !row0.some(c => c.system.territory === t));
+await place(A, [slot2.system.territory, others[0], others[1]]);
+await place(B, [others[2]]);
+await place(Cc, [others[3]]);
+
+// --- war --------------------------------------------------------------------------------------
+for ( const [i, f] of [A, B, Cc].entries() ) {
+  await f.update({ "system.war": { active: true, seat: i, playerId: game.user.id, playerName: game.user.name, status: "playing", redStarTokens: 1 } });
+}
+let war = S.getWar();
+if ( !war ) {
+  war = await Combat.implementation.create({ type: "war", system: { game: 1, stage: "playing", phase: "end" } });
+  await war.createEmbeddedDocuments("Combatant", [A, B, Cc].map((f, i) => ({ actorId: f.id, initiative: i + 1 })));
+  await war.startCombat();
+  await sleep(800);
+}
+await campaign.update({ "system.documents.war": war.id });
+// Switch turns by index (Combat#nextTurn runs the turn area's endTurn, which prompts), wait for the turn area's
+// start-of-turn reset, then stage the End of Turn step with a conquest.
+const turnFor = async (f, extra = {}) => {
+  const idx = war.turns.findIndex(c => c.actorId === f.id);
+  if ( war.turn !== idx ) {
+    await war.update({ turn: idx }, { direction: 1 });
+    for ( let i = 0; (i < 30) && (war.system.turn.faction !== f.id); i++ ) await sleep(100);
+    await sleep(300);
+  }
+  await war.update({ "system.stage": "playing", "system.phase": "end",
+    "system.turn": foundry.data.operators.ForcedReplacement.create({ ...CONFIG.Combat.dataModels.war.freshTurn(f.id), conquered: 1, ...extra }) });
+};
+await turnFor(A);
+
+// --- A: must take its row territory (slot 2) ---------------------------------------------------
+let opts = C.drawOptions(A.id);
+step("drawOptions A", { eligible: opts.eligible, cards: opts.territoryCardIds, coinAllowed: opts.coinAllowed, reason: opts.reason });
+expect(opts.eligible && opts.territoryCardIds.length === 1 && opts.territoryCardIds[0] === slot2.id && !opts.coinAllowed, "A must take slot 2");
+blocked = null;
+try { await C.drawResourceCard({ faction: A.id, cardId: null }); } catch(err) { blocked = err.message; }
+expect(!!blocked, "coin blocked when a row territory is controlled", blocked);
+const before = C.getRow().map(c => c.id);
+const r1 = await C.drawResourceCard({ faction: A.id, cardId: slot2.id });
+const after = C.getRow();
+step("A draws slot 2", { result: r1, row: rowSummary(), hand: handOf(A).cards.map(c => c.name) });
+expect(handOf(A).cards.has(slot2.id), "card in A's hand");
+expect(after.find(c => c.system.slot === 2)?.id === before[0], "slot 1 slid to 2");
+expect(after.find(c => c.system.slot === 3)?.id === before[2] && after.find(c => c.system.slot === 4)?.id === before[3], "3,4 unchanged");
+expect(after.length === 4 && !before.includes(after[0].id), "new card in slot 1");
+expect(war.system.turn.cardDrawn === true, "turn.cardDrawn set");
+blocked = null;
+try { await C.drawResourceCard({ faction: A.id, cardId: after[1].id }); } catch(err) { blocked = err.message; }
+expect(!!blocked, "second draw blocked", blocked);
+
+// --- B: no row territory → coin; slot 4 is discarded ------------------------------------------
+await turnFor(B);
+opts = C.drawOptions(B.id);
+expect(opts.coinAllowed && !opts.territoryCardIds.length, "B takes a coin", opts);
+const rowB = C.getRow().map(c => c.id);
+const r2 = await C.drawResourceCard({ faction: B.id, cardId: null });
+step("B draws coin", { result: r2, row: rowSummary(), discard: stack("discard").cards.size, coins: avail("coinDeck") });
+expect(stack("discard").cards.has(rowB[3]), "slot 4 discarded");
+expect(C.getRow().find(c => c.system.slot === 4)?.id === rowB[2], "3 → 4");
+expect(avail("coinDeck") === 9 && handOf(B).cards.filter(c => c.type === "coin").length === 1, "coin in hand");
+
+// --- not your turn ---------------------------------------------------------------------------------
+blocked = null;
+try { await C.drawResourceCard({ faction: Cc.id, cardId: null }); } catch(err) { blocked = err.message; }
+expect(!!blocked, "not your turn blocked", blocked);
+
+// --- coin pile depletion: A has the most territories ------------------------------------------
+await C.dealCoins({ faction: Cc.id, count: 8 });
+expect(avail("coinDeck") === 1, "1 coin left");
+await turnFor(B);
+const starsA = A.system.war.redStarTokens;
+const r3 = await C.drawResourceCard({ faction: B.id, cardId: null });
+step("coin pile depleted", { result: r3, coins: avail("coinDeck"), depleted: war.system.coinPileDepleted, starsA: A.system.war.redStarTokens });
+expect(war.system.coinPileDepleted && A.system.war.redStarTokens === starsA + 1 && r3.coinPile?.faction === A.id, "A gains the coin-pile star");
+// return coins and deplete again: no second star
+const coinIds = handOf(Cc).cards.filter(c => c.type === "coin").map(c => c.id);
+await C.discardResources({ faction: Cc.id, cardIds: coinIds.slice(0, 1) });
+await turnFor(B);
+await C.drawResourceCard({ faction: B.id, cardId: null });
+expect(A.system.war.redStarTokens === starsA + 1, "no second coin-pile star");
+await C.discardResources({ faction: Cc.id, cardIds: coinIds.slice(1) });
+
+// --- deck runs out: discard is reshuffled into a new draw pile ---------------------------------
+const deck = stack("territoryDeck");
+const discard = stack("discard");
+await deck.deal([discard], deck.availableCards.length, { chatNotification: false });
+expect(avail("territoryDeck") === 0, "deck emptied");
+const discardBefore = discard.cards.size;
+await turnFor(B);
+const r4 = await C.drawResourceCard({ faction: B.id, cardId: null });
+step("reshuffle", { result: r4, deck: avail("territoryDeck"), discard: discard.cards.size, discardBefore });
+expect(avail("territoryDeck") === discardBefore && discard.cards.size === 0 && C.getRow().length === 4, "discard (with the slot-4 card) became the draw pile",
+  { deck: avail("territoryDeck"), discard: discard.cards.size, discardBefore });
+
+// --- events: open Minor Cities, force an even slot-1 reveal ------------------------------------
+await campaign.update({ "system.packs.minorcities": { opened: true, game: 1, date: "" } });
+const added = await C.addPackCards({ pack: "minorcities" });
+step("addPackCards minorcities", { added, events: stack("eventDeck").cards.size, draft: stack("draftDeck").cards.size });
+expect(stack("eventDeck").cards.size === 7 && stack("draftDeck").cards.size === 20 && stack("scarDeck").cards.size === 9, "pack cards added");
+const top = deck.availableCards.sort((a, b) => a.sort - b.sort)[0];
+await C.setTerritoryValue({ territory: top.system.territory, value: 2 });
+await turnFor(B);
+const eventsBefore = avail("eventDeck");
+const r5 = await C.drawResourceCard({ faction: B.id, cardId: null });
+step("even reveal", { result: r5, slot1: rowSummary()[0], eventsLeft: avail("eventDeck") });
+expect(!!r5.eventCardId && avail("eventDeck") === eventsBefore - 1, "event revealed on even slot 1");
+// a pending ("other") event is resolved by the GM
+const fortify = stack("eventDeck").cards.find(c => c.system.catalogId === "fortify" && !c.drawn);
+if ( fortify ) {
+  await stack("eventDeck").updateEmbeddedDocuments("Card", [{ _id: fortify.id, sort: -100 }]);
+  const ev = await C.revealEvent({});
+  const pendingCard = stack("eventDiscard").cards.get(ev.eventCardId);
+  step("pending event", { ev, pending: pendingCard?.getFlag(SYS, "pending") });
+  expect(ev.outcome === "pending" && !!pendingCard, "fortify waits in eventDiscard");
+  await C.resolveEvent({ cardId: ev.eventCardId, outcome: "box" });
+  expect(!stack("eventDiscard").cards.has(ev.eventCardId), "boxed event removed from play");
+}
+
+// --- missions -----------------------------------------------------------------------------------
+await campaign.update({ "system.packs.secondwin": { opened: true, game: 1, date: "" } });
+await C.addPackCards({ pack: "secondwin" });
+const pickMission = id => stack("missionDeck").cards.find(c => c.system.catalogId === id && !c.drawn)?.id;
+await C.revealMission({ replace: true, cardId: pickMission("superior_infrastructure") });
+await turnFor(A);
+let ms = C.missionStatus(A.id);
+step("mission status (incomplete)", { name: ms.name, status: ms.status, progress: ms.progress, canComplete: ms.canComplete });
+expect(ms.status === "incomplete", "superior infrastructure incomplete");
+blocked = null;
+try { await C.completeMission({ faction: A.id }); } catch(err) { blocked = err.message; }
+expect(!!blocked, "incomplete mission blocked", blocked);
+await C.revealMission({ replace: true, cardId: pickMission("imperial_might") });
+ms = C.missionStatus(A.id);
+step("mission status 2", { name: ms.name, status: ms.status, progress: ms.progress });
+await game.settings.set(SYS, "enforcement", "advisory");
+const starsBefore = A.system.war.redStarTokens;
+const done = await C.completeMission({ faction: A.id });
+await game.settings.set(SYS, "enforcement", "strict");
+step("completeMission", { done, stars: A.system.war.redStarTokens, next: C.currentMission()?.name });
+expect(A.system.war.redStarTokens === starsBefore + 1 && !!done.nextMissionId && war.system.turn.missionCompleted, "mission reward + next mission");
+opts = C.drawOptions(A.id);
+expect(!opts.eligible, "no draw after completing a mission", opts.reason);
+
+// --- scars ----------------------------------------------------------------------------------------
+const dealt = await C.dealScars({ factions: [A.id, B.id, Cc.id] });
+step("dealScars", { dealt });
+expect(Object.keys(dealt.dealt).length === 3, "one scar each");
+const scarCard = handOf(A).cards.get(dealt.dealt[A.id]);
+const scarTarget = others[5];
+const scarsLeft = stack("scarDeck").cards.size;
+if ( scarCard.system.target === "territory" ) {
+  await C.playScar({ faction: A.id, cardId: scarCard.id, territory: scarTarget });
+  step("playScar", { territory: scarTarget, scar: campaign.system.territories[scarTarget]?.scar, log: campaign.system.log.at(-1) });
+  expect(campaign.system.territories[scarTarget]?.scar === scarCard.system.scar, "scar on the board");
+  expect(stack("scarDeck").cards.size === scarsLeft - 1 && !handOf(A).cards.has(scarCard.id), "scar card destroyed");
+  blocked = null;
+  const second = handOf(B).cards.get(dealt.dealt[B.id]);
+  try { await C.playScar({ faction: B.id, cardId: second.id, territory: scarTarget }); } catch(err) { blocked = err.message; }
+  expect(!!blocked, "no second scar on a territory", blocked);
+}
+const notEnough = await C.dealScars({ factions: [A.id, B.id, Cc.id, factions[3].id, factions[4].id, factions[3].id, factions[4].id, A.id, B.id] });
+expect(!notEnough.enough, "not enough scars → none dealt");
+
+// --- legacy edits ------------------------------------------------------------------------------
+await campaign.update({ "system.firstGameReady": true });
+const rowCard = C.getRow()[2];
+const v0 = rowCard.system.value;
+const up = await C.upgradeTerritoryCard({ territory: rowCard.system.territory, amount: 1 });
+step("upgrade", { up, rowValue: stack("row").cards.get(rowCard.id).system.value, face: stack("row").cards.get(rowCard.id).face });
+expect(up.value === v0 + 1 && stack("row").cards.get(rowCard.id).face === v0, "row copy upgraded too");
+const destroyId = C.getRow()[1];
+const destroyedTerritory = destroyId.system.territory;
+await C.destroyTerritoryCard({ territory: destroyedTerritory });
+step("destroy", { territory: destroyedTerritory, cardDestroyed: campaign.system.territories[destroyedTerritory]?.cardDestroyed, row: rowSummary() });
+expect(campaign.system.territories[destroyedTerritory]?.cardDestroyed && C.getRow().length === 4 && !C.territoryValue(destroyedTerritory), "card destroyed, row refilled");
+await C.buildDecks({});
+expect(!C.territoryValue(destroyedTerritory) && stack("territoryDeck").cards.size === 41, "destroyed card not rebuilt");
+
+// --- trades ---------------------------------------------------------------------------------------
+await turnFor(A);
+const aCards = C.getResourceCards(A.id).map(c => c.id);
+await C.dealCoins({ faction: Cc.id, count: 3 });
+const tr = await C.transferHand({ from: Cc.id, to: A.id });
+expect(tr.count === 3 && C.getResourceCards(Cc.id).length === 0, "knock-out transfer");
+step("transferHand", { tr, aHand: C.getResourceCards(A.id).length });
+const four = C.getResourceCards(A.id).slice(0, 4).map(c => c.id);
+const disc = await C.discardResources({ faction: A.id, cardIds: four, purpose: "redStar" });
+step("discardResources", { disc, discard: discard.cards.size, coins: avail("coinDeck"), flags: war.system.turn.flags.discards });
+expect(disc.count === 4, "4 cards turned in");
+
+// --- re-setup puts everything back -----------------------------------------------------------------
+await C.setupSideboard();
+step("re-setup", { deck: avail("territoryDeck"), coins: avail("coinDeck"), hands: [A, B, Cc].map(f => C.getResourceCards(f.id).length), discard: discard.cards.size, mission: C.currentMission()?.name, events: avail("eventDeck") });
+expect(avail("territoryDeck") === 37 && avail("coinDeck") === 10 && discard.cards.size === 0, "everything recalled", { deck: avail("territoryDeck") });
+expect(aCards !== null, "ok");
+out.messages = game.messages.contents.slice(-6).map(m => m.flags?.[SYS]?.cards?.kind);
+return out;
+};
+return await Promise.race([main(), sleep(150000).then(() => ({ timeout: true, at, out }))]);

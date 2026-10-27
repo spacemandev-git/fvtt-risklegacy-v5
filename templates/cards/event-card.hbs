@@ -1,0 +1,55 @@
+{{!-- Automated event card (module/cards/events.mjs → resolveAutomated). All strings arrive localized and escaped;
+      `text`, `summary` and `status` may contain trusted markup built by the system. Layout reuses the shared
+      .rl-chat-card / .rl-cards-chat components; the event-only parts (.rl-cards-chat__stamp, __outcome, __lead,
+      __row-value, __summary, __note) are in styles/cards.css. --}}
+<div class="risklegacy rl-chat-card rl-cards-chat rl-cards-chat--event rl-cards-chat--event-auto{{#if factionClass}} {{factionClass}}{{/if}}" data-rl-event="{{catalogId}}" data-rl-event-state="{{state}}">
+  {{#if hazard}}<span class="rl-hazard rl-hazard--thin"></span>{{/if}}
+  <div class="rl-chat-card__head">
+    <h3 class="rl-chat-card__title">{{title}}</h3>
+    {{#if sub}}<span class="rl-chat-card__sub">{{sub}}</span>{{/if}}
+  </div>
+  <div class="rl-chat-card__body">
+    {{#if images.length}}
+    <div class="rl-cards-chat__images">
+      {{#each images}}
+      <figure class="rl-cards-chat__figure rl-cards-chat__figure--{{orientation}}{{#if destroyed}} is-destroyed{{/if}}">
+        <img src="{{img}}" alt="{{alt}}">
+        {{#if caption}}<figcaption>{{caption}}</figcaption>{{/if}}
+      </figure>
+      {{/each}}
+    </div>
+    {{/if}}
+    {{#if stamp}}<span class="rl-stamp rl-cards-chat__stamp">{{stamp}}</span>{{/if}}
+    {{#if text}}<div class="rl-cards-chat__text">{{{text}}}</div>{{/if}}
+  </div>
+  {{#if (or lead rows.length summary token)}}
+  <div class="rl-chat-card__body rl-cards-chat__outcome">
+    {{#if lead}}<div class="rl-label rl-cards-chat__lead"><span>{{lead}}</span>{{#if leadValue}}<span class="rl-hand rl-hand--red rl-cards-chat__lead-value">{{leadValue}}</span>{{/if}}</div>{{/if}}
+    {{#each rows}}
+    <div class="rl-chat-card__row">
+      <span class="rl-label">{{label}}</span>
+      <span class="rl-cards-chat__row-value">
+        {{#if die}}<span class="rl-dice"><span class="rl-die{{#if lost}} rl-die--defend{{/if}}"{{#if mod}} data-mod="{{mod}}"{{/if}}>{{die}}</span></span>{{/if}}
+        <span{{#if strong}} class="is-strong"{{/if}}>{{value}}</span>
+      </span>
+    </div>
+    {{/each}}
+    {{#if summary}}
+    <div class="rl-cards-chat__summary">
+      {{#if token}}<span class="rl-token"></span>{{/if}}
+      <div>{{{summary}}}</div>
+    </div>
+    {{/if}}
+    {{#if note}}<div class="rl-hand rl-hand--red rl-cards-chat__note">{{note}}</div>{{/if}}
+  </div>
+  {{/if}}
+  {{#if status}}<div class="rl-chat-card__result">{{{status}}}</div>{{/if}}
+  {{#if buttons.length}}
+  <div class="rl-cards-chat__buttons">
+    {{#each buttons}}
+    <button type="button" class="rl-btn {{#if destroy}}rl-btn--destroy{{/if}}" data-rl-cards-action="{{action}}"
+      {{#each data}}data-{{@key}}="{{this}}" {{/each}}>{{label}}</button>
+    {{/each}}
+  </div>
+  {{/if}}
+</div>

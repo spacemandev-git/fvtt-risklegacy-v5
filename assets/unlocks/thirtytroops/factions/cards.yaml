@@ -1,0 +1,7 @@
+namespace: aliens.factions.thirtytroops.risklegacy.spacemandev
+imgPath: aliens.png
+data:
+  troop_img: aliens_1.png
+  three_img: aliens_3.png
+  hq_img: alien_hq.png
+  name: "Aliens"

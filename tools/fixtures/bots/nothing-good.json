@@ -1,0 +1,103 @@
+{
+ "name": "nothing-good",
+ "description": "Saharan holds Africa with small garrisons; every neighbour outside Africa is a strong enemy stack. Nothing worth attacking.",
+ "me": "saharan",
+ "difficulty": "normal",
+ "factions": {
+  "saharan": {
+   "name": "Saharan Republic",
+   "key": "saharan",
+   "redStarTokens": 1,
+   "startingTerritory": "central_africa"
+  },
+  "balkania": {
+   "name": "Imperial Balkania",
+   "key": "balkania",
+   "redStarTokens": 1,
+   "startingTerritory": "western_europe"
+  },
+  "khan": {
+   "name": "Khan Industries",
+   "key": "khan",
+   "redStarTokens": 1,
+   "startingTerritory": "middle_east"
+  },
+  "enclave": {
+   "name": "Enclave of the Bear",
+   "key": "enclave",
+   "redStarTokens": 1,
+   "startingTerritory": "kamchatka"
+  }
+ },
+ "pieces": {
+  "central_africa": {
+   "saharan": {
+    "troops": 3,
+    "hq": true
+   }
+  },
+  "north_africa": {
+   "saharan": 3
+  },
+  "egypt": {
+   "saharan": 3
+  },
+  "east_africa": {
+   "saharan": 3
+  },
+  "south_africa": {
+   "saharan": 2
+  },
+  "madagascar": {
+   "saharan": 2
+  },
+  "western_europe": {
+   "balkania": {
+    "troops": 9,
+    "hq": true
+   }
+  },
+  "southern_europe": {
+   "balkania": 10
+  },
+  "brazil": {
+   "balkania": 8
+  },
+  "northern_europe": {
+   "balkania": 4
+  },
+  "middle_east": {
+   "khan": {
+    "troops": 12,
+    "hq": true
+   }
+  },
+  "india": {
+   "khan": 3
+  },
+  "afghanistan": {
+   "khan": 3
+  },
+  "kamchatka": {
+   "enclave": {
+    "troops": 5,
+    "hq": true
+   }
+  },
+  "venezuela": {
+   "enclave": 2
+  }
+ },
+ "turn": {
+  "faction": "saharan",
+  "phase": "attack",
+  "log": {
+   "recruited": true
+  }
+ },
+ "calls": [
+  {
+   "fn": "nextMove"
+  }
+ ]
+}

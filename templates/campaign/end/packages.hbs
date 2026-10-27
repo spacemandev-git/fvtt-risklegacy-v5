@@ -1,0 +1,22 @@
+<div class="rl-camp-step rl-camp-step--packages">
+  <h2 class="rl-title">{{localize "RL.Wizard.End.packagesTitle"}}</h2>
+  {{#if none}}
+  <div class="rl-legal"><span class="rl-hand">{{localize "RL.Legacy.Pack.openingNew"}}</span>{{localize "RL.Wizard.End.noPackages"}}</div>
+  {{else}}
+  <p class="rl-lead">{{localize "RL.Wizard.End.packagesLead"}}</p>
+  <div class="rl-camp-pack-list">
+    {{#each packs}}
+    <article class="rl-camp-pack-card {{#if opened}}is-opened{{/if}}">
+      <span class="rl-hazard"></span>
+      <div class="rl-camp-pack-card__body">
+        <span class="rl-label">{{label}}</span>
+        <span class="rl-camp-pack-card__sealed">{{sealed}}</span>
+        {{#if opened}}<span class="rl-stamp">{{localize "RL.Legacy.Pack.opened"}}</span>
+        {{else}}<button type="button" class="rl-btn rl-btn--destroy" data-action="openPack" data-pack="{{id}}"><i class="fa-solid fa-box-open" inert></i> {{localize "RL.Legacy.Pack.openNow"}}</button>{{/if}}
+      </div>
+      <span class="rl-hazard"></span>
+    </article>
+    {{/each}}
+  </div>
+  {{/if}}
+</div>

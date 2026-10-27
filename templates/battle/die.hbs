@@ -1,0 +1,7 @@
+{{!-- One combat die. Face = natural roll; `data-mod` = the modified value written on in marker. --}}
+<span class="rl-die rl-battle__die {{die.css}}" {{#if die.mark}}data-mod="{{die.mark}}"{{/if}}
+      data-side="{{die.side}}" data-slot="{{die.slot}}" data-tooltip="{{die.tooltip}}" aria-label="{{die.tooltip}}"
+      {{#if die.target}}data-battle-action="fireAt" role="button" tabindex="0"{{/if}}>
+  {{die.natural}}
+  {{#if die.missile}}<span class="rl-token rl-token--missile rl-battle__missile" aria-hidden="true"></span>{{/if}}
+</span>

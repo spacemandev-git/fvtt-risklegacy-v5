@@ -1,0 +1,146 @@
+{
+ "name": "missile-trivial",
+ "description": "Khan attacks Venezuela (2 Saharan troops, no HQ, no continent) after already conquering this turn; a missile would swing this roll.",
+ "me": "khan",
+ "difficulty": "hard",
+ "factions": {
+  "khan": {
+   "name": "Khan Industries",
+   "key": "khan",
+   "redStarTokens": 1,
+   "missiles": 2,
+   "startingTerritory": "china"
+  },
+  "saharan": {
+   "name": "Saharan Republic",
+   "key": "saharan",
+   "redStarTokens": 1,
+   "startingTerritory": "north_africa"
+  },
+  "balkania": {
+   "name": "Imperial Balkania",
+   "key": "balkania",
+   "redStarTokens": 1,
+   "startingTerritory": "northern_europe"
+  },
+  "enclave": {
+   "name": "Enclave of the Bear",
+   "key": "enclave",
+   "redStarTokens": 1,
+   "startingTerritory": "kamchatka"
+  }
+ },
+ "pieces": {
+  "china": {
+   "khan": {
+    "troops": 6,
+    "hq": true
+   }
+  },
+  "central_america": {
+   "khan": 4
+  },
+  "eastern_united_states": {
+   "khan": 2
+  },
+  "western_united_states": {
+   "khan": 2
+  },
+  "north_africa": {
+   "saharan": {
+    "troops": 4,
+    "hq": true
+   }
+  },
+  "venezuela": {
+   "saharan": 2
+  },
+  "brazil": {
+   "saharan": 3
+  },
+  "peru": {
+   "saharan": 1
+  },
+  "egypt": {
+   "saharan": 2
+  },
+  "northern_europe": {
+   "balkania": {
+    "troops": 4,
+    "hq": true
+   }
+  },
+  "western_europe": {
+   "balkania": 3
+  },
+  "southern_europe": {
+   "balkania": 2
+  },
+  "kamchatka": {
+   "enclave": {
+    "troops": 4,
+    "hq": true
+   }
+  },
+  "alaska": {
+   "enclave": 2
+  },
+  "japan": {
+   "enclave": 1
+  }
+ },
+ "turn": {
+  "faction": "khan",
+  "phase": "attack",
+  "log": {
+   "recruited": true,
+   "conquered": 1
+  }
+ },
+ "calls": [
+  {
+   "fn": "missileDecision",
+   "args": {
+    "battle": {
+     "id": "battle-trivial",
+     "attacker": "khan",
+     "defender": "saharan",
+     "from": "central_america",
+     "to": "venezuela",
+     "attackDice": 3,
+     "defendDice": 2,
+     "status": "rolled",
+     "attack": [
+      {
+       "slot": 0,
+       "natural": 5,
+       "value": 5
+      },
+      {
+       "slot": 1,
+       "natural": 3,
+       "value": 3
+      },
+      {
+       "slot": 2,
+       "natural": 1,
+       "value": 1
+      }
+     ],
+     "defend": [
+      {
+       "slot": 0,
+       "natural": 4,
+       "value": 4
+      },
+      {
+       "slot": 1,
+       "natural": 4,
+       "value": 4
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

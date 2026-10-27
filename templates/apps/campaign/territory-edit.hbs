@@ -1,0 +1,36 @@
+<div class="rl-dlg rl-dlg--territory">
+  <fieldset class="rl-ui-gm">
+    <legend>{{localize "RL.Sheet.Campaign.Col.city"}}</legend>
+    <div class="rl-ui-row">
+      <div class="rl-field"><label>{{localize "RL.Sheet.Campaign.CityType"}}</label>
+        <select name="cityType">{{selectOptions cityChoices selected=m.city.type localize=true}}</select></div>
+      <div class="rl-field rl-ui-narrow"><label>{{localize "RL.Sheet.Campaign.Game"}}</label>
+        <input type="number" name="cityGame" value="{{m.city.game}}" min="0" step="1"></div>
+    </div>
+    <div class="rl-field"><label>{{localize "RL.Sheet.Campaign.CityName"}}</label>
+      <input type="text" name="cityName" class="rl-input--hand" value="{{m.city.name}}"></div>
+    <div class="rl-field"><label>{{localize "RL.Sheet.Campaign.Founder"}}</label>
+      <input type="text" name="cityFounder" class="rl-input--hand" value="{{m.city.founder}}"></div>
+  </fieldset>
+  <fieldset class="rl-ui-gm">
+    <legend>{{localize "RL.Sheet.Campaign.Col.fortification"}}</legend>
+    <div class="rl-ui-row">
+      <label class="rl-ui-check"><input type="checkbox" name="fortActive" {{checked m.fortification.active}}> <span class="rl-label">{{localize "RL.Sheet.Campaign.Fortified"}}</span></label>
+      <div class="rl-field rl-ui-narrow rl-dlg-fortused"><label>{{localize "RL.Sheet.Campaign.FortUsed" max=fortMax}}</label>
+        <input type="number" name="fortUsed" value="{{m.fortification.used}}" min="0" max="{{fortMax}}" step="1"></div>
+    </div>
+  </fieldset>
+  <fieldset class="rl-ui-gm">
+    <legend>{{localize "RL.Sheet.Campaign.Col.scar"}} · {{localize "RL.Sheet.Campaign.Col.marks"}}</legend>
+    <div class="rl-ui-row">
+      <div class="rl-field"><label>{{localize "RL.Sheet.Campaign.Col.scar"}}</label>
+        <select name="scar">{{selectOptions scarChoices selected=m.scar localize=true}}</select></div>
+      <div class="rl-field rl-ui-narrow"><label>{{localize "RL.Sheet.Campaign.Game"}}</label>
+        <input type="number" name="scarGame" value="{{m.scarGame}}" min="0" step="1"></div>
+    </div>
+    <div class="rl-field"><label>{{localize "RL.Sheet.Campaign.MarksList"}}</label>
+      <input type="text" name="marks" value="{{m.marks}}" placeholder="biohazard, mercenary"></div>
+    <label class="rl-ui-check"><input type="checkbox" name="cardDestroyed" {{checked m.cardDestroyed}}> <span class="rl-label">{{localize "RL.Sheet.Campaign.CardDestroyed"}}</span></label>
+  </fieldset>
+  <p class="rl-caption">{{localize "RL.Sheet.Campaign.EditHint"}}</p>
+</div>

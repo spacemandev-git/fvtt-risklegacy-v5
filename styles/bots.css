@@ -1,0 +1,847 @@
+/* ==========================================================================
+   Bots UI (module/bots/ui, BOTS.md §7, BOTS-LLM.md §8). Classes use the rl-bot- prefix and build on
+   styles/risklegacy.css components (.rl-btn, .rl-subhead, .rl-slot, .rl-callout, .rl-chat-card) and tokens. Printed
+   objects (bot rows, personality cards, log slips, chat cards) keep ink on paper in both themes; only text written
+   straight on the page follows the theme.
+     1. Shared bits (tags, chips, links, rank insignia, portraits, engine badges, code, quotes)
+     2. Bot Manager (bots, chat models, Jev relay, footer)
+     3. Bot Log
+     4. Narration chat card and table talk
+     5. Tags in other areas' windows (War Room, game setup)
+     6. Personality gallery and Notes dialogs
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Shared bits
+   -------------------------------------------------------------------------- */
+.risklegacy .rl-bot-sr {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* "BOT · WARLORD" */
+.risklegacy .rl-bot-tag {
+  display: inline-flex; align-items: center; gap: var(--rl-space-2);
+  padding: 4px 8px 3px;
+  font: 800 10px/1 var(--rl-font-display);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--rl-steel-hi);
+  background: var(--rl-grad-gunmetal);
+  clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 0 100%);
+  vertical-align: middle;
+}
+.risklegacy .rl-bot-tag > i { font-size: 9px; }
+
+/* faction colour square */
+.risklegacy .rl-bot-chip {
+  display: inline-block; flex: none;
+  width: 10px; height: 10px;
+  background: var(--rl-bot-faction, var(--rl-k50));
+  border: 1px solid var(--rl-ink);
+}
+
+/* text-style button (secondary links in footers) */
+.risklegacy button.rl-bot-link {
+  appearance: none;
+  display: inline-flex; align-items: center; gap: 5px;
+  width: auto; height: auto; min-height: 0;
+  margin: 0;
+  padding: 6px 4px;
+  border: 0; border-radius: 0;
+  background: none; box-shadow: none;
+  font: 700 11px/1 var(--rl-font-body);
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+  color: var(--rl-on-page-muted);
+  cursor: pointer;
+}
+.risklegacy button.rl-bot-link:hover:not(:disabled) { color: var(--rl-on-page); text-decoration: underline; text-underline-offset: 3px; }
+.risklegacy button.rl-bot-link:focus-visible { outline: 2px solid var(--rl-focus); outline-offset: 1px; }
+.risklegacy button.rl-bot-link:disabled { opacity: .45; cursor: default; }
+
+/* small steel button */
+.risklegacy .rl-btn.rl-bot-small { min-height: 26px; padding: 5px 12px 3px; font-size: 13px; }
+
+/* rank insignia: chevrons on a gunmetal patch (Recruit 1, Commander 2, Warlord 3) */
+.risklegacy .rl-bot-rank {
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center; flex: none;
+  width: 30px; height: 34px;
+  padding-top: 2px;
+  color: var(--rl-steel-1);
+  background: var(--rl-grad-gunmetal);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .2), inset 0 -2px 0 rgb(0 0 0 / .35);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 6px), 50% 100%, 0 calc(100% - 6px));
+}
+.risklegacy .rl-bot-rank > i { font-size: 12px; line-height: 7px; height: 7px; }
+.risklegacy .rl-bot-rank--hard { color: var(--rl-hazard); }
+
+/* monospace snippets */
+.risklegacy .rl-bot-code {
+  font: 12px/1.35 var(--font-monospace, ui-monospace, "SF Mono", Menlo, Consolas, monospace);
+  padding: 1px 4px;
+  background: rgb(0 0 0 / .06);
+  color: var(--rl-ink);
+  overflow-wrap: anywhere;
+}
+
+/* a bot's portrait: core icons are white glyphs or full-colour art, so both sit on a gunmetal tile */
+.risklegacy .rl-bot-portrait {
+  --rl-bot-portrait: 44px;
+  display: inline-grid; place-items: center; flex: none;
+  width: var(--rl-bot-portrait); height: var(--rl-bot-portrait);
+  padding: 3px;
+  background: var(--rl-grad-gunmetal);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / .45), inset 0 1px 0 rgb(255 255 255 / .18);
+  color: var(--rl-steel-1);
+  font-size: calc(var(--rl-bot-portrait) * .45);
+}
+.risklegacy .rl-bot-portrait > img { display: block; width: 100%; height: 100%; object-fit: contain; border: 0; }
+.risklegacy .rl-bot-portrait--sm { --rl-bot-portrait: 32px; padding: 2px; }
+.risklegacy .rl-bot-portrait--xs { --rl-bot-portrait: 24px; padding: 2px; }
+
+/* engine badge: "⚡ JEV" / "💬 GLM 5.3" */
+.risklegacy .rl-bot-engine {
+  display: inline-flex; align-items: center; gap: 4px; flex: none;
+  max-width: 100%;
+  padding: 4px 8px 3px;
+  font: 700 10px/1.1 var(--rl-font-body);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: var(--rl-ink);
+  background: var(--rl-k10);
+  box-shadow: inset 0 0 0 1px var(--rl-k40);
+}
+.risklegacy .rl-bot-engine > i { font-size: 9px; color: var(--rl-k70); }
+.risklegacy .rl-bot-engine--llm { background: var(--rl-cream); box-shadow: inset 0 0 0 1px var(--rl-k60); }
+.risklegacy .rl-bot-engine--llm > i { color: var(--rl-red); }
+
+/* a small count on a button */
+.risklegacy .rl-bot-count {
+  display: inline-grid; place-items: center;
+  min-width: 18px; height: 16px;
+  padding: 1px 4px 0;
+  font: 800 11px/1 var(--rl-font-display);
+  color: #fff;
+  background: var(--rl-red);
+}
+
+/* hints under fields written on the page */
+.risklegacy .rl-bot-hint { font-size: var(--rl-fs-xs); font-style: italic; line-height: 1.25; color: var(--rl-on-page-muted); }
+.risklegacy .rl-bot-hint > i { font-size: 10px; margin-right: 2px; }
+.risklegacy .rl-bot-hint.is-error { color: var(--rl-on-page); font-style: normal; }
+
+/* a bot's table-talk line in printed contexts (log, notes) */
+.risklegacy .rl-bot-quote {
+  margin: 0;
+  padding: var(--rl-space-3) 10px;
+  font: italic 600 14px/1.3 var(--rl-font-body);
+  color: var(--rl-ink);
+  background: var(--rl-cream);
+  box-shadow: inset 3px 0 0 var(--rl-red);
+  overflow-wrap: anywhere;
+}
+
+/* password fields (risklegacy.css styles text fields only) */
+.risklegacy.rl-bot-app input[type="password"] {
+  min-height: 28px;
+  padding: 3px 6px;
+  font-family: var(--rl-font-body);
+  font-size: var(--rl-fs-base);
+  color: var(--rl-ink);
+  background: #fff;
+  border: 1px solid var(--rl-k60);
+  border-radius: 0;
+  box-shadow: var(--rl-inset-field);
+  outline: none;
+}
+.risklegacy.rl-bot-app input[type="password"]:focus-visible { border-color: var(--rl-ink); box-shadow: var(--rl-inset-field), 0 0 0 2px var(--rl-focus); }
+.risklegacy.rl-bot-app input[type="password"]::placeholder { color: var(--rl-k50); font-style: italic; }
+
+/* empty states: legacy brackets (the text follows the theme so it reads on concrete) */
+.risklegacy .rl-slot.rl-bot-empty {
+  justify-content: center;
+  min-height: 52px;
+  font-size: 13px;
+  text-align: center;
+  color: var(--rl-on-page-muted);
+}
+
+/* --------------------------------------------------------------------------
+   2. Bot Manager
+   -------------------------------------------------------------------------- */
+.application.rl-bot-manager .window-content { padding: var(--rl-space-6); }
+.risklegacy .rl-bot-mgr { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.risklegacy .rl-bot-mgr.is-busy { cursor: progress; }
+.risklegacy .rl-bot-mgr__scroll {
+  flex: 1 1 auto; min-height: 0;
+  max-height: calc(100vh - 210px);
+  overflow-y: auto;
+  margin-right: calc(-1 * var(--rl-space-4));
+  padding-right: var(--rl-space-4);
+}
+.risklegacy .rl-bot-mgr__lead { margin: 0 0 var(--rl-space-6); font-size: var(--rl-fs-base); line-height: var(--rl-lh-body); color: var(--rl-on-page); }
+.risklegacy .rl-bot-mgr__section + .rl-bot-mgr__section { margin-top: var(--rl-space-7); }
+.risklegacy .rl-bot-mgr__section > .rl-subhead { margin: 0 0 var(--rl-space-4); }
+.risklegacy .rl-bot-mgr__headrow { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--rl-space-2) var(--rl-space-5); margin: 0 0 var(--rl-space-4); }
+.risklegacy .rl-bot-mgr__headrow > .rl-subhead { margin: 0; }
+.risklegacy .rl-bot-mgr__headrow > .rl-bot-link { padding: 4px 2px; }
+.risklegacy .rl-bot-mgr__note { margin: var(--rl-space-5) 0 0; font-size: var(--rl-fs-sm); font-style: italic; color: var(--rl-on-page-muted); }
+
+/* bot rows (printed: same in both themes) */
+.risklegacy .rl-bot-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--rl-space-4); }
+.risklegacy .rl-bot-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--rl-space-5);
+  min-height: 54px;
+  padding: var(--rl-space-4) var(--rl-space-5);
+  background: var(--rl-panel-white);
+  color: var(--rl-ink);
+  box-shadow: var(--rl-bevel-raised);
+}
+.risklegacy .rl-bot-row.is-current { background: var(--rl-cream); box-shadow: inset 4px 0 0 var(--rl-red-bright), var(--rl-bevel-raised); }
+.risklegacy .rl-bot-row__who { display: grid; gap: var(--rl-space-2); min-width: 0; }
+.risklegacy .rl-bot-row__name {
+  font: 800 18px/1.1 var(--rl-font-display);
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.risklegacy .rl-bot-row__seat {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--rl-space-2) var(--rl-space-3);
+  min-width: 0;
+  font-size: var(--rl-fs-sm); line-height: 1.2;
+  color: var(--rl-k80);
+}
+.risklegacy .rl-bot-row__faction { font-weight: 700; text-transform: uppercase; letter-spacing: .02em; color: var(--rl-ink); overflow-wrap: anywhere; }
+.risklegacy .rl-bot-row__free { font-style: italic; color: var(--rl-k70); }
+.risklegacy .rl-bot-row__flag { font: italic 700 10px/1.2 var(--rl-font-body); text-transform: uppercase; color: var(--rl-red); }
+
+/* difficulty: a segmented steel switch (radio group; arrow keys move between levels) */
+.risklegacy fieldset.rl-bot-diff { display: flex; gap: 2px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.risklegacy .rl-bot-diff__opt { position: relative; display: block; cursor: pointer; }
+.risklegacy .rl-bot-diff__opt > input[type="radio"] {
+  appearance: none; -webkit-appearance: none;
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  margin: 0; padding: 0; border: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.risklegacy .rl-bot-diff__opt > span {
+  display: block;
+  padding: 7px 10px 5px;
+  font: 800 13px/1 var(--rl-font-display);
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+  color: var(--rl-k80);
+  background: var(--rl-grad-steel);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -2px 0 rgb(0 0 0 / .18), inset 0 0 0 1px var(--rl-steel-lo);
+}
+.risklegacy .rl-bot-diff__opt:last-of-type > span { padding-right: 16px; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%); }
+.risklegacy .rl-bot-diff__opt:hover > span { color: var(--rl-red); }
+.risklegacy .rl-bot-diff__opt > input:checked + span { color: #fff; background: var(--rl-grad-red); box-shadow: inset 0 1px 0 rgb(255 255 255 / .25), inset 0 -2px 0 rgb(0 0 0 / .35); }
+.risklegacy .rl-bot-diff__opt > input:focus-visible + span { outline: 2px solid var(--rl-ink); outline-offset: 1px; }
+.risklegacy .rl-bot-diff__opt > input:disabled + span { opacity: .55; }
+
+.risklegacy .rl-bot-row__remove.rl-btn--icon { min-height: 30px; padding: 6px 10px 4px 9px; }
+
+/* chat bots: personality, model and notes under the row's first line */
+.risklegacy .rl-bot-row__chat {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) 7.5rem;
+  align-items: end;
+  gap: var(--rl-space-5);
+  padding-top: var(--rl-space-4);
+  border-top: 1px dashed var(--rl-k40);
+}
+.risklegacy .rl-bot-row__field { display: grid; gap: var(--rl-space-2); min-width: 0; }
+.risklegacy .rl-bot-row__field > .rl-label { font-size: 10px; line-height: 1; color: var(--rl-k70); }
+.risklegacy .rl-bot-row__field > select { width: 100%; min-height: 40px; }
+.risklegacy .rl-bot-row__notes.rl-btn { min-height: 40px; white-space: nowrap; justify-content: center; }
+.risklegacy .rl-bot-row__notes .rl-bot-count { margin-left: 2px; }
+
+/* the personality "select": a button showing the portrait, title and name, which opens the gallery */
+.risklegacy button.rl-bot-persona {
+  appearance: none;
+  display: flex; align-items: center; gap: var(--rl-space-4);
+  width: 100%; height: auto; min-height: 40px;
+  margin: 0;
+  padding: 3px 10px 3px 3px;
+  border: 1px solid var(--rl-k60); border-radius: 0;
+  background: #fff;
+  box-shadow: var(--rl-inset-field);
+  font: inherit;
+  text-align: left;
+  color: var(--rl-ink);
+  cursor: pointer;
+}
+.risklegacy button.rl-bot-persona:hover:not(:disabled) { border-color: var(--rl-ink); }
+.risklegacy button.rl-bot-persona:hover:not(:disabled) .rl-bot-persona__title { color: var(--rl-red); }
+.risklegacy button.rl-bot-persona:focus-visible { outline: none; border-color: var(--rl-ink); box-shadow: var(--rl-inset-field), 0 0 0 2px var(--rl-focus); }
+.risklegacy button.rl-bot-persona:disabled { cursor: default; background: var(--rl-k10); }
+.risklegacy button.rl-bot-persona:disabled .rl-bot-persona__caret { visibility: hidden; }
+.risklegacy .rl-bot-persona__text { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.risklegacy .rl-bot-persona__title,
+.risklegacy .rl-bot-persona__name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.risklegacy .rl-bot-persona__title { font: 800 15px/1 var(--rl-font-display); letter-spacing: var(--rl-track-caps); text-transform: uppercase; }
+.risklegacy .rl-bot-persona__name { font-size: var(--rl-fs-xs); line-height: 1.1; color: var(--rl-k80); }
+.risklegacy .rl-bot-persona__caret { flex: none; font-size: 12px; color: var(--rl-k70); }
+
+/* add tiles: "Add chat bot" across the top, then the three Jev levels */
+.risklegacy .rl-bot-add { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--rl-space-5); margin-top: var(--rl-space-6); }
+.risklegacy button.rl-bot-add__btn.rl-bot-add__btn--chat {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "top faces" "hint faces";
+  align-items: center;
+  column-gap: var(--rl-space-6);
+}
+.risklegacy .rl-bot-add__btn--chat > .rl-bot-add__top { grid-area: top; }
+.risklegacy .rl-bot-add__btn--chat > .rl-bot-add__hint { grid-area: hint; }
+.risklegacy .rl-bot-add__icon {
+  display: inline-grid; place-items: center; flex: none;
+  width: 30px; height: 34px;
+  font-size: 15px;
+  color: var(--rl-steel-1);
+  background: var(--rl-grad-gunmetal);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .2), inset 0 -2px 0 rgb(0 0 0 / .35);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 6px), 50% 100%, 0 calc(100% - 6px));
+}
+.risklegacy .rl-bot-add__faces { grid-area: faces; display: flex; align-items: center; padding-right: var(--rl-space-5); }
+.risklegacy .rl-bot-add__faces > .rl-bot-portrait + .rl-bot-portrait { margin-left: -5px; }
+.risklegacy .rl-bot-add__faces > .rl-bot-portrait { box-shadow: 0 0 0 1px var(--rl-steel-1), inset 0 0 0 1px rgb(0 0 0 / .45); }
+.risklegacy button.rl-bot-add__btn {
+  appearance: none;
+  display: grid; align-content: start; justify-items: start; gap: var(--rl-space-3);
+  width: 100%; height: auto; min-height: 0;
+  margin: 0;
+  padding: var(--rl-space-5) var(--rl-space-5) 14px;
+  border: 0; border-radius: 0;
+  text-align: left;
+  font: inherit;
+  color: var(--rl-ink);
+  background: var(--rl-grad-steel);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -2px 0 rgb(0 0 0 / .22), inset 0 0 0 1px var(--rl-steel-lo);
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+  cursor: pointer;
+}
+.risklegacy button.rl-bot-add__btn:hover:not(:disabled) { background: linear-gradient(180deg, #fff, var(--rl-steel-1) 60%, var(--rl-steel-2)); }
+.risklegacy button.rl-bot-add__btn:hover:not(:disabled) .rl-bot-add__label { color: var(--rl-red); }
+.risklegacy button.rl-bot-add__btn:active:not(:disabled) { box-shadow: inset 0 2px 3px rgb(0 0 0 / .3), inset 0 0 0 1px var(--rl-steel-lo); }
+.risklegacy button.rl-bot-add__btn:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--rl-focus), inset 0 -2px 0 rgb(0 0 0 / .22); }
+.risklegacy button.rl-bot-add__btn:disabled { opacity: .5; cursor: progress; }
+.risklegacy .rl-bot-add__top { display: flex; align-items: center; gap: var(--rl-space-4); }
+.risklegacy .rl-bot-add__label {
+  font: 800 16px/1.05 var(--rl-font-display);
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+}
+.risklegacy .rl-bot-add__label > i { font-size: 12px; }
+.risklegacy .rl-bot-add__level { font: italic 700 11px/1 var(--rl-font-body); text-transform: uppercase; color: var(--rl-red); }
+.risklegacy .rl-bot-add__hint { font-size: var(--rl-fs-sm); line-height: 1.25; color: var(--rl-k80); }
+
+/* relay */
+.risklegacy .rl-bot-relay__status {
+  display: flex; align-items: center; gap: var(--rl-space-5);
+  padding: var(--rl-space-4) var(--rl-space-5);
+  background: var(--rl-grad-steel);
+  box-shadow: var(--rl-bevel-steel), var(--rl-shadow-panel);
+  color: var(--rl-ink);
+}
+.risklegacy .rl-bot-lamp {
+  flex: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;   /* an indicator light is a physical object */
+  background: radial-gradient(circle at 35% 30%, rgb(255 255 255 / .55), transparent 45%), var(--rl-k50);
+  box-shadow: 0 0 0 2px var(--rl-gunmetal), inset 0 -2px 2px rgb(0 0 0 / .35);
+}
+.risklegacy .rl-bot-status-host.is-ok .rl-bot-lamp { background-color: var(--rl-faction-enclave); }
+.risklegacy .rl-bot-status-host.is-error .rl-bot-lamp { background-color: var(--rl-red-bright); }
+.risklegacy .rl-bot-status-host.is-checking .rl-bot-lamp { background-color: var(--rl-hazard); animation: rl-bot-blink 1s ease-in-out infinite; }
+@keyframes rl-bot-blink { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .risklegacy .rl-bot-status-host.is-checking .rl-bot-lamp { animation: none; } }
+.risklegacy .rl-bot-relay__text { flex: 1; min-width: 0; display: grid; gap: var(--rl-space-1); }
+.risklegacy .rl-bot-relay__label { font: 800 17px/1.05 var(--rl-font-display); letter-spacing: var(--rl-track-caps); text-transform: uppercase; }
+.risklegacy .rl-bot-relay__details { font-size: var(--rl-fs-sm); color: var(--rl-k80); }
+.risklegacy .rl-bot-relay__error { font-size: var(--rl-fs-sm); line-height: 1.25; color: var(--rl-red); overflow-wrap: anywhere; }
+.risklegacy .rl-bot-relay__test { flex: none; }
+
+.risklegacy .rl-bot-relay__help { margin-top: var(--rl-space-5); padding: var(--rl-space-5) var(--rl-space-6); font-size: 13px; line-height: 1.3; }
+.risklegacy .rl-bot-relay__helphead { margin: 0; }
+.risklegacy .rl-bot-relay__steps { margin: var(--rl-space-4) 0 0; padding-left: 20px; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--rl-space-5); }
+.risklegacy .rl-bot-relay__steps > li { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--rl-space-2); min-width: 0; padding-left: var(--rl-space-2); }
+.risklegacy .rl-bot-relay__steps .rl-label { color: var(--rl-red); }
+.risklegacy .rl-bot-code--path { justify-self: start; max-width: 100%; }
+.risklegacy .rl-bot-cmd { display: flex; align-items: stretch; gap: var(--rl-space-3); }
+.risklegacy .rl-bot-cmd > code.rl-bot-code {
+  flex: 1; min-width: 0;
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-all;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid var(--rl-k40);
+}
+.risklegacy .rl-bot-cmd__copy.rl-btn--icon { flex: none; min-height: 30px; padding: 6px 12px 4px 10px; }
+
+.risklegacy .rl-bot-relay__fields { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--rl-space-5); margin-top: var(--rl-space-5); }
+.risklegacy .rl-bot-relay__fields .rl-field > label { color: var(--rl-on-page); }
+.risklegacy .rl-bot-relay__fields input { width: 100%; }
+.risklegacy :is(.rl-bot-relay__fields input[name="relayUrl"], .rl-bot-llm__fields input[name="llmBaseUrl"]) { font-family: var(--font-monospace, ui-monospace, Menlo, monospace); font-size: 13px; }
+.risklegacy :is(.rl-bot-relay__fields, .rl-bot-llm__fields) input[aria-invalid="true"] { border-color: var(--rl-red-bright); }
+
+/* chat models: status plate (shared with the relay), fields, spend */
+.risklegacy .rl-bot-relay__error.is-policy { font-weight: 700; }
+.risklegacy .rl-bot-llm__fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--rl-space-5) var(--rl-space-6);
+  margin-top: var(--rl-space-5);
+}
+.risklegacy .rl-bot-llm__fields .rl-field > label,
+.risklegacy .rl-bot-llm__label {
+  font: 700 var(--rl-fs-sm)/var(--rl-lh-snug) var(--rl-font-body);
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+  color: var(--rl-on-page);
+}
+.risklegacy .rl-bot-llm__fields :is(input, select) { width: 100%; min-width: 0; }
+.risklegacy .rl-bot-llm__keyrow { display: flex; align-items: stretch; gap: var(--rl-space-3); min-width: 0; }
+.risklegacy .rl-bot-llm__keyrow > :is(input, select) { flex: 1; }
+.risklegacy .rl-bot-llm__keyrow > .rl-btn { flex: none; min-height: 28px; }
+.risklegacy .rl-bot-llm__keyrow > .rl-btn--icon { padding: 5px 9px 3px; }
+.risklegacy .rl-bot-llm__fields input.is-set::placeholder { color: var(--rl-k70); font-style: normal; }
+
+.risklegacy .rl-bot-spend {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--rl-space-3) var(--rl-space-6);
+  margin-top: var(--rl-space-5);
+  padding: var(--rl-space-4) var(--rl-space-5);
+  background: var(--rl-panel-white);
+  color: var(--rl-ink);
+  box-shadow: var(--rl-bevel-raised);
+}
+.risklegacy .rl-bot-spend__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--rl-space-2) var(--rl-space-4); min-width: 0; }
+.risklegacy .rl-bot-spend__head > .rl-label { color: var(--rl-k80); }
+.risklegacy .rl-bot-spend__value { font: 900 22px/1 var(--rl-font-display); font-variant-numeric: tabular-nums; }
+.risklegacy .rl-bot-spend__of { font-size: var(--rl-fs-sm); color: var(--rl-k80); }
+.risklegacy .rl-bot-spend__meter { grid-column: 1; display: block; height: 8px; background: #fff; box-shadow: inset 0 0 0 1px var(--rl-k40); }
+.risklegacy .rl-bot-spend__meter > span { display: block; height: 100%; background: var(--rl-k60); }
+.risklegacy .rl-bot-spend.is-warn .rl-bot-spend__meter > span { background: var(--rl-hazard); }
+.risklegacy .rl-bot-spend.is-over .rl-bot-spend__meter > span { background: var(--rl-red-bright); }
+.risklegacy .rl-bot-spend.is-over .rl-bot-spend__value { color: var(--rl-red); }
+.risklegacy .rl-bot-spend__cap { grid-column: 2; grid-row: 1 / span 2; display: grid; gap: var(--rl-space-2); justify-items: start; }
+.risklegacy .rl-bot-spend__cap > .rl-label { font-size: 10px; color: var(--rl-k80); }
+.risklegacy .rl-bot-spend__cap > input[type="number"] { width: 92px; }
+.risklegacy .rl-bot-spend__note { grid-column: 1 / -1; margin: 0; font-size: var(--rl-fs-sm); line-height: 1.3; color: var(--rl-red); }
+
+/* footer: pause / resume, log */
+.risklegacy .rl-bot-mgr__footer {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--rl-space-5);
+  margin-top: var(--rl-space-6);
+  padding-top: var(--rl-space-5);
+  border-top: 2px solid var(--rl-page-rule);
+}
+.risklegacy .rl-bot-mgr__state { flex: 1 1 200px; min-width: 0; display: grid; gap: var(--rl-space-2); }
+.risklegacy .rl-bot-mgr__statelabel { font: 800 16px/1 var(--rl-font-display); letter-spacing: var(--rl-track-caps); text-transform: uppercase; color: var(--rl-on-page); }
+.risklegacy .rl-bot-mgr__footer.is-paused .rl-bot-mgr__statelabel { color: var(--rl-page-heading); }
+.risklegacy .rl-bot-mgr__statehint { font-size: var(--rl-fs-sm); color: var(--rl-on-page-muted); }
+.risklegacy .rl-bot-mgr__lasterror {
+  font-size: var(--rl-fs-sm); font-style: italic; color: var(--rl-on-page);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.risklegacy .rl-bot-mgr__buttons { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--rl-space-4); }
+
+@container (max-width: 520px) {
+  .risklegacy .rl-bot-add { grid-template-columns: minmax(0, 1fr); }
+}
+.application.rl-bot-manager .window-content { container-type: inline-size; }
+@container (max-width: 600px) {
+  .risklegacy .rl-bot-row { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .risklegacy .rl-bot-row > .rl-bot-diff { grid-column: 2 / 4; grid-row: 2; }
+  .risklegacy .rl-bot-row > .rl-bot-row__remove { grid-column: 3; grid-row: 1; }
+  .risklegacy .rl-bot-row__chat { grid-template-columns: minmax(0, 1fr) auto; }
+  .risklegacy .rl-bot-row__chat > .rl-bot-row__field--persona { grid-column: 1 / -1; }
+  .risklegacy :is(.rl-bot-relay__fields, .rl-bot-llm__fields) { grid-template-columns: minmax(0, 1fr); }
+  .risklegacy button.rl-bot-add__btn.rl-bot-add__btn--chat { grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "hint" "faces"; }
+}
+
+/* --------------------------------------------------------------------------
+   3. Bot Log
+   -------------------------------------------------------------------------- */
+.application.rl-bot-log-app .window-content { padding: var(--rl-space-6); }
+.risklegacy .rl-bot-log { display: flex; flex-direction: column; gap: var(--rl-space-5); flex: 1 1 auto; min-height: 0; }
+
+.risklegacy dl.rl-bot-stats {
+  display: grid; grid-template-columns: repeat(8, minmax(0, 1fr));
+  margin: 0;
+  background: var(--rl-grad-steel);
+  box-shadow: var(--rl-bevel-steel), var(--rl-shadow-panel);
+  color: var(--rl-ink);
+}
+.risklegacy .rl-bot-stats__item { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: var(--rl-space-2); padding: var(--rl-space-4) var(--rl-space-4) 7px; min-width: 0; }   /* table-cell padding (DESIGN §5: ≥ 4 × 8) */
+.risklegacy .rl-bot-stats__item + .rl-bot-stats__item { box-shadow: inset 1px 0 0 var(--rl-steel-lo), inset 2px 0 0 #fff; }
+/* core styles `dl dt` / `dl dd` (theme colours, text-shadow, margins): these are printed on steel */
+.risklegacy :is(dl.rl-bot-stats, dl.rl-bot-kv) :is(dt, dd) { display: block; margin: 0; padding: 0; text-shadow: none; }
+.risklegacy .rl-bot-stats__item dd { font: 900 20px/1 var(--rl-font-display); color: var(--rl-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.risklegacy .rl-bot-stats__item dt { font: 700 10px/1.1 var(--rl-font-body); letter-spacing: .05em; text-transform: uppercase; color: var(--rl-k80); }
+.risklegacy .rl-bot-stats__item.is-warn dd { color: var(--rl-red); }
+
+.risklegacy .rl-bot-log__bar { display: flex; flex-wrap: wrap; align-items: end; gap: var(--rl-space-4) var(--rl-space-5); }
+.risklegacy .rl-bot-log__filter { display: grid; gap: var(--rl-space-2); }
+.risklegacy .rl-bot-log__filter > .rl-label { color: var(--rl-on-page); }
+.risklegacy .rl-bot-log__filter select { min-width: 170px; max-width: 220px; }
+.risklegacy .rl-bot-log__count { margin-left: auto; padding-bottom: 7px; font-size: var(--rl-fs-sm); color: var(--rl-on-page-muted); }
+.risklegacy .rl-bot-log__bar .rl-bot-link { padding-bottom: 8px; }
+
+.risklegacy .rl-bot-log__list {
+  flex: 1 1 auto; min-height: 0;
+  overflow-y: auto;
+  display: grid; align-content: start; gap: var(--rl-space-4);
+  margin-right: calc(-1 * var(--rl-space-4));
+  padding: 2px var(--rl-space-4) 2px 2px;
+}
+.risklegacy .rl-slot.rl-bot-empty--log { min-height: 96px; }
+
+/* one record: a printed slip with the faction's colour down its edge */
+.risklegacy details.rl-bot-rec {
+  background: #fff;
+  color: var(--rl-ink);
+  border: 1px solid var(--rl-k40);
+  box-shadow: inset 5px 0 0 var(--rl-bot-faction, var(--rl-k50)), var(--rl-shadow-panel);
+}
+.risklegacy details.rl-bot-rec[open] { border-color: var(--rl-k60); }
+.risklegacy .rl-bot-rec__sum {
+  position: relative;
+  display: grid; gap: var(--rl-space-3);
+  padding: var(--rl-space-4) 36px var(--rl-space-4) var(--rl-space-6);
+  list-style: none;
+  cursor: pointer;
+}
+.risklegacy .rl-bot-rec__sum::-webkit-details-marker { display: none; }
+.risklegacy .rl-bot-rec__sum::after {           /* disclosure chevron */
+  content: "";
+  position: absolute; right: 15px; top: 15px;
+  width: 7px; height: 7px;
+  border-right: 2px solid var(--rl-k70);
+  border-bottom: 2px solid var(--rl-k70);
+  transform: rotate(45deg);
+}
+.risklegacy details.rl-bot-rec[open] > .rl-bot-rec__sum::after { top: 19px; transform: rotate(225deg); }
+.risklegacy .rl-bot-rec__sum:hover { background: var(--rl-paper-grunge); }
+.risklegacy .rl-bot-rec__sum:focus-visible { outline: 2px solid var(--rl-red-bright); outline-offset: -2px; }
+.risklegacy .rl-bot-rec__meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--rl-space-3) var(--rl-space-5);
+  font-size: var(--rl-fs-xs); line-height: 1.1;
+  color: var(--rl-k70);
+}
+.risklegacy .rl-bot-rec__time { font-variant-numeric: tabular-nums; }
+.risklegacy .rl-bot-rec__faction { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; color: var(--rl-ink); }
+.risklegacy .rl-bot-rec__cat { font: italic 700 11px/1 var(--rl-font-body); text-transform: uppercase; color: var(--rl-red); }
+.risklegacy .rl-bot-rec__jev { display: inline-flex; align-items: center; gap: 3px; }
+.risklegacy .rl-bot-badge {
+  display: inline-flex; align-items: center;
+  padding: 5px 10px 4px;
+  font: 700 10px/1 var(--rl-font-body);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.risklegacy .rl-bot-badge--heuristic { background: var(--rl-hazard); color: var(--rl-ink); box-shadow: inset 0 0 0 1px rgb(0 0 0 / .25); }
+.risklegacy .rl-bot-badge--error { background: var(--rl-red); color: #fff; }
+.risklegacy .rl-bot-rec__line { font-size: var(--rl-fs-base); line-height: 1.3; color: var(--rl-ink); overflow-wrap: anywhere; }
+
+.risklegacy .rl-bot-rec__body {
+  display: grid; gap: var(--rl-space-5);
+  padding: var(--rl-space-5) var(--rl-space-6) var(--rl-space-6);
+  border-top: 1px dashed var(--rl-k40);
+}
+.risklegacy .rl-bot-rec__facts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--rl-space-3) var(--rl-space-6); font-size: var(--rl-fs-sm); }
+.risklegacy .rl-bot-rec__facts .rl-label { color: var(--rl-k70); margin-right: 2px; }
+.risklegacy .rl-bot-rec__copy { margin-left: auto; }
+.risklegacy .rl-bot-rec__error { margin: 0; padding: var(--rl-space-3) 10px; background: #fbe3e4; border-left: 3px solid var(--rl-red); font-size: var(--rl-fs-sm); overflow-wrap: anywhere; }
+.risklegacy .rl-bot-rec__head {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--rl-space-3) var(--rl-space-4);
+  margin: 0 0 var(--rl-space-3);
+  font: italic 700 13px/1.15 var(--rl-font-body);
+  text-transform: uppercase;
+  color: var(--rl-red);
+}
+.application.risklegacy .window-content .rl-bot-rec__head { color: var(--rl-red); }
+.risklegacy .rl-bot-rec__head :is(.rl-bot-code, .rl-btn) { font-style: normal; }
+.risklegacy .rl-bot-rec__head .rl-bot-code { text-transform: none; }
+.risklegacy .rl-bot-rec__reason { margin: 0 0 var(--rl-space-3); font-size: var(--rl-fs-sm); }
+.risklegacy .rl-bot-rec__unknown { margin-left: var(--rl-space-3); font-style: italic; color: var(--rl-k70); }
+.risklegacy dl.rl-bot-kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--rl-space-2) var(--rl-space-5); margin: 0; font-size: var(--rl-fs-sm); }
+.risklegacy dl.rl-bot-kv > div { display: contents; }
+.risklegacy dl.rl-bot-kv dt { font-weight: 700; color: var(--rl-k80); }
+.risklegacy dl.rl-bot-kv dd { color: var(--rl-ink); overflow-wrap: anywhere; }
+.risklegacy .rl-bot-pre {
+  margin: 0;
+  max-height: 260px;
+  overflow: auto;
+  padding: var(--rl-space-4) 10px;
+  background: var(--rl-k10);
+  border: 1px solid var(--rl-k30);
+  font: 11px/1.4 var(--font-monospace, ui-monospace, "SF Mono", Menlo, Consolas, monospace);
+  color: var(--rl-ink);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* a Jev exchange */
+.risklegacy .rl-bot-x { padding: var(--rl-space-5) var(--rl-space-5) var(--rl-space-5); background: var(--rl-paper-grunge); border: 1px solid var(--rl-k30); }
+.risklegacy .rl-bot-x.is-error { border-color: var(--rl-red); }
+.risklegacy .rl-bot-x__facts { display: flex; flex-wrap: wrap; gap: var(--rl-space-2) var(--rl-space-5); margin: 0 0 var(--rl-space-4); font-size: var(--rl-fs-xs); color: var(--rl-k70); }
+.risklegacy .rl-bot-q { display: grid; gap: var(--rl-space-3); padding: var(--rl-space-4) 0; }
+.risklegacy .rl-bot-q + .rl-bot-q { border-top: 1px solid var(--rl-k20); }
+.risklegacy .rl-bot-q__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--rl-space-2) var(--rl-space-4); }
+.risklegacy .rl-bot-q__type { font: 700 10px/1 var(--rl-font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--rl-k70); }
+.risklegacy .rl-bot-q__score { font-size: var(--rl-fs-xs); color: var(--rl-k80); }
+.risklegacy .rl-bot-q__text, .risklegacy .rl-bot-q__crit, .risklegacy .rl-bot-q__none { margin: 0; font-size: var(--rl-fs-sm); line-height: 1.3; }
+.risklegacy .rl-bot-q__crit { color: var(--rl-k80); }
+.risklegacy .rl-bot-q__none { font-style: italic; color: var(--rl-red); }
+.risklegacy .rl-bot-bars { display: grid; gap: var(--rl-space-2); }
+.risklegacy .rl-bot-barrow { display: grid; grid-template-columns: minmax(0, 42%) minmax(60px, 1fr) 44px; align-items: center; gap: var(--rl-space-4); font-size: var(--rl-fs-sm); }
+.risklegacy .rl-bot-barrow__key { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.risklegacy .rl-bot-barrow--level .rl-bot-barrow__key { white-space: normal; line-height: 1.2; }
+.risklegacy .rl-bot-bar { position: relative; display: block; height: 10px; background: #fff; box-shadow: inset 0 0 0 1px var(--rl-k40); }
+.risklegacy .rl-bot-bar > span { display: block; height: 100%; background: var(--rl-k60); }
+.risklegacy .rl-bot-barrow__pct { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.risklegacy .rl-bot-barrow.is-chosen .rl-bot-barrow__key { font-weight: 700; }
+.risklegacy .rl-bot-barrow.is-chosen .rl-bot-bar > span { background: var(--rl-red-bright); }
+.risklegacy details.rl-bot-state { margin-top: var(--rl-space-3); }
+.risklegacy details.rl-bot-state > summary {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: var(--rl-space-2) 0;
+  font: 700 11px/1 var(--rl-font-body);
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+  color: var(--rl-k70);
+  cursor: pointer;
+}
+.risklegacy details.rl-bot-state > summary:focus-visible { outline: 2px solid var(--rl-red-bright); outline-offset: 1px; }
+.risklegacy details.rl-bot-state[open] > summary { margin-bottom: var(--rl-space-3); }
+.risklegacy .rl-bot-log__more { display: flex; justify-content: center; padding: var(--rl-space-4) 0; }
+
+/* a chat-model exchange */
+.risklegacy .rl-bot-x__cost { font-weight: 700; color: var(--rl-ink); }
+.risklegacy .rl-bot-x__warn { font-weight: 700; color: var(--rl-red); }
+.risklegacy .rl-bot-x--llm > :is(.rl-bot-rec__error, .rl-bot-think, .rl-bot-quote, .rl-bot-answer) { margin-bottom: var(--rl-space-4); }
+.risklegacy .rl-bot-think { display: grid; gap: var(--rl-space-2); }
+.risklegacy .rl-bot-think > .rl-label,
+.risklegacy .rl-bot-answer > .rl-label { font-size: 10px; color: var(--rl-k70); }
+.risklegacy .rl-bot-answer > .rl-label .rl-bot-code { font-size: 10px; letter-spacing: 0; text-transform: none; }
+.risklegacy .rl-bot-think__text { margin: 0; font: italic 13px/1.35 var(--rl-font-body); color: var(--rl-ink); overflow-wrap: anywhere; }
+.risklegacy .rl-bot-answer { display: grid; gap: var(--rl-space-2); }
+.risklegacy .rl-bot-x--llm > details.rl-bot-state + details.rl-bot-state { margin-top: 0; }
+.risklegacy .rl-bot-msgs { display: grid; gap: var(--rl-space-4); }
+.risklegacy .rl-bot-msg { display: grid; gap: var(--rl-space-2); margin: 0; }
+.risklegacy details.rl-bot-msg--system > summary { padding-top: 0; }
+.risklegacy .rl-bot-msg__role { font: 700 10px/1 var(--rl-font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--rl-k70); }
+.risklegacy .rl-bot-msg--assistant > .rl-bot-pre { background: var(--rl-cream); }
+
+.application.rl-bot-log-app .window-content { container-type: inline-size; }
+@container (max-width: 640px) {
+  .risklegacy dl.rl-bot-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .risklegacy .rl-bot-stats__item:nth-child(5) { box-shadow: none; }
+  .risklegacy .rl-bot-stats__item:nth-child(n + 5) { border-top: 1px solid var(--rl-steel-lo); }
+}
+
+/* --------------------------------------------------------------------------
+   4. Narration chat card (printed: same in both chat themes)
+   -------------------------------------------------------------------------- */
+.risklegacy.rl-bot-say .rl-bot-say__head { flex-wrap: wrap; gap: var(--rl-space-2) var(--rl-space-4); padding: var(--rl-space-3) 10px 5px; }
+.risklegacy.rl-bot-say .rl-bot-say__icon {
+  display: inline-grid; place-items: center; flex: none;
+  width: 20px; height: 20px;
+  font-size: 11px;
+  color: var(--rl-steel-1);
+  background: var(--rl-grad-gunmetal);
+}
+.risklegacy.rl-bot-say .rl-bot-say__title { flex: 1 1 auto; font-size: 17px; }
+.risklegacy.rl-bot-say .rl-bot-say__sub { flex: 1 0 100%; padding-left: 28px; line-height: 1.15; }
+.risklegacy.rl-bot-say .rl-bot-say__body {
+  gap: var(--rl-space-3);
+  padding: var(--rl-space-4) 10px var(--rl-space-4) 12px;
+  box-shadow: inset 4px 0 0 var(--rl-bot-faction, var(--rl-faction));
+}
+.risklegacy.rl-bot-say .rl-bot-say__line { margin: 0; font-size: 13px; line-height: 1.3; overflow-wrap: anywhere; }
+.risklegacy.rl-bot-say .rl-bot-say__note { margin: 0; font-size: 16px; line-height: 1.05; }
+.risklegacy.rl-bot-say--notice .rl-bot-say__body { box-shadow: inset 4px 0 0 var(--rl-hazard); }
+.chat-message.rl-bot-message .message-sender { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* a table-talk line riding on the decision's narration card */
+.risklegacy.rl-bot-say .rl-bot-say__talk {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--rl-space-2) var(--rl-space-4);
+  margin: 0;
+  padding: var(--rl-space-4) 10px var(--rl-space-4) 12px;
+  background: var(--rl-cream);
+  border-top: 1px dashed var(--rl-k50);
+  box-shadow: inset 4px 0 0 var(--rl-bot-faction, var(--rl-faction));
+}
+.risklegacy.rl-bot-say .rl-bot-say__talk > .rl-bot-portrait { grid-row: span 2; }
+.risklegacy.rl-bot-say .rl-bot-say__quote { margin: 0; padding: 0; border: 0; font: 400 18px/1.1 var(--rl-font-hand); color: var(--rl-ink); overflow-wrap: anywhere; }
+.risklegacy.rl-bot-say .rl-bot-say__by { font: italic 700 10px/1.1 var(--rl-font-body); text-transform: uppercase; color: var(--rl-k70); }
+
+/* table talk: a speech card spoken by the bot (printed: same in both chat themes) */
+.risklegacy.rl-bot-talk .rl-bot-talk__who {
+  display: flex; align-items: center; gap: var(--rl-space-4);
+  padding: var(--rl-space-3) 10px;
+  background: var(--rl-grad-steel);
+  box-shadow: var(--rl-bevel-steel);
+}
+.risklegacy.rl-bot-talk .rl-bot-portrait { --rl-bot-portrait: 40px; }
+.risklegacy.rl-bot-talk .rl-bot-talk__id { display: grid; gap: 2px; min-width: 0; }
+.risklegacy.rl-bot-talk .rl-bot-talk__name {
+  font: 900 17px/1 var(--rl-font-display);
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+  color: var(--rl-ink);
+  overflow-wrap: anywhere;
+}
+.risklegacy.rl-bot-talk .rl-bot-talk__title { font: italic 700 12px/1.1 var(--rl-font-body); text-transform: uppercase; color: var(--rl-red); }
+.risklegacy.rl-bot-talk .rl-bot-talk__sub { font: 700 italic var(--rl-fs-2xs, 10px)/1.1 var(--rl-font-body); text-transform: uppercase; color: var(--rl-k70); }
+.risklegacy.rl-bot-talk .rl-bot-talk__quote {
+  position: relative;
+  margin: 0;
+  padding: var(--rl-space-4) 12px var(--rl-space-5) 16px;
+  border: 0;
+  font: 400 20px/1.1 var(--rl-font-hand);
+  color: var(--rl-ink);
+  box-shadow: inset 4px 0 0 var(--rl-bot-faction, var(--rl-faction));
+  overflow-wrap: anywhere;
+}
+
+/* --------------------------------------------------------------------------
+   5. Tags and controls placed in other areas' windows
+   -------------------------------------------------------------------------- */
+/* War Room scoreboard: the tag sits on the player line */
+.risklegacy .rl-wr__rowplayer .rl-bot-tag { margin-left: var(--rl-space-3); }
+.risklegacy .rl-wr__score .rl-bot-tag { padding: 3px 7px 2px; font-size: 9px; }
+/* "BOT · COMMANDER · KEEPER OF THE CHRONICLE" can outgrow the narrow HUD: cut it (the full text is its tooltip) */
+.risklegacy :is(.rl-wr__rowplayer, .rl-wr__player) .rl-bot-tag { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; line-height: 1.1; }
+
+/* Game setup: bot seats and the "Add a bot player" chip */
+.risklegacy .rl-camp-seat .rl-bot-tag { flex: none; }
+.risklegacy .rl-camp-chip.rl-bot-addchip {
+  border-style: dashed;
+  font: 700 12px/1.1 var(--rl-font-body);
+  letter-spacing: var(--rl-track-caps);
+  text-transform: uppercase;
+}
+.risklegacy .rl-camp-chip.rl-bot-addchip:focus-visible { outline: 2px solid var(--rl-focus); outline-offset: 2px; }
+
+/* --------------------------------------------------------------------------
+   6. Personality gallery and Notes (DialogV2 windows, module/bots/ui/dialogs.mjs)
+   -------------------------------------------------------------------------- */
+.application.rl-bot-gallery-app .window-content,
+.application.rl-bot-notes-app .window-content { padding: var(--rl-space-6); }
+.risklegacy .rl-bot-gallery { display: grid; gap: var(--rl-space-5); min-height: 0; }
+.risklegacy .rl-bot-gallery__lead { margin: 0; font-size: var(--rl-fs-base); line-height: var(--rl-lh-body); color: var(--rl-on-page); }
+.risklegacy fieldset.rl-bot-gallery__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  gap: var(--rl-space-5);
+  margin: 0 calc(-1 * var(--rl-space-4)) 0 0;
+  padding: 2px var(--rl-space-4) 2px 2px;
+  border: 0;
+  min-width: 0;
+  max-height: min(590px, calc(100vh - 330px));
+  overflow-y: auto;
+}
+
+/* one personality: a printed card; the whole card is the radio button */
+.risklegacy .rl-bot-pcard {
+  position: relative;
+  display: grid; align-content: start; gap: var(--rl-space-4);
+  padding: 10px var(--rl-space-5) var(--rl-space-5);
+  background: var(--rl-panel-white);
+  color: var(--rl-ink);
+  box-shadow: var(--rl-bevel-raised);
+  cursor: pointer;
+}
+.risklegacy .rl-bot-pcard > input[type="radio"] { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.risklegacy .rl-bot-pcard:hover { background: #f1f1f1; }
+.risklegacy .rl-bot-pcard:hover .rl-bot-pcard__title { color: var(--rl-red); }
+.risklegacy .rl-bot-pcard:has(> input:checked) { background: var(--rl-cream); box-shadow: inset 0 0 0 2px var(--rl-red-bright), var(--rl-bevel-raised); }
+.risklegacy .rl-bot-pcard:has(> input:focus-visible) { outline: 2px solid var(--rl-focus); outline-offset: 2px; }
+.risklegacy .rl-bot-pcard__top { display: flex; align-items: center; gap: var(--rl-space-4); min-width: 0; }
+.risklegacy .rl-bot-pcard__id { display: grid; gap: 3px; min-width: 0; }
+.risklegacy .rl-bot-pcard__title { font: 900 17px/1 var(--rl-font-display); letter-spacing: var(--rl-track-caps); text-transform: uppercase; color: var(--rl-ink); }
+.risklegacy .rl-bot-pcard:has(> input:checked) .rl-bot-pcard__title { color: var(--rl-red); }
+.risklegacy .rl-bot-pcard__name { font-size: var(--rl-fs-sm); font-weight: 700; line-height: 1.15; color: var(--rl-k80); }
+.risklegacy .rl-bot-pcard__blurb { font-size: 13px; line-height: 1.3; color: var(--rl-ink); }
+.risklegacy .rl-bot-pcard.is-random .rl-bot-portrait { font-size: 20px; color: var(--rl-hazard); }
+.risklegacy .rl-bot-pcard__used { font: italic 700 10px/1.15 var(--rl-font-body); text-transform: uppercase; color: var(--rl-k70); }
+.risklegacy .rl-bot-pcard.is-current .rl-bot-pcard__used { color: var(--rl-red); }
+
+/* knob bars (BOTS-LLM.md §5.2) */
+.risklegacy .rl-bot-knobs { display: grid; grid-template-columns: max-content minmax(0, 1fr); align-items: center; gap: 3px var(--rl-space-4); }
+.risklegacy .rl-bot-knob { display: contents; }
+.risklegacy .rl-bot-knob__label { font: 700 10px/1.1 var(--rl-font-body); letter-spacing: .05em; text-transform: uppercase; color: var(--rl-k70); }
+.risklegacy .rl-bot-knob__bar { display: block; height: 6px; background: #fff; box-shadow: inset 0 0 0 1px var(--rl-k40); }
+.risklegacy .rl-bot-knob__bar > span { display: block; height: 100%; background: var(--rl-k70); }
+.risklegacy .rl-bot-pcard:has(> input:checked) .rl-bot-knob__bar > span { background: var(--rl-red-bright); }
+
+/* level and model for a new bot */
+.risklegacy .rl-bot-gallery__opts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
+  gap: var(--rl-space-5) var(--rl-space-6);
+  padding-top: var(--rl-space-5);
+  border-top: 2px solid var(--rl-page-rule);
+}
+.risklegacy fieldset.rl-bot-gallery__level { display: grid; gap: var(--rl-space-2); margin: 0; padding: 0; border: 0; min-width: 0; }
+.risklegacy fieldset.rl-bot-gallery__level > legend { float: left; margin-bottom: var(--rl-space-2); padding: 0; color: var(--rl-on-page); }
+.risklegacy .rl-bot-gallery__level > .rl-bot-diff { display: flex; gap: 2px; clear: both; }
+.risklegacy .rl-bot-gallery__model > .rl-label { color: var(--rl-on-page); }
+.risklegacy .rl-bot-gallery__model > select { width: 100%; min-height: 31px; }
+.risklegacy .rl-bot-gallery__note { margin: 0; font-size: var(--rl-fs-sm); font-style: italic; color: var(--rl-on-page-muted); }
+
+/* Notes: what a chat bot remembers between wars */
+.risklegacy .rl-bot-notes { display: grid; gap: var(--rl-space-5); }
+.risklegacy .rl-bot-notes__who { display: flex; align-items: center; gap: var(--rl-space-5); min-width: 0; }
+.risklegacy .rl-bot-notes__id { display: grid; gap: 3px; flex: 1; min-width: 0; }
+.risklegacy .rl-bot-notes__name { font: 900 21px/1 var(--rl-font-display); letter-spacing: var(--rl-track-caps); text-transform: uppercase; color: var(--rl-on-page); overflow-wrap: anywhere; }
+.risklegacy .rl-bot-notes__sub { font: italic 700 var(--rl-fs-xs)/1.1 var(--rl-font-body); text-transform: uppercase; color: var(--rl-on-page-muted); }
+.risklegacy .rl-bot-notes__updated { flex: none; align-self: end; font-size: var(--rl-fs-xs); font-style: italic; color: var(--rl-on-page-muted); }
+.risklegacy .rl-bot-notes__sheet {
+  display: grid; gap: var(--rl-space-5);
+  max-height: min(440px, calc(100vh - 300px));
+  overflow-y: auto;
+  padding: var(--rl-space-5) var(--rl-space-6) var(--rl-space-6);
+  background: #fff;
+  color: var(--rl-ink);
+  border: 1px solid var(--rl-k40);
+  box-shadow: var(--rl-shadow-panel);
+}
+.risklegacy .rl-bot-notes__block { display: grid; gap: var(--rl-space-3); }
+.risklegacy .rl-bot-notes__block + .rl-bot-notes__block { padding-top: var(--rl-space-5); border-top: 1px dashed var(--rl-k40); }
+.application.risklegacy .window-content .rl-bot-notes__head,
+.risklegacy .rl-bot-notes__head { margin: 0; font: italic 700 13px/1.15 var(--rl-font-body); text-transform: uppercase; color: var(--rl-red); }
+.risklegacy .rl-bot-notes__text { margin: 0; font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; }
+.risklegacy .rl-bot-notes__list { display: grid; gap: var(--rl-space-3); margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.35; }
+.risklegacy .rl-bot-notes__game { font-size: var(--rl-fs-xs); font-style: italic; color: var(--rl-k70); }
+.risklegacy table.rl-bot-notes__games { width: 100%; margin: 0; border-collapse: collapse; background: none; border: 0; font-size: 13px; }
+.risklegacy table.rl-bot-notes__games :is(thead, tbody, tr) { background: none; border: 0; }
+.risklegacy table.rl-bot-notes__games :is(th, td) { padding: 4px 8px; text-align: left; vertical-align: top; border: 0; background: none; text-shadow: none; }
+.risklegacy table.rl-bot-notes__games th { font: 700 10px/1.1 var(--rl-font-body); letter-spacing: .05em; text-transform: uppercase; color: var(--rl-k70); border-bottom: 1px solid var(--rl-k40); }
+.risklegacy table.rl-bot-notes__games tr:not(.rl-bot-notes__summary) td { padding-top: 6px; font-weight: 700; }
+.risklegacy table.rl-bot-notes__games td.is-num { width: 1%; font-variant-numeric: tabular-nums; }
+.risklegacy table.rl-bot-notes__games .rl-bot-notes__summary td { padding-top: 0; font-style: italic; color: var(--rl-k80); }
+.risklegacy details.rl-bot-notes__raw > summary { color: var(--rl-on-page-muted); }

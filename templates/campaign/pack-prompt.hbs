@@ -1,0 +1,26 @@
+<div class="rl-prompt-body rl-camp-pack">
+  <div class="rl-camp-pack__envelope {{#if opened}}is-opened{{/if}}">
+    <span class="rl-hazard rl-camp-pack__tape rl-camp-pack__tape--top"></span>
+    <div class="rl-camp-pack__face">
+      <span class="rl-label rl-camp-pack__kind">{{kind}} · {{label}}</span>
+      <p class="rl-camp-pack__sealed">{{sealed}}</p>
+      {{#if opened}}<span class="rl-stamp rl-camp-pack__stamp">{{localize "RL.Legacy.Pack.opened"}}</span>{{/if}}
+    </div>
+    <span class="rl-hazard rl-camp-pack__tape rl-camp-pack__tape--bottom"></span>
+  </div>
+  {{#if reason}}<p class="rl-hand rl-hand--red rl-camp-pack__reason">{{reason}}</p>{{/if}}
+  {{#if rulebook}}
+  <div class="rl-legal rl-camp-pack__note"><span class="rl-hand">{{localize "RL.Legacy.Pack.openingNew"}}</span>{{rulebook}}</div>
+  {{/if}}
+  <footer class="rl-prompt-footer">
+    {{#if gm}}
+      {{#unless opened}}
+      <button type="button" class="rl-btn" data-action="cancel">{{localize "RL.Legacy.Pack.notYet"}}</button>
+      <button type="button" class="rl-btn rl-btn--destroy" data-action="openNow"><i class="fa-solid fa-box-open" inert></i> {{localize "RL.Legacy.Pack.openNow"}}</button>
+      {{/unless}}
+    {{else}}
+      <span class="rl-caption">{{#if opened}}{{localize "RL.Legacy.Pack.readChat"}}{{else}}{{localize "RL.Legacy.Pack.waitingGM"}}{{/if}}</span>
+      <button type="button" class="rl-btn" data-action="cancel">{{localize "RL.Wizard.close"}}</button>
+    {{/if}}
+  </footer>
+</div>

@@ -1,0 +1,85 @@
+<div class="rl-camp-ss{{#if busy}} is-busy{{/if}}">
+  {{#if claim}}
+  <div class="rl-callout rl-camp-ss__claim"><i class="fa-solid fa-trophy" inert></i> {{claimLead}}</div>
+  {{/if}}
+  {{#if pending.length}}
+  <div class="rl-note rl-camp-ss__pending">
+    {{#each pending as |p|}}
+    <div class="rl-camp-ss__pending-row">
+      <i class="fa-solid fa-hourglass-half" inert></i>
+      <span>{{p.text}}</span>
+      <button type="button" class="rl-btn" data-action="takeOver" data-prompt-id="{{p.promptId}}"><i class="fa-solid fa-hand" inert></i> {{localize "RL.Wizard.Ask.takeOver"}}</button>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+
+  <div class="rl-camp-ss__scroll">
+  {{#if campaign}}
+  <div class="rl-camp-ss__sheet">
+    <header class="rl-camp-ss__masthead">
+      <h2 class="rl-camp-ss__title">{{localize "RL.Legacy.Sheet.heading"}}</h2>
+      <p class="rl-hand rl-camp-ss__tagline">{{localize "RL.Legacy.Sheet.tagline"}}</p>
+    </header>
+
+    {{#each groups as |g|}}
+    <fieldset class="rl-camp-ss__group{{#if g.pack}} is-pack{{/if}}" data-group="{{g.id}}">
+      <legend class="rl-camp-ss__legend">{{g.label}}</legend>
+      <div class="rl-camp-ss__grid">
+        {{#each g.stickers as |s|}}
+        <article class="rl-camp-ss__sticker{{#if s.empty}} is-empty{{/if}}{{#if s.claimable}} is-claimable{{/if}}" data-sticker="{{s.id}}">
+          <div class="rl-camp-ss__art{{#if s.isCard}} is-card{{/if}}">
+            {{#if s.img}}<img src="{{s.img}}" alt="">{{/if}}
+            {{#if s.stamp}}<span class="rl-stamp rl-camp-ss__stamp">{{s.stamp}}</span>{{/if}}
+          </div>
+          <div class="rl-camp-ss__body">
+            <div class="rl-camp-ss__head">
+              <h4 class="rl-camp-ss__name">{{s.name}}</h4>
+              <span class="rl-camp-ss__count" data-tooltip="{{localize "RL.Legacy.Sheet.leftTip"}}"><b>{{s.left}}</b>{{#if s.qty}}<small>/ {{s.qty}}</small>{{/if}}</span>
+            </div>
+            {{#if s.summary}}<p class="rl-camp-ss__summary">{{s.summary}}</p>{{/if}}
+            {{#if s.more}}<p class="rl-camp-ss__text" data-tooltip="{{s.more}}">{{s.more}}</p>{{/if}}
+            {{#if s.status}}<p class="rl-hand rl-camp-ss__status">{{s.status}}</p>{{/if}}
+            {{#if s.pips}}
+            <div class="rl-camp-ss__peel" aria-hidden="true">
+              {{#each s.pips as |pip|}}<span class="rl-camp-ss__pip{{#if pip.used}} is-used{{/if}}">{{#unless pip.used}}<img src="{{s.img}}" alt="">{{/unless}}</span>{{/each}}
+            </div>
+            {{/if}}
+            {{#if s.showButton}}
+            <div class="rl-camp-ss__actions">
+              <button type="button" class="rl-btn{{#if s.primary}} rl-btn--primary{{/if}}" data-action="place" {{disabled s.disabled}}
+                {{#if s.reason}}data-tooltip="{{s.reason}}"{{/if}}>
+                <i class="fa-solid {{#if s.override}}fa-triangle-exclamation{{else}}fa-hand-pointer{{/if}}" inert></i> {{s.placeLabel}}</button>
+              {{#if s.reason}}<span class="rl-camp-ss__why">{{s.reason}}</span>{{/if}}
+            </div>
+            {{/if}}
+          </div>
+        </article>
+        {{/each}}
+      </div>
+    </fieldset>
+    {{/each}}
+
+    {{#if tools}}
+    <fieldset class="rl-camp-ss__group is-tools" data-group="tools">
+      <legend class="rl-camp-ss__legend">{{localize "RL.Legacy.Sheet.group.tools"}}</legend>
+      <div class="rl-camp-ss__tool">
+        <div class="rl-camp-ss__scars" aria-hidden="true">
+          {{#each tools.scars as |sc|}}{{#if sc.img}}<img src="{{sc.img}}" alt="" data-tooltip="{{sc.name}}">{{/if}}{{/each}}
+        </div>
+        <div class="rl-camp-ss__body">
+          <h4 class="rl-camp-ss__name">{{localize "RL.Legacy.Sheet.scarTool"}}</h4>
+          <p class="rl-camp-ss__summary">{{localize "RL.Legacy.Sheet.scarToolHint"}}</p>
+          <div class="rl-camp-ss__actions">
+            <button type="button" class="rl-btn" data-action="placeScar" {{disabled (or busy (not tools.canScar))}}><i class="fa-solid fa-burst" inert></i> {{localize "RL.Legacy.Sheet.scarButton"}}</button>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    {{/if}}
+  </div>
+  {{else}}
+  <p class="rl-lead">{{localize "RL.Error.noCampaign"}}</p>
+  {{/if}}
+  </div>
+</div>

@@ -1,0 +1,34 @@
+<div class="rl-camp-step rl-camp-step--confirm">
+  {{#if ready}}
+  <div class="rl-panel rl-panel--gold rl-camp-step__printed">
+    <h2 class="rl-hero rl-camp-step__hero">{{localize "RL.Wizard.First.readyHero"}}</h2>
+    <p class="rl-lead">{{localize "RL.Wizard.First.readyText"}}</p>
+  </div>
+  {{else}}
+  <h2 class="rl-title">{{localize "RL.Wizard.First.confirmTitle"}}</h2>
+  <div class="rl-callout">{{localize "RL.Wizard.First.confirmCallout"}} <span class="rl-hand rl-hand--red">{{localize "RL.Wizard.toughToDo"}}</span></div>
+  <div class="rl-camp-confirm-grid">
+    <section class="rl-panel">
+      <h3 class="rl-subhead">{{localize "RL.Wizard.First.stepPowers"}}</h3>
+      <ul class="rl-camp-confirm-list">
+        {{#each powerSummary}}
+        <li>
+          <b class="rl-term">{{name}}:</b>
+          {{#if missing}}<span class="rl-hand rl-hand--red">{{localize "RL.Wizard.First.noChoice"}}</span>{{else}}<div class="rl-camp-kept">{{chosen}}</div>{{/if}}
+          {{#each destroyed}}<div class="rl-strike rl-caption">{{this}}</div>{{/each}}
+        </li>
+        {{/each}}
+      </ul>
+    </section>
+    <section class="rl-panel rl-panel--tan">
+      <h3 class="rl-subhead">{{localize "RL.Wizard.First.stepCoins"}}</h3>
+      {{#if coinSummary.length}}
+      <ul class="rl-camp-confirm-list rl-camp-confirm-list--coins">
+        {{#each coinSummary}}<li>{{name}} <b>+{{n}}</b></li>{{/each}}
+      </ul>
+      {{else}}<p class="rl-caption">{{localize "RL.Wizard.First.noCoins"}}</p>{{/if}}
+      {{#if remaining}}<p class="rl-hand rl-hand--red">{{localize "RL.Wizard.First.coinsUnused" n=remaining}}</p>{{/if}}
+    </section>
+  </div>
+  {{/if}}
+</div>

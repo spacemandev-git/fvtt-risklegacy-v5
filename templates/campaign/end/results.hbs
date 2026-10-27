@@ -1,0 +1,33 @@
+<div class="rl-camp-step rl-camp-step--results">
+  <h2 class="rl-title">{{localize "RL.Wizard.End.resultsTitle" n=gameNumber}}</h2>
+  {{#if winner}}<p class="rl-lead">{{localize "RL.Wizard.End.winnerLead" faction=winner}}</p>{{/if}}
+  <table class="rl-camp-table rl-camp-results-table">
+    <thead><tr>
+      <th>{{localize "RL.Wizard.Setup.faction"}}</th><th>{{localize "RL.Wizard.Setup.player"}}</th>
+      <th>{{localize "RL.Wizard.Setup.startingTerritory"}}</th><th>{{localize "RL.Wizard.End.troops"}}</th>
+      <th>{{localize "RL.Wizard.End.territories"}}</th><th>{{localize "RL.Wizard.End.result"}}</th>
+    </tr></thead>
+    <tbody>
+      {{#each rows}}
+      <tr class="rl-result rl-result--{{result}}" data-faction="{{faction}}">
+        <td class="rl-faction--{{key}}"><img class="rl-camp-seat-table__art" src="{{img}}" alt=""> <b>{{factionName}}</b></td>
+        <td class="rl-hand">{{player}}</td>
+        <td class="rl-hand">{{start}}</td>
+        <td>{{troops}}</td>
+        <td>{{territoryCount}}</td>
+        <td>
+          {{#if ../confirmed}}
+          <span class="rl-stamp rl-stamp--{{result}}">{{#each choices}}{{#if selected}}{{label}}{{/if}}{{/each}}</span>
+          {{else}}
+          <select data-result-for="{{faction}}" aria-label="{{localize "RL.Wizard.End.result"}}">
+            {{#each choices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+          </select>
+          {{/if}}
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  <div class="rl-note"><span class="rl-label">{{localize "RL.Wizard.noteLabel"}}</span> {{localize "RL.Wizard.End.resultsNote"}}</div>
+  {{#if afterFifteen}}<div class="rl-legal"><span class="rl-hand">{{localize "RL.Wizard.End.completedWorld"}}</span>{{localize "RL.Wizard.End.afterFifteen"}}</div>{{/if}}
+</div>

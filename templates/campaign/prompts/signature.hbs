@@ -1,0 +1,17 @@
+<div class="rl-prompt-body">
+  {{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/hot-seat.hbs"}}
+  <p class="rl-lead">{{localize "RL.Wizard.Prompt.signLead"}}</p>
+  {{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/victors.hbs" lines=lines}}
+  <div class="rl-signature-form">
+    <div class="rl-field"><label for="{{rootId}}-player">{{localize "RL.Wizard.Prompt.signName"}}</label>
+      <input id="{{rootId}}-player" type="text" name="player" value="{{player}}" class="rl-input--hand" autofocus></div>
+    <div class="rl-field"><label for="{{rootId}}-date">{{localize "RL.Wizard.Prompt.date"}}</label>
+      <input id="{{rootId}}-date" type="date" name="date" value="{{date}}" class="rl-input--hand"></div>
+    <div class="rl-field rl-signature-form__motto"><label for="{{rootId}}-motto">{{localize "RL.Wizard.Prompt.motto"}}</label>
+      <input id="{{rootId}}-motto" type="text" name="motto" value="" class="rl-input--hand" placeholder="{{localize "RL.Wizard.Prompt.mottoPlaceholder"}}" maxlength="80"></div>
+  </div>
+  <footer class="rl-prompt-footer">
+    <button type="button" class="rl-btn" data-action="cancel">{{localize "RL.Wizard.Prompt.later"}}</button>
+    <button type="submit" class="rl-btn rl-btn--primary"><i class="fa-solid fa-signature" inert></i> {{localize "RL.Wizard.Prompt.signIt"}}</button>
+  </footer>
+</div>

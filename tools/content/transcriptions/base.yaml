@@ -1,0 +1,188 @@
+# Transcription source for the base game box. Merged by tools/content/build.py.
+# Text conventions: straight quotes/apostrophes, one paragraph per line, paragraphs separated by a blank
+# line (-> "\n\n"), words hyphenated across printed line breaks are re-joined, emphasis kept only where it is
+# expressed by capitals (DESTROY, DISCARD...). `textSource`: card | yaml | rulebook | init.js.
+pack:
+  label: Base Game
+  order: 0
+  kind: box
+  trigger:
+    key: start
+    text: Open this pack before the first game.
+    when: beforeFirstGame
+
+notes:
+  - Starting powers have no card scans in assets/; their text comes from base/powers/cards.yaml (textSource "yaml"). The rulebook p.6 illustration shows the Khan sticker worded slightly differently ("...place one troop in each territory with a HQ you control.").
+  - "Starting power names are not printed on the stickers; the names here are editorial (\"<Faction>: Starting Power 1/2\")."
+  - Faction images (balkania.png etc.) are character art, not scans of the faction cards; there is no faction-card text to transcribe. images/originals/ holds larger alternative art for the 1- and 3-troop pieces and is not referenced.
+  - base/stickersheet/images/cancel.png (cancel-scar sticker) is a blank white 128x113 placeholder image.
+  - Sticker texts are the matching reward paragraphs from the rulebook (End of Game, pp.14-15), not card text.
+  - Card codes printed on scans - territory cards A1..A42 (e.g. Afghanistan A26), coin card A43, Ammo Shortage A53s, Bunker A56s (three copies of each scar, so presumably A53s-A55s and A56s-A58s).
+  - Territory cards come in two board variants (original / advanced, same art with a different territory colour) and six faces each (1..6 resources). The `value` is the printed starting value (1).
+  - base/macros/* (0.6-era macro scripts and icons) are not content and are ignored.
+
+factions:
+  - yaml: factions:balkania
+    color: "#6f38ad"
+  - yaml: factions:enclave
+    color: "#17a838"
+  - yaml: factions:khan
+    color: "#5f6062"
+  - yaml: factions:mechaniker
+    color: "#9a0b0c"
+  - yaml: factions:saharan
+    color: "#c9b400"
+
+powers:
+  - yaml: powers:khan_1
+    faction: khan
+    name: "Khan Industries: Starting Power 1"
+    timing: startOfTurn
+    effect: {type: placeTroops, where: eachControlledHQ, count: 1}
+  - yaml: powers:khan_2
+    faction: khan
+    name: "Khan Industries: Starting Power 2"
+    timing: drawCard
+    effect: {type: placeTroops, where: drawnTerritoryIfControlled, count: 1, optional: true}
+  - yaml: powers:mechaniker_1
+    faction: mechaniker
+    name: "Die Mechaniker: Starting Power 1"
+    timing: defend
+    effect: null
+  - yaml: powers:mechaniker_2
+    faction: mechaniker
+    name: "Die Mechaniker: Starting Power 2"
+    timing: defend
+    effect: null
+  - yaml: powers:enclave_1
+    faction: enclave
+    name: "Enclave of the Bear: Starting Power 1"
+    timing: attack
+    effect: {type: dieMod, side: defender, die: lowest, delta: -1, condition: firstTerritoryAttackedThisTurn}
+  - yaml: powers:enclave_2
+    faction: enclave
+    name: "Enclave of the Bear: Starting Power 2"
+    timing: attack
+    effect: null
+  - yaml: powers:balkania_1
+    faction: balkania
+    name: "Imperial Balkania: Starting Power 1"
+    timing: recruit
+    effect: {type: recruitRounding, mode: up}
+  - yaml: powers:balkania_2
+    faction: balkania
+    name: "Imperial Balkania: Starting Power 2"
+    timing: drawCard
+    effect: null
+  - yaml: powers:saharan_1
+    faction: saharan
+    name: "Saharan Republic: Starting Power 1"
+    timing: maneuver
+    effect: null
+  - yaml: powers:saharan_2
+    faction: saharan
+    name: "Saharan Republic: Starting Power 2"
+    timing: maneuver
+    effect: null
+
+coinCards:
+  count: 10
+  code: A43
+  value: 1
+  img: assets/unlocks/base/territories/images/coin_card.jpg
+  back: assets/unlocks/base/territories/images/resource_card.jpg
+  icon: assets/unlocks/base/territories/images/coin.png
+  text: EVINCO ORBIS TERRARUM / 2124 A.D.
+  textSource: card
+
+scars:
+  - yaml: scars:bunker
+    name: Bunker
+    code: A56s
+    target: territory
+    text: |-
+      You may play this card prior to an attack roll.
+
+      Place this bunker scar onto the defending territory as long as it's unscarred.
+
+      The defender adds 1 to his higher die when defending this territory.
+    play: {timing: beforeAttackRoll, where: defendingTerritory, requires: unscarred}
+    effect: {type: dieMod, side: defender, die: highest, delta: 1}
+    textSource: card
+  - yaml: scars:ammo_shortage
+    name: Ammo Shortage
+    code: A53s
+    target: territory
+    text: |-
+      You may play this card prior to an attack roll.
+
+      Place this ammo shortage scar onto the defending territory as long as it's unscarred.
+
+      The defender subtracts 1 from his higher die when defending this territory.
+    play: {timing: beforeAttackRoll, where: defendingTerritory, requires: unscarred}
+    effect: {type: dieMod, side: defender, die: highest, delta: -1}
+    textSource: card
+
+stickers:
+  - yaml: stickersheet:coin_pregame
+    name: Coin (before your first game)
+    text: |-
+      Remove the 12 Coin stickers from the card and apply them to the Territory cards. You cannot increase a territory's starting resources beyond 3 before the first game (after the first game a territory card may be slowly increased to 6 resources).
+    effect: {type: upgradeTerritoryCard, delta: 1, max: 3}
+    textSource: rulebook
+  - yaml: stickersheet:fortification
+    name: Fortification
+    text: |-
+      Place a Fortification mark on a city (+1, +1 when defending).
+
+      Take one of the five Fortification marks and place it on the game board encircling any city, even one that was previously fortified. If you are covering a previous Fortification, all remaining uses on the previous Fortification are ignored.
+    effect: {type: fortification, defenderDieDelta: 1, expandExtraTroops: 2, uses: 10, usedBy: attackWith3Troops}
+    textSource: rulebook
+  - yaml: stickersheet:major_city
+    name: Major City
+    text: |-
+      Name and found a major city (2 population).
+
+      Take one of the five Major City marks and place it in any territory that does not already contain a city. Name that city. In future games there will be a Major City there, worth a population of 2, and this territory is now considered a legal starting territory for you and you alone. You may put your initials here to remember you founded it.
+    effect: {type: city, cityType: major, population: 2, legalStartFor: founder}
+    textSource: rulebook
+  - yaml: stickersheet:cancel_scar
+    name: Cancel a Scar
+    text: |-
+      Cancel a Scar (Scar is destroyed).
+
+      Take one of the four 'white' stickers and place it over any of the Scars that have been placed on the board. This territory no longer has a Scar on it, and a new one can be placed on it in future games. You cannot cancel a city with this reward.
+    effect: {type: cancelScar}
+    textSource: rulebook
+  - yaml: stickersheet:continent_bonus
+    name: Continent Bonus +1
+    text: |-
+      Change a continent bonus (+1 or -1 to that continent forever).
+
+      There are two continent marks in the game - a +1 and a -1 mark. These are placed next to a continent bonus on the board to permanently affect that continent bonus. A continent can only be changed once (either up or down).
+    effect: {type: continentBonusMod, delta: 1}
+    textSource: rulebook
+  - yaml: stickersheet:continent_penalty
+    name: Continent Bonus -1
+    text: |-
+      Change a continent bonus (+1 or -1 to that continent forever).
+
+      There are two continent marks in the game - a +1 and a -1 mark. These are placed next to a continent bonus on the board to permanently affect that continent bonus. A continent can only be changed once (either up or down).
+    effect: {type: continentBonusMod, delta: -1}
+    textSource: rulebook
+  - yaml: stickersheet:coin_heldon
+    name: Coin (held on reward)
+    text: |-
+      Upgrade a card (+1 resource)
+
+      Choose a territory you controlled at the end of the game and find its matching Territory card. Add one resource sticker to it. In future games, the resource value of this card will be worth one more. Note: A Territory card can have no more than 6 total resources on it between starting resources and Resource stickers added, and you cannot place a Resource sticker on a Coin card.
+    effect: {type: upgradeTerritoryCard, delta: 1, max: 6}
+    textSource: rulebook
+  - yaml: stickersheet:minor_city
+    name: Minor City
+    text: |-
+      Name and found a Minor City (+1 population).
+
+      Choose a territory you controlled at the end of the game that does not already contain a city. Take one of the nine Minor City marks and place it in that territory. Name that city. In future games there will be a Minor City there, worth a population of 1.
+    effect: {type: city, cityType: minor, population: 1}
+    textSource: rulebook

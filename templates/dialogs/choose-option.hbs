@@ -1,0 +1,15 @@
+<div class="rl-dlg rl-dlg--options">
+  {{#if content}}<div class="rl-callout">{{{content}}}</div>{{/if}}
+  <div class="rl-dlg-options{{#if withImages}} rl-dlg-options--images{{/if}}" style="--rl-option-cols: {{columns}}" role="radiogroup">
+    {{#each tiles as |tile|}}
+    <label class="rl-dlg-option{{#if tile.disabled}} is-disabled{{/if}}"{{#if tile.hint}} data-tooltip="{{localize tile.hint}}"{{/if}}>
+      <input type="radio" name="choice" value="{{tile.index}}" {{checked tile.checked}} {{disabled tile.disabled}}>
+      {{#if tile.img}}<span class="rl-dlg-option__art"><img src="{{tile.img}}" alt=""></span>{{/if}}
+      <span class="rl-dlg-option__text">
+        <span class="rl-dlg-option__label">{{localize tile.label}}</span>
+        {{#if tile.hint}}<span class="rl-dlg-option__hint">{{localize tile.hint}}</span>{{/if}}
+      </span>
+    </label>
+    {{/each}}
+  </div>
+</div>

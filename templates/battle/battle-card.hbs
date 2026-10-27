@@ -1,0 +1,140 @@
+{{!-- Battle chat card (ChatMessage type "battle"). Context: module/battle/card.mjs prepareBattleContext(). --}}
+<div class="risklegacy rl-chat-card rl-battle {{statusClass}}{{#if armed}} is-armed{{/if}}" data-message-id="{{messageId}}">
+  <span class="rl-hazard rl-hazard--thin"></span>
+
+  <header class="rl-chat-card__head rl-battle__head">
+    <div class="rl-battle__headline">
+      <h3 class="rl-chat-card__title">{{title}}</h3>
+      <span class="rl-chat-card__sub">{{sub}}</span>
+    </div>
+    <div class="rl-battle__factions">
+      <span class="rl-battle__faction" style="--rl-faction: {{attacker.color}}">{{attacker.name}}</span>
+      <span class="rl-battle__arrow-right" aria-hidden="true">&rarr;</span>
+      <span class="rl-battle__faction" style="--rl-faction: {{defender.color}}">{{defender.name}}</span>
+    </div>
+  </header>
+
+  <div class="rl-chat-card__body rl-battle__body">
+    <div class="rl-battle__grid" style="--rl-battle-cols: {{columns.length}}">
+      {{!-- attacker row --}}
+      <div class="rl-battle__side" style="--rl-faction: {{attacker.color}}">
+        <span class="rl-battle__place">{{attacker.territory}}</span>
+        <span class="rl-battle__count">{{attacker.troops}}</span>
+      </div>
+      {{#each columns}}
+      <div class="rl-battle__cell">
+        {{#if attack}}{{> "systems/fvtt-risklegacy-v5/templates/battle/die.hbs" die=attack}}{{/if}}
+      </div>
+      {{/each}}
+
+      {{!-- comparison row --}}
+      <div class="rl-battle__side rl-battle__side--vs">
+        {{#if rolled}}<span class="rl-hand rl-hand--red">{{localize "RL.Battle.Card.defeats"}}</span>{{/if}}
+      </div>
+      {{#each columns}}
+      <div class="rl-battle__cell rl-battle__cell--vs">
+        {{#if winner}}<span class="rl-battle__defeats rl-battle__defeats--{{winner}}" aria-hidden="true"></span>{{/if}}
+      </div>
+      {{/each}}
+
+      {{!-- defender row --}}
+      <div class="rl-battle__side" style="--rl-faction: {{defender.color}}">
+        <span class="rl-battle__place">{{defender.territory}}</span>
+        <span class="rl-battle__count">{{defender.troops}}</span>
+      </div>
+      {{#each columns}}
+      <div class="rl-battle__cell">
+        {{#if defend}}{{> "systems/fvtt-risklegacy-v5/templates/battle/die.hbs" die=defend}}{{/if}}
+      </div>
+      {{/each}}
+    </div>
+
+    {{#if modLines.length}}
+    <div class="rl-battle__mods">
+      {{#each modLines}}<div class="rl-hand rl-battle__mod rl-battle__mod--{{side}}"><span class="rl-battle__chip" aria-hidden="true"></span>{{text}}</div>{{/each}}
+    </div>
+    {{/if}}
+
+    {{#if blitzRounds.length}}
+    <ol class="rl-battle__rounds">
+      {{#each blitzRounds}}
+      <li>
+        <span class="rl-battle__round-n">{{n}}</span>
+        <span class="rl-battle__round-dice">{{attack}}</span><span class="rl-battle__round-vs">v</span><span class="rl-battle__round-dice">{{defend}}</span>
+        <span class="rl-battle__round-loss"><span class="rl-battle__chip"></span><span class="rl-battle__round-value">{{attackLoss}}</span><span class="rl-battle__chip rl-battle__chip--defend"></span><span class="rl-battle__round-value">{{defendLoss}}</span></span>
+      </li>
+      {{/each}}
+    </ol>
+    {{/if}}
+
+    {{#if controls.missile}}
+    <div class="rl-battle__missiles{{#if controls.missile.armed}} is-armed{{/if}}">
+      <button type="button" class="rl-btn rl-btn--icon rl-battle__fire" data-battle-action="arm" aria-pressed="{{controls.missile.armed}}">
+        <span class="rl-token rl-token--missile" aria-hidden="true"></span>
+        {{#if controls.missile.armed}}{{localize "RL.Battle.Button.fireCancel"}}{{else}}{{controls.missile.label}}{{/if}}
+      </button>
+      {{#if controls.missile.choose}}
+      <select name="missileFaction" aria-label="{{localize 'RL.Battle.Button.fireAs'}}">
+        {{#each controls.missile.factions}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}} ({{missiles}})</option>{{/each}}
+      </select>
+      {{/if}}
+      {{#if controls.missile.armed}}<span class="rl-battle__hint">{{localize "RL.Battle.Card.fireHint"}}</span>{{/if}}
+    </div>
+    {{/if}}
+
+    {{#if missilesFired}}<div class="rl-battle__fired"><span class="rl-token rl-token--missile" aria-hidden="true"></span> {{missilesFired}}</div>{{/if}}
+
+    {{#if notes.length}}
+    <ul class="rl-battle__notes">{{#each notes}}<li>{{this}}</li>{{/each}}</ul>
+    {{/if}}
+  </div>
+
+  <footer class="rl-chat-card__result rl-battle__result">
+    {{#if resultLabel}}<div class="rl-battle__outcome-label">{{resultLabel}}</div>{{/if}}
+    <div class="rl-battle__outcome">
+      <span>{{resultText}}</span>
+      {{#if conquered}}<span class="rl-stamp rl-battle__stamp">{{localize "RL.Battle.Card.conquered"}}</span>{{/if}}
+    </div>
+    {{#each resultSub}}<div class="rl-battle__outcome-sub">{{this}}</div>{{/each}}
+
+    {{#if controls.any}}
+    <div class="rl-battle__actions">
+      {{#each controls.preRoll}}
+      <button type="button" class="rl-btn rl-btn--icon" data-battle-action="{{action}}" data-faction="{{faction}}" {{#if card}}data-card="{{card}}"{{/if}}>{{label}}</button>
+      {{/each}}
+      {{#if controls.roll}}
+      <button type="button" class="rl-btn rl-btn--primary" data-battle-action="roll"><i class="fa-solid fa-dice" inert></i> {{localize "RL.Battle.Button.roll"}}</button>
+      {{/if}}
+      {{#each controls.defend}}
+      <button type="button" class="rl-btn" data-battle-action="defend" data-dice="{{n}}"><i class="fa-solid fa-shield-halved" inert></i> {{label}}</button>
+      {{/each}}
+      {{#if controls.resolve}}
+      <button type="button" class="rl-btn rl-btn--primary" data-battle-action="resolve" {{#if controls.resolveDisabled}}disabled{{/if}}><i class="fa-solid fa-flag-checkered" inert></i> {{localize "RL.Battle.Button.resolve"}}</button>
+      {{/if}}
+      {{#if controls.moveIn}}
+      <span class="rl-battle__field">
+        <input type="number" name="moveIn" min="1" max="{{controls.moveIn.max}}" value="{{controls.moveIn.value}}" step="1" aria-label="{{localize 'RL.Battle.Button.moveInLabel'}}">
+        <button type="button" class="rl-btn rl-btn--primary" data-battle-action="moveIn">{{localize "RL.Battle.Button.moveIn"}}</button>
+      </span>
+      {{/if}}
+      {{#if controls.attackAgain}}
+      <button type="button" class="rl-btn rl-btn--primary" data-battle-action="attackAgain"><i class="fa-solid fa-rotate-right" inert></i> {{localize "RL.Battle.Button.attackAgain"}}</button>
+      {{/if}}
+      {{#if controls.blitz}}
+      <span class="rl-battle__field" data-tooltip="{{localize 'RL.Battle.Button.blitzHint'}}">
+        <button type="button" class="rl-btn" data-battle-action="blitz"><i class="fa-solid fa-forward-fast" inert></i> {{localize "RL.Battle.Button.blitz"}}</button>
+        <label class="rl-battle__stop-at">{{localize "RL.Battle.Button.blitzStop"}}
+          <input type="number" name="stopAt" min="1" value="{{controls.blitz.value}}" step="1">
+        </label>
+      </span>
+      {{/if}}
+      {{#if controls.stop}}
+      <button type="button" class="rl-btn" data-battle-action="stop">{{localize "RL.Battle.Button.stop"}}</button>
+      {{/if}}
+      {{#if controls.cancel}}
+      <button type="button" class="rl-btn rl-btn--icon rl-battle__cancel" data-battle-action="cancel" data-tooltip="{{localize 'RL.Battle.Button.cancel'}}" aria-label="{{localize 'RL.Battle.Button.cancel'}}"><i class="fa-solid fa-xmark" inert></i></button>
+      {{/if}}
+    </div>
+    {{/if}}
+  </footer>
+</div>

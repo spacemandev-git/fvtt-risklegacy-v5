@@ -1,0 +1,49 @@
+namespace: khan_1.powers.base.risklegacy.spacemandev
+data: 
+  description: "At the start of your turn, place one troop in each territory that has an HQ that you control."
+  type: starter
+--- 
+namespace: khan_2.powers.base.risklegacy.spacemandev
+data:
+  description: "When drawing a territory card, you may place one troop into that territory if you control it."
+  type: starter
+--- 
+namespace: mechaniker_1.powers.base.risklegacy.spacemandev
+data:
+  description: "Your starting HQ is always treated as FORTIFIED when you defend it."
+  type: starter
+--- 
+namespace: mechaniker_2.powers.base.risklegacy.spacemandev
+data:
+  description: "If your defense roll is two natural 6s, that territory cannot be attacked again for the rest of the turn."
+  type: starter
+--- 
+namespace: enclave_1.powers.base.risklegacy.spacemandev
+data:
+  description: "The defender subtracts 1 from their lower defense die in the first territory you attack during your turn."
+  type: starter
+--- 
+namespace: enclave_2.powers.base.risklegacy.spacemandev
+data:
+  description: "If your attack roll is a natural three of a kind and at least one defending troop is defeated, you conquer the territory. Remove all defending troops."
+  type: starter
+--- 
+namespace: balkania_1.powers.base.risklegacy.spacemandev
+data:
+  description: "When recruiting troops, round up when dividing your territory and population by 3, not down."
+  type: starter
+--- 
+namespace: balkania_2.powers.base.risklegacy.spacemandev
+data:
+  description: "You still draw a resource card at the end of your turn where you expanded into 4+ territories, even if you didn't conquer a territory."
+  type: starter
+--- 
+namespace: saharan_1.powers.base.risklegacy.spacemandev
+data:
+  description: "You can make your maneuver at any point during your turn."
+  type: starter
+--- 
+namespace: saharan_2.powers.base.risklegacy.spacemandev
+data:
+  description: "When making your maneuver, you may maneuver between any two territories you control, even if they are not connected."
+  type: starter

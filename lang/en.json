@@ -1,0 +1,450 @@
+{
+  "TYPES": {
+    "Actor": {
+      "faction": "Faction",
+      "campaign": "Campaign (World Board)"
+    },
+    "Item": {
+      "power": "Power Sticker"
+    },
+    "Card": {
+      "territory": "Territory Card",
+      "coin": "Coin Card",
+      "scar": "Scar Card",
+      "mission": "Mission Card",
+      "event": "Event Card",
+      "draft": "Draft Card"
+    },
+    "Combat": {
+      "war": "War"
+    },
+    "ChatMessage": {
+      "battle": "Battle"
+    }
+  },
+  "RL": {
+    "SystemTitle": "Risk Legacy",
+    "Board": {
+      "original": "Original Board",
+      "advanced": "Advanced Board (JediPearce)"
+    },
+    "Faction": {
+      "balkania": "Imperial Balkania",
+      "enclave": "Enclave of the Bear",
+      "khan": "Khan Industries",
+      "mechaniker": "Die Mechaniker",
+      "saharan": "Saharan Republic",
+      "mutants": "Mutants",
+      "Data": {
+        "FIELDS": {
+          "key": {
+            "label": "Faction Key"
+          },
+          "pack": {
+            "label": "Pack"
+          },
+          "color": {
+            "label": "Colour"
+          },
+          "pieces": {
+            "label": "Pieces",
+            "troop": {
+              "label": "1-Troop Piece"
+            },
+            "triple": {
+              "label": "3-Troop Piece"
+            },
+            "hq": {
+              "label": "HQ"
+            }
+          },
+          "history": {
+            "label": "Games Played",
+            "element": {
+              "game": {
+                "label": "Game"
+              },
+              "player": {
+                "label": "Player"
+              },
+              "startingTerritory": {
+                "label": "Starting Territory"
+              },
+              "result": {
+                "label": "Result"
+              }
+            }
+          },
+          "war": {
+            "label": "This War",
+            "active": {
+              "label": "In This War"
+            },
+            "playerId": {
+              "label": "Player"
+            },
+            "playerName": {
+              "label": "Player Name"
+            },
+            "seat": {
+              "label": "Seat"
+            },
+            "redStarTokens": {
+              "label": "Red Star Tokens"
+            },
+            "missiles": {
+              "label": "Missiles"
+            },
+            "reserve": {
+              "label": "Troops to Place"
+            },
+            "startingTerritory": {
+              "label": "Starting Territory"
+            },
+            "status": {
+              "label": "Status"
+            },
+            "knockedOut": {
+              "label": "Knocked Out"
+            }
+          },
+          "notes": {
+            "label": "Notes"
+          }
+        }
+      },
+      "aliens": "Aliens"
+    },
+    "Campaign": {
+      "Data": {
+        "FIELDS": {
+          "boardVariant": {
+            "label": "Board"
+          },
+          "worldName": {
+            "label": "The World Of"
+          },
+          "founding": {
+            "label": "Founding",
+            "date": {
+              "label": "The wars started on"
+            },
+            "signatures": {
+              "label": "Signatures"
+            }
+          },
+          "firstGameReady": {
+            "label": "Ready for the First Game"
+          },
+          "notes": {
+            "label": "Notes"
+          }
+        }
+      }
+    },
+    "Power": {
+      "scar": "Faction Scar",
+      "mission": "Mission Power",
+      "weakness": "Weakness",
+      "missile": "Missile Power",
+      "knockout": "Knockout Power",
+      "starter": "Starting Power",
+      "other": "Other",
+      "Data": {
+        "FIELDS": {
+          "slot": {
+            "label": "Slot"
+          },
+          "text": {
+            "label": "Text"
+          },
+          "faction": {
+            "label": "Printed For"
+          },
+          "pack": {
+            "label": "Pack"
+          },
+          "key": {
+            "label": "Key"
+          },
+          "timing": {
+            "label": "Timing"
+          },
+          "used": {
+            "label": "Used This Game"
+          }
+        }
+      }
+    },
+    "Card": {
+      "territory": {
+        "FIELDS": {
+          "territory": {
+            "label": "Territory"
+          },
+          "continent": {
+            "label": "Continent"
+          },
+          "value": {
+            "label": "Resources"
+          },
+          "slot": {
+            "label": "Sideboard Slot"
+          },
+          "catalogId": {
+            "label": "Catalog Id"
+          },
+          "pack": {
+            "label": "Pack"
+          },
+          "text": {
+            "label": "Text"
+          }
+        }
+      },
+      "coin": {
+        "FIELDS": {
+          "catalogId": {
+            "label": "Catalog Id"
+          },
+          "pack": {
+            "label": "Pack"
+          },
+          "text": {
+            "label": "Text"
+          }
+        }
+      },
+      "scar": {
+        "FIELDS": {
+          "scar": {
+            "label": "Scar"
+          },
+          "target": {
+            "label": "Applies To"
+          },
+          "stickerImg": {
+            "label": "Sticker"
+          },
+          "effect": {
+            "label": "Effect"
+          },
+          "catalogId": {
+            "label": "Catalog Id"
+          },
+          "pack": {
+            "label": "Pack"
+          },
+          "text": {
+            "label": "Text"
+          }
+        }
+      },
+      "mission": {
+        "FIELDS": {
+          "reward": {
+            "label": "Red Stars"
+          },
+          "check": {
+            "label": "Check"
+          },
+          "catalogId": {
+            "label": "Catalog Id"
+          },
+          "pack": {
+            "label": "Pack"
+          },
+          "text": {
+            "label": "Text"
+          }
+        }
+      },
+      "event": {
+        "FIELDS": {
+          "afterResolve": {
+            "label": "After Resolving"
+          },
+          "effect": {
+            "label": "Effect"
+          },
+          "catalogId": {
+            "label": "Catalog Id"
+          },
+          "pack": {
+            "label": "Pack"
+          },
+          "text": {
+            "label": "Text"
+          }
+        }
+      },
+      "draft": {
+        "FIELDS": {
+          "draftType": {
+            "label": "Draft Type"
+          },
+          "players": {
+            "label": "Players"
+          },
+          "value": {
+            "label": "Value"
+          },
+          "catalogId": {
+            "label": "Catalog Id"
+          },
+          "pack": {
+            "label": "Pack"
+          },
+          "text": {
+            "label": "Text"
+          }
+        }
+      }
+    },
+    "War": {
+      "Data": {
+        "FIELDS": {
+          "game": {
+            "label": "Game"
+          },
+          "stage": {
+            "label": "Stage"
+          },
+          "phase": {
+            "label": "Turn Step"
+          }
+        }
+      }
+    },
+    "Battle": {
+      "Data": {
+        "FIELDS": {
+          "attacker": {
+            "label": "Attacker"
+          },
+          "defender": {
+            "label": "Defender"
+          },
+          "from": {
+            "label": "From"
+          },
+          "to": {
+            "label": "To"
+          }
+        }
+      }
+    },
+    "Piece": {
+      "troop": "1-Troop Piece",
+      "triple": "3-Troop Piece",
+      "hq": "HQ"
+    },
+    "Stage": {
+      "setup": "Setup",
+      "placement": "Choosing Factions",
+      "playing": "At War",
+      "ended": "Game Over"
+    },
+    "Phase": {
+      "start": "Start of Turn",
+      "recruit": "Join the War or Recruit Troops",
+      "attack": "Expand & Attack",
+      "maneuver": "Maneuver Troops",
+      "end": "End of Turn"
+    },
+    "Status": {
+      "playing": "Playing",
+      "knockedOut": "Knocked Out",
+      "eliminated": "Eliminated"
+    },
+    "Result": {
+      "won": "Won",
+      "heldOn": "Held On",
+      "eliminated": "Eliminated",
+      "absent": "X"
+    },
+    "City": {
+      "minor": "Minor City",
+      "major": "Major City",
+      "capital": "World Capital"
+    },
+    "Scar": {
+      "bunker": "Bunker",
+      "ammo_shortage": "Ammo Shortage"
+    },
+    "Sticker": {
+      "coin_pregame": "Coin (Before First Game)",
+      "coin_heldon": "Coin (Held On)",
+      "minor_city": "Minor City",
+      "major_city": "Major City",
+      "fortification": "Fortification",
+      "cancel_scar": "Cancel Scar",
+      "continent_plus": "Continent +1",
+      "continent_minus": "Continent −1"
+    },
+    "Reward": {
+      "nameContinent": "Name a Continent",
+      "nameContinentHint": "+1 reinforcement for you only when you control it.",
+      "foundMajorCity": "Name and Found a Major City",
+      "foundMajorCityHint": "Population 2, and a legal starting territory for you alone.",
+      "cancelScar": "Cancel a Scar",
+      "cancelScarHint": "The scar is destroyed; a new one can be placed there later.",
+      "changeContinentBonus": "Change a Continent Bonus",
+      "changeContinentBonusHint": "+1 or −1 to that continent forever (once per continent).",
+      "fortifyCity": "Place a Fortification on a City",
+      "fortifyCityHint": "+1 to both defence dice; 10 uses.",
+      "destroyTerritoryCard": "Destroy a Territory Card",
+      "destroyTerritoryCardHint": "The card is torn up for good.",
+      "foundMinorCity": "Name and Found a Minor City",
+      "foundMinorCityHint": "In a territory you controlled at the end of the game. Population 1.",
+      "upgradeCard": "Upgrade a Card",
+      "upgradeCardHint": "+1 resource on a territory you controlled at the end of the game (max 6)."
+    },
+    "Pack": {
+      "base": "Base Game",
+      "minorcities": "Package 1: Minor Cities",
+      "eliminated": "Package 2: Eliminated",
+      "secondwin": "Package 3: Second Signature",
+      "worldcapital": "Package 4: World Capital",
+      "threemissiles": "Pocket 1: Three Missiles",
+      "thirtytroops": "Pocket 2: Thirty Troops"
+    },
+    "Cards": {
+      "territoryDeck": "Territory Deck",
+      "coinDeck": "Coin Cards",
+      "row": "Sideboard: Face-up Territories",
+      "discard": "Discard Pile",
+      "scarDeck": "Scar Cards",
+      "missionDeck": "Mission Deck",
+      "missionSlot": "Sideboard: Mission",
+      "eventDeck": "Event Deck",
+      "eventDiscard": "Events in Play",
+      "draftDeck": "Draft Cards",
+      "hand": "{faction}: Hand"
+    },
+    "Settings": {
+      "enforcement": {
+        "name": "Rules Enforcement",
+        "hint": "Strict blocks illegal moves and actions. Advisory warns but allows them. Off turns checking off for free play.",
+        "strict": "Strict",
+        "advisory": "Advisory",
+        "off": "Off"
+      },
+      "defenderChoice": {
+        "name": "Defender Dice",
+        "hint": "Auto rolls the most dice the defender can. Prompt asks the defending player every battle.",
+        "auto": "Auto (maximum)",
+        "prompt": "Ask the defender"
+      }
+    },
+    "Enforce": {
+      "blocked": "Not allowed: {reason}",
+      "advisory": "Rules check: {reason} (allowed: advisory mode)"
+    },
+    "Error": {
+      "noGM": "A Gamemaster must be connected to play Risk Legacy: game actions run on the GM's client.",
+      "noCampaign": "There is no campaign in this world yet.",
+      "notYourTurn": "It isn't your turn."
+    }
+  }
+}

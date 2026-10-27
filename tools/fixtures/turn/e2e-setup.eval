@@ -1,0 +1,83 @@
+// Turn area e2e, part 1: campaign, scene, decks, war, starting placement → first turn.
+// The *.eval files are function bodies for `fvtt-browser.mjs eval --file` (top-level return, so not .js). Run with the
+// canvas enabled, in order: e2e-setup → e2e-turn1 → e2e-turn2; e2e-powers and e2e-elim each start a new war.
+// Run: node $S/fvtt-browser.mjs eval --port 30011 --sandbox "$SB/sandbox-turn" --file tools/fixtures/turn/e2e-setup.eval
+const RL = game.risklegacy;
+const log = [];
+const step = (name, data) => log.push({ step: name, ...(data ?? {}) });
+const wait = ms => new Promise(r => setTimeout(r, ms));
+async function waitFor(fn, ms = 15000) {
+  const t0 = Date.now();
+  while ( Date.now() - t0 < ms ) {
+    try { if ( fn() ) return true; } catch(e) { /* keep waiting */ }
+    await wait(150);
+  }
+  return false;
+}
+await waitFor(() => RL.state.getCampaignBoard());
+
+// Clean slate
+for ( const c of game.combats.contents ) await c.delete();
+for ( const m of game.messages.contents ) await m.delete();
+const { campaign, factions } = await RL.dev.createTestCampaign({ variant: "original" });
+step("campaign", { campaign: campaign.id, factions: factions.map(f => f.system.key) });
+
+let scene = RL.state.getBoardScene();
+if ( !scene ) {
+  const id = await RL.board.buildBoardScene({ variant: "original", activate: true });
+  scene = game.scenes.get(id);
+}
+for ( const t of scene.tokens.contents ) await t.delete();
+step("scene", { scene: scene.id, regions: scene.regions.size });
+await RL.cards.buildDecks({});
+await RL.cards.setupSideboard({});
+step("sideboard", { row: RL.cards.getRow().map(c => c.system.territory) });
+
+// Players
+const names = ["Ana", "Ben", "Cy"];
+const users = [];
+for ( const name of names ) users.push(game.users.getName(name) ?? await User.create({ name, role: 1 }));
+const [khan, balk, sah] = ["khan", "balkania", "saharan"].map(k => RL.state.getFactionByKey(k));
+// Starting powers for the test
+const powers = { khan: ["khan_1", "khan_2"], balkania: ["balkania_1"], saharan: ["saharan_1"] };
+for ( const f of [khan, balk, sah] ) {
+  await f.deleteEmbeddedDocuments("Item", f.items.map(i => i.id));
+  await f.createEmbeddedDocuments("Item", powers[f.system.key].map(key => ({ name: key, type: "power", system: { key, slot: "starter", faction: f.system.key } })));
+}
+
+const created = await RL.turn.createWar({ participants: [
+  { faction: khan.id, userId: users[0].id, seat: 0 },
+  { faction: balk.id, userId: users[1].id, seat: 1 },
+  { faction: sah.id, userId: users[2].id, seat: 2 }
+] });
+const war = RL.state.getWar();
+step("createWar", {
+  created, stage: war.system.stage, order: war.turns.map(c => c.actor.system.key),
+  initiative: war.turns.map(c => c.initiative), redStars: [khan, balk, sah].map(f => f.system.war.redStarTokens),
+  ownership: users[0].id in khan.ownership
+});
+
+await RL.turn.beginPlacement({ order: [khan.id, balk.id, sah.id] });
+step("beginPlacement", { stage: war.system.stage, index: war.system.placement.index, info: RL.turn.getTurnInfo().factionId === khan.id });
+
+// Out of order: refused (strict)
+const outOfOrder = await RL.turn.placeStartingForces({ faction: balk.id, territory: "egypt" });
+step("outOfOrder", { result: outOfOrder });
+// Adjacent-to-HQ rule
+await RL.turn.placeStartingForces({ faction: khan.id, territory: "siberia" });
+const adjacent = await RL.turn.placeStartingForces({ faction: balk.id, territory: "ural" });
+step("adjacentHQ", { result: adjacent, legal: RL.rules.checkStartingTerritory(RL.turn.snapshot(), balk.id, "ural").reason });
+await RL.turn.placeStartingForces({ faction: balk.id, territory: "brazil" });
+await RL.turn.placeStartingForces({ faction: sah.id, territory: "egypt" });
+await waitFor(() => RL.state.getWar()?.system.turn.flags.startOfTurn);
+const snap = RL.turn.snapshot();
+const info = RL.turn.getTurnInfo();
+step("placed", {
+  stage: war.system.stage, round: war.round, turn: war.turn, current: info.faction?.system.key, phase: info.phase,
+  turnFaction: war.system.turn.faction === khan.id,
+  troops: Object.fromEntries([khan, balk, sah].map(f => [f.system.key, snap.factions[f.id].troops])),
+  hqs: Object.fromEntries([khan, balk, sah].map(f => [f.system.key, snap.factions[f.id].hqs])),
+  khan1: war.system.turn.flags.startOfTurn,
+  startingTroops: war.system.startingTroops
+});
+return { log, chat: game.messages.contents.map(m => m.flags?.["fvtt-risklegacy-v5"]?.turn ?? m.type).filter(Boolean) };

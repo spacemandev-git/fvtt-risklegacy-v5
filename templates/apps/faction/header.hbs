@@ -1,0 +1,22 @@
+<header class="rl-fs-header">
+  <span class="rl-fs-header__hq"><img src="{{hq}}" alt=""></span>
+  <div class="rl-fs-header__titles">
+    <h1 class="rl-title rl-title--sm">{{actor.name}}</h1>
+    <p class="rl-fs-header__sub">
+      {{#if inWar}}
+        {{#if player}}<span class="rl-fs-header__player"><span class="rl-label">{{localize "RL.Sheet.Faction.Commander"}}</span> <span class="rl-hand">{{player}}</span></span>{{/if}}
+        <span>{{localize "RL.Sheet.Faction.InGame" game=gameNumber}}</span>
+      {{else}}
+        <span>{{localize "RL.Sheet.Faction.NotInWar"}}</span>
+      {{/if}}
+      <span>{{localize "RL.Sheet.Faction.Record" won=record.won heldOn=record.heldOn eliminated=record.eliminated}}</span>
+    </p>
+  </div>
+  {{#if statusLabel}}<span class="rl-stamp rl-fs-header__stamp is-{{status}}">{{statusLabel}}</span>{{/if}}
+  {{#if inWar}}
+  <div class="rl-ui-stars" data-tooltip="{{localize "RL.Sheet.Faction.RedStarsTip" tokens=redStars.tokens hqs=redStars.hqs}}">
+    {{#each redStars.slots as |s|}}<span class="rl-ui-star rl-ui-star--{{s.kind}}"></span>{{/each}}
+    <span class="rl-ui-stars__count"><b>{{redStars.total}}</b>/{{redStars.goal}}</span>
+  </div>
+  {{/if}}
+</header>

@@ -1,0 +1,37 @@
+<div class="rl-camp-step rl-camp-step--draft">
+  <h2 class="rl-title">{{localize "RL.Wizard.Setup.draftTitle"}}</h2>
+  <div class="rl-legal rl-camp-setup-draftnote"><span class="rl-hand">{{localize "RL.Wizard.Setup.draftRules"}}</span>{{localize "RL.Wizard.Setup.draftLead"}}</div>
+  {{#unless hasDraftCards}}<p class="rl-hand rl-hand--red">{{localize "RL.Wizard.Setup.noDraftCards"}}</p>{{/unless}}
+  <ol class="rl-camp-draft-sequence">
+    {{#each sequence}}<li class="{{#if done}}is-done{{/if}} {{#if current}}is-current{{/if}}">{{name}}</li>{{/each}}
+  </ol>
+  <table class="rl-camp-table rl-camp-draft-table">
+    <thead><tr>
+      <th></th><th>{{localize "RL.Wizard.Setup.player"}}</th><th>{{localize "RL.Wizard.Setup.faction"}}</th>
+      <th>{{localize "RL.Wizard.Draft.type.turnOrder"}}</th><th>{{localize "RL.Wizard.Draft.type.placement"}}</th>
+      <th>{{localize "RL.Wizard.Draft.type.troops"}}</th><th>{{localize "RL.Wizard.Draft.type.coin"}}</th>
+    </tr></thead>
+    <tbody>
+      {{#each rows}}
+      <tr class="{{#if current}}is-current{{/if}}">
+        <td><span class="rl-num">{{n}}</span></td>
+        <td>{{name}}</td>
+        <td>{{#if faction}}<b>{{faction.name}}</b>{{else}}<span class="rl-slot rl-slot--mini"></span>{{/if}}</td>
+        <td>{{#if turnOrder}}{{turnOrder}}{{else}}<span class="rl-slot rl-slot--mini"></span>{{/if}}</td>
+        <td>{{#if placement}}{{placement}}{{else}}<span class="rl-slot rl-slot--mini"></span>{{/if}}</td>
+        <td>{{#if troops}}{{troops}}{{else}}<span class="rl-slot rl-slot--mini"></span>{{/if}}</td>
+        <td>{{#if coin}}{{coin}}{{else}}<span class="rl-slot rl-slot--mini"></span>{{/if}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  {{#unless complete}}
+  <h3 class="rl-subhead">{{localize "RL.Wizard.Setup.stillOnTheTable"}}</h3>
+  <div class="rl-camp-draft-cards">
+    {{#each cards}}<figure class="rl-camp-draft-card"><img src="{{img}}" alt="{{name}}" loading="lazy"><figcaption>{{name}}</figcaption></figure>{{/each}}
+  </div>
+  <div class="rl-camp-faction-grid rl-camp-faction-grid--small">
+    {{#each available}}{{> "systems/fvtt-risklegacy-v5/templates/campaign/parts/faction-card.hbs" this}}{{/each}}
+  </div>
+  {{/unless}}
+</div>

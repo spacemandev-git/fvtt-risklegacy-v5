@@ -1,0 +1,45 @@
+<div class="rl-camp-step rl-camp-step--deploy">
+  <h2 class="rl-title">{{localize "RL.Wizard.Setup.deployTitle"}}</h2>
+  <table class="rl-camp-table rl-camp-seat-table">
+    <thead><tr>
+      <th>{{localize "RL.Wizard.Setup.seat"}}</th><th>{{localize "RL.Wizard.Setup.player"}}</th><th>{{localize "RL.Wizard.Setup.faction"}}</th>
+      <th>{{localize "RL.Wizard.Setup.tokens"}}</th><th>{{localize "RL.Wizard.Draft.type.troops"}}</th>{{#if draft}}<th>{{localize "RL.Wizard.Draft.type.coin"}}</th>{{/if}}
+    </tr></thead>
+    <tbody>
+      {{#each seats}}
+      <tr>
+        <td><span class="rl-num">{{seat}}</span></td>
+        <td>{{name}}</td>
+        <td class="rl-faction--{{faction.key}}"><img class="rl-camp-seat-table__art" src="{{faction.img}}" alt=""> <b>{{faction.name}}</b></td>
+        <td>{{#if redStar}}<span class="rl-token"></span>{{else}}<span class="rl-counter"><span class="rl-token rl-token--missile"></span><span class="rl-counter__value">{{missiles}}</span></span>{{/if}}</td>
+        <td>{{troops}}</td>
+        {{#if ../draft}}<td>{{coins}}</td>{{/if}}
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  {{#if deployed}}
+  <h3 class="rl-subhead">{{localize "RL.Wizard.Setup.placementTitle"}}</h3>
+  <p class="rl-lead">{{localize "RL.Wizard.Setup.placementLead"}}</p>
+  <ol class="rl-camp-pick-list">
+    {{#each placement}}
+    <li class="rl-camp-pick {{#if current}}is-current{{/if}} {{#if territory}}is-done{{/if}}">
+      <span class="rl-num">{{n}}</span>
+      <span class="rl-camp-pick__faction rl-faction--{{key}}"><img src="{{img}}" alt=""> <b>{{faction}}</b></span>
+      <span class="rl-camp-pick__player">{{player}}</span>
+      {{#if territory}}<span class="rl-hand">{{territory}}</span>{{else if current}}<span class="rl-hand rl-hand--red">{{localize "RL.Wizard.Setup.choosing"}}</span>{{/if}}
+    </li>
+    {{/each}}
+  </ol>
+  {{else}}
+  <div class="rl-callout">{{localize "RL.Wizard.Setup.deployCallout"}}</div>
+  <ul class="rl-camp-checklist">
+    <li>{{localize "RL.Wizard.Setup.deployClear"}}</li>
+    <li>{{localize "RL.Wizard.Setup.deploySideboard"}}</li>
+    <li>{{localize "RL.Wizard.Setup.deployWar"}}</li>
+    <li>{{localize "RL.Wizard.Setup.deployOwnership"}}</li>
+    <li>{{localize "RL.Wizard.Setup.deployScars"}}</li>
+    {{#if draft}}<li>{{localize "RL.Wizard.Setup.deployCoins"}}</li>{{/if}}
+  </ul>
+  {{/if}}
+</div>

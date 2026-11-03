@@ -128,6 +128,38 @@ export function canActFor(user, faction) {
   return user.isGM || (actor.system.war?.playerId === user.id) || actor.testUserPermission(user, "OWNER");
 }
 
+/**
+ * Does this GM client have the "show all hands" override on (client setting `gmSeeAllHands`, off by default)?
+ * @param {User} [user]
+ */
+export function gmSeesAllHands(user = game.user) {
+  if ( !user?.isGM || (user !== game.user) ) return false;
+  try {
+    return !!game.settings.get(SYSTEM_ID, "gmSeeAllHands");
+  } catch(err) {
+    return false;
+  }
+}
+
+/**
+ * May this user see the faces of a faction's hand (its scar cards, resource cards and coin total)? A hand is secret
+ * information: only the faction's own player sees it. Unlike {@link canActFor}, being a GM is NOT enough: a GM who also
+ * plays sees only the faction(s) they play (`system.war.playerId`); bot factions belong to their bot user, not to the
+ * GM. A GM can see every hand only with the explicit `gmSeeAllHands` override. Players also see hands of factions
+ * they own (hand/actor OWNER, e.g. hot-seat set up by the GM). This only gates *display*; the GM action bus and the
+ * bots read hands directly.
+ * @param {User} user
+ * @param {Actor|string} faction
+ */
+export function canSeeHand(user, faction) {
+  const actor = typeof faction === "string" ? game.actors.get(faction) : faction;
+  if ( !actor || !user ) return false;
+  if ( actor.system.war?.playerId === user.id ) return true;
+  if ( user.isGM ) return gmSeesAllHands(user);
+  if ( getHand(actor)?.testUserPermission(user, "OWNER") ) return true;
+  return actor.testUserPermission(user, "OWNER");
+}
+
 /** Is it this user's faction's turn (GMs: is anyone's turn in progress)? */
 export function isMyTurn(user = game.user) {
   const faction = currentFaction();

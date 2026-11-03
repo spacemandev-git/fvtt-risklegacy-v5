@@ -6,8 +6,8 @@
 
 .risklegacy.rl-battle {
   --rl-battle-squiggle: url("assets/svg/marker-arrow-squiggle.svg");
-  --rl-battle-die: 30px;
-  max-width: 300px;
+  --rl-battle-die: 39px;
+  max-width: 390px;
   overflow: visible;
 }
 
@@ -24,7 +24,7 @@
   gap: var(--rl-space-4);
 }
 .risklegacy.rl-battle .rl-battle__headline .rl-chat-card__title {
-  font-size: 18px;
+  font-size: 23px;
   overflow-wrap: anywhere;
 }
 .risklegacy.rl-battle .rl-battle__headline .rl-chat-card__sub { flex: none; }
@@ -33,7 +33,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--rl-space-2) var(--rl-space-3);
-  font: 700 11px/1.15 var(--rl-font-body);
+  font: 700 14px/1.15 var(--rl-font-body);
   letter-spacing: var(--rl-track-caps);
   text-transform: uppercase;
   color: var(--rl-ink);
@@ -41,12 +41,12 @@
 .risklegacy.rl-battle .rl-battle__faction {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 .risklegacy.rl-battle .rl-battle__faction::before {   /* faction colour chip (data, not decoration) */
   content: "";
   flex: none;
-  width: 9px; height: 9px;
+  width: 12px; height: 12px;
   background: var(--rl-faction);
   box-shadow: inset 0 0 0 1px rgb(0 0 0 / .35);
 }
@@ -56,7 +56,7 @@
 .risklegacy.rl-battle .rl-battle__body { gap: var(--rl-space-4); padding: var(--rl-space-5); }
 .risklegacy.rl-battle .rl-battle__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) repeat(var(--rl-battle-cols, 3), 34px);
+  grid-template-columns: minmax(0, 1fr) repeat(var(--rl-battle-cols, 3), 44px);
   grid-auto-rows: auto;
   column-gap: var(--rl-space-4);   /* room for the dashed missile-target outlines between dice */
   row-gap: 0;
@@ -69,39 +69,49 @@
   justify-content: center;
   gap: var(--rl-space-1);
   min-width: 0;
-  min-height: 34px;
+  min-height: 44px;
   padding-left: var(--rl-space-4);
   border-left: 4px solid var(--rl-faction);
 }
 /* Territory names wrap rather than ellipsize ("Western United States" is two lines in a 300 px card). */
 .risklegacy.rl-battle .rl-battle__place {
-  overflow-wrap: anywhere;
-  font: 800 14px/1.05 var(--rl-font-display);
+  overflow-wrap: break-word;   /* break between words; only split a word wider than the column ("KAMCHA-TKA" with 3 dice) */
+  hyphens: auto;
+  font: 800 16px/1.05 var(--rl-font-display);
   letter-spacing: var(--rl-track-caps);
   text-transform: uppercase;
 }
 .risklegacy.rl-battle .rl-battle__count {
-  font: italic 11px/1.15 var(--rl-font-body);
+  font: italic 14px/1.15 var(--rl-font-body);
   color: var(--rl-k70);
 }
 .risklegacy.rl-battle .rl-battle__side--vs {
-  min-height: 24px;
+  min-height: 31px;
   border-left-color: transparent;
   align-items: flex-end;
-  padding-right: 2px;
+  padding-right: 3px;
 }
-.risklegacy.rl-battle .rl-battle__side--vs .rl-hand { font-size: 17px; line-height: 1; transform: rotate(-4deg); }
+.risklegacy.rl-battle .rl-battle__side--vs .rl-hand { font-size: 22px; line-height: 1; white-space: nowrap; transform: rotate(-4deg); }
 .risklegacy.rl-battle .rl-battle__cell {
   display: grid;
   place-items: center;
-  min-height: 34px;
+  min-height: 44px;
 }
-.risklegacy.rl-battle .rl-battle__cell--vs { min-height: 24px; }
+.risklegacy.rl-battle .rl-battle__cell--vs { min-height: 31px; }
+
+/* Three attack dice leave the name column too narrow in the 300 px chat sidebar at the 1.3x scale: tighter dice. */
+.risklegacy.rl-battle .rl-battle__grid[style*="--rl-battle-cols: 3"] {
+  --rl-battle-die: 34px;
+  grid-template-columns: minmax(0, 1fr) repeat(3, 37px);
+  column-gap: var(--rl-space-3);
+}
+.risklegacy.rl-battle .rl-battle__grid[style*="--rl-battle-cols: 3"] .rl-battle__place { font-size: 15px; }
+.risklegacy.rl-battle .rl-battle__grid[style*="--rl-battle-cols: 3"] .rl-battle__die[data-mod]::after { right: -10px; top: -14px; font-size: 23px; }
 
 /* the marker "defeats" arrow: points at the die that lost */
 .risklegacy.rl-battle .rl-battle__defeats {
   display: block;
-  width: 10px; height: 24px;
+  width: 13px; height: 31px;
   background: var(--rl-red);
   -webkit-mask: var(--rl-battle-squiggle) center / contain no-repeat;
           mask: var(--rl-battle-squiggle) center / contain no-repeat;
@@ -113,18 +123,18 @@
   width: var(--rl-battle-die); height: var(--rl-battle-die);
   user-select: none;
 }
-.risklegacy.rl-battle .rl-battle__die[data-mod]::after { right: -10px; top: -13px; font-size: 21px; }
+.risklegacy.rl-battle .rl-battle__die[data-mod]::after { right: -13px; top: -17px; font-size: 27px; }
 .risklegacy.rl-battle .rl-battle__die.is-lost { opacity: .4; }
 .risklegacy.rl-battle .rl-battle__die.is-ignored { opacity: .3; filter: grayscale(.7); }
 .risklegacy.rl-battle .rl-battle__die.is-pending {
   color: rgb(255 255 255 / .75);
-  font-size: 16px;
+  font-size: 21px;
 }
 .risklegacy.rl-battle .rl-battle__die.is-missile { box-shadow: inset 0 -3px 0 rgb(0 0 0 / .45), 0 0 0 2px var(--rl-missile), 0 1px 2px rgb(0 0 0 / .45); }
 .risklegacy.rl-battle .rl-battle__missile {
   position: absolute;
-  left: -7px; bottom: -9px;
-  width: 9px; height: 22px;
+  left: -9px; bottom: -12px;
+  width: 12px; height: 29px;
   transform: rotate(-24deg);
   filter: drop-shadow(0 1px 1px rgb(0 0 0 / .4));
 }
@@ -150,7 +160,7 @@
   display: flex;
   align-items: center;
   gap: var(--rl-space-3);
-  font-size: 16px;
+  font-size: 21px;
   line-height: 1.05;
   text-align: right;
 }
@@ -158,8 +168,8 @@
 .risklegacy.rl-battle .rl-battle__mod--defend { color: var(--rl-red); }
 .risklegacy.rl-battle .rl-battle__chip {
   flex: none;
-  width: 10px; height: 10px;
-  border-radius: 2px;
+  width: 13px; height: 13px;
+  border-radius: 3px;
   background: linear-gradient(160deg, #3a3a3a, #121212);
 }
 .risklegacy.rl-battle :is(.rl-battle__mod--defend .rl-battle__chip, .rl-battle__chip--defend) { background: linear-gradient(160deg, #e2262d, #a8121a); }
@@ -169,19 +179,19 @@
   display: grid;
   gap: var(--rl-space-1);
   margin: 0;
-  padding: var(--rl-space-3) 10px;
+  padding: var(--rl-space-3) 13px;
   list-style: none;
   background: var(--rl-grad-steel);
   box-shadow: var(--rl-bevel-steel);
-  font: 700 11px/1.3 var(--rl-font-body);
+  font: 700 14px/1.3 var(--rl-font-body);
   font-variant-numeric: tabular-nums;
 }
 .risklegacy.rl-battle .rl-battle__rounds > li { display: flex; gap: var(--rl-space-3); align-items: center; }
-.risklegacy.rl-battle .rl-battle__round-n { min-width: 14px; color: var(--rl-k70); }
+.risklegacy.rl-battle .rl-battle__round-n { min-width: 18px; color: var(--rl-k70); }
 .risklegacy.rl-battle .rl-battle__round-dice { word-spacing: 2px; }
 .risklegacy.rl-battle .rl-battle__round-vs { color: var(--rl-red); }
 .risklegacy.rl-battle .rl-battle__round-loss { display: inline-flex; align-items: center; gap: var(--rl-space-2); margin-left: auto; color: var(--rl-k80); }
-.risklegacy.rl-battle .rl-battle__round-loss .rl-battle__chip { width: 8px; height: 8px; }
+.risklegacy.rl-battle .rl-battle__round-loss .rl-battle__chip { width: 10px; height: 10px; }
 .risklegacy.rl-battle .rl-battle__round-loss .rl-battle__chip--defend { margin-left: var(--rl-space-3); }
 /* fixed-width loss figures so the chips line up from round to round ("0" vs "−2") */
 .risklegacy.rl-battle .rl-battle__round-value { min-width: 2ch; text-align: right; }
@@ -193,16 +203,16 @@
   align-items: center;
   gap: var(--rl-space-3) var(--rl-space-4);
 }
-.risklegacy.rl-battle .rl-battle__missiles select { flex: 1 1 90px; min-width: 0; min-height: 28px; padding: 2px 6px; font-size: 12px; }
+.risklegacy.rl-battle .rl-battle__missiles select { flex: 1 1 117px; min-width: 0; min-height: 36px; padding: 3px 8px; font-size: 16px; }
 .risklegacy.rl-battle .rl-battle__fire .rl-token--missile,
-.risklegacy.rl-battle .rl-battle__fired .rl-token--missile { width: 8px; height: 19px; }
+.risklegacy.rl-battle .rl-battle__fired .rl-token--missile { width: 10px; height: 25px; }
 .risklegacy.rl-battle .rl-battle__missiles.is-armed .rl-battle__fire {
   background: var(--rl-missile);
   color: #fff;
 }
 .risklegacy.rl-battle .rl-battle__hint,
 .risklegacy.rl-battle .rl-battle__fired {
-  font: italic 11px/1.2 var(--rl-font-body);
+  font: italic 14px/1.2 var(--rl-font-body);
   color: var(--rl-k80);
 }
 .risklegacy.rl-battle .rl-battle__hint { flex-basis: 100%; }
@@ -215,7 +225,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  font: italic 11px/1.25 var(--rl-font-body);
+  font: italic 14px/1.25 var(--rl-font-body);
   color: var(--rl-k80);
 }
 
@@ -230,12 +240,12 @@
 .risklegacy.rl-battle .rl-battle__outcome > span:first-child { white-space: pre-line; }
 .risklegacy.rl-battle .rl-battle__stamp {
   flex: none;
-  font-size: 17px;
+  font-size: 22px;
   border-width: 2px;
-  padding: 2px 6px 0;
+  padding: 3px 8px 0;
 }
-.risklegacy.rl-battle .rl-battle__outcome-sub { font: 400 12px/1.25 var(--rl-font-body); }
-.risklegacy.rl-battle .rl-battle__outcome-label { font: italic 400 11px/1.1 var(--rl-font-body); color: var(--rl-k70); }
+.risklegacy.rl-battle .rl-battle__outcome-sub { font: 400 16px/1.25 var(--rl-font-body); }
+.risklegacy.rl-battle .rl-battle__outcome-label { font: italic 400 14px/1.1 var(--rl-font-body); color: var(--rl-k70); }
 .risklegacy.rl-battle .rl-battle__actions {
   display: flex;
   flex-wrap: wrap;
@@ -246,29 +256,29 @@
 /* Compact steel buttons for the 300 px card, still padded ≥ 6 × 10 px around the label (DESIGN.md §5). */
 .risklegacy.rl-battle .rl-battle__actions .rl-btn,
 .risklegacy.rl-battle .rl-battle__missiles .rl-btn {
-  min-height: 28px;
-  padding: 6px 10px 4px;
-  font-size: 13px;
+  min-height: 36px;
+  padding: 8px 13px 5px;
+  font-size: 17px;
   gap: var(--rl-space-3);
 }
-.risklegacy.rl-battle .rl-battle__actions .rl-btn.rl-btn--icon { min-width: 32px; padding-inline: var(--rl-space-4); }
-.risklegacy.rl-battle .rl-battle__actions .rl-btn > i { font-size: 11px; }
+.risklegacy.rl-battle .rl-battle__actions .rl-btn.rl-btn--icon { min-width: 42px; padding-inline: var(--rl-space-4); }
+.risklegacy.rl-battle .rl-battle__actions .rl-btn > i { font-size: 14px; }
 .risklegacy.rl-battle .rl-battle__field {
   display: inline-flex;
   align-items: center;
   gap: var(--rl-space-3);
 }
 .risklegacy.rl-battle .rl-battle__field input[type="number"] {
-  width: 44px;
-  min-height: 28px;
-  padding: 2px 4px;
-  font: 700 14px/1 var(--rl-font-body);
+  width: 57px;
+  min-height: 36px;
+  padding: 3px 5px;
+  font: 700 18px/1 var(--rl-font-body);
 }
 .risklegacy.rl-battle .rl-battle__stop-at {
   display: inline-flex;
   align-items: center;
   gap: var(--rl-space-2);
-  font: italic 11px/1 var(--rl-font-body);
+  font: italic 14px/1 var(--rl-font-body);
   color: var(--rl-k80);
 }
 .risklegacy.rl-battle .rl-battle__cancel { margin-left: auto; }
@@ -279,7 +289,54 @@
 /* the defender's dialog */
 .risklegacy .rl-battle-defense { margin: 0; display: grid; gap: var(--rl-space-4); }
 .risklegacy .rl-battle-defense p { margin: 0; }
-.risklegacy .rl-battle-defense__hint { font: italic 12px/1.25 var(--rl-font-body); color: var(--rl-k70); }
+.risklegacy .rl-battle-defense__hint { font: italic 16px/1.25 var(--rl-font-body); color: var(--rl-k70); }
+
+/* ---- header route: ATTACKING TERRITORY over → DEFENDING TERRITORY, each with its faction ----------------- */
+.risklegacy.rl-battle .rl-battle__route {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: ". from" "arrow to";
+  align-items: center;
+  gap: var(--rl-space-2) var(--rl-space-3);
+}
+.risklegacy.rl-battle .rl-battle__route-end {
+  grid-area: from;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px var(--rl-space-3);
+  min-width: 0;
+  padding-left: var(--rl-space-3);
+  border-left: 5px solid var(--rl-faction);
+}
+.risklegacy.rl-battle .rl-battle__route-end--target { grid-area: to; }
+.risklegacy.rl-battle .rl-battle__route-arrow { grid-area: arrow; }
+.risklegacy.rl-battle .rl-battle__route-place {
+  overflow-wrap: break-word;   /* break between words; only a word wider than the column is split */
+  font: 900 22px/1 var(--rl-font-display);
+  letter-spacing: .01em;
+  text-transform: uppercase;
+  color: var(--rl-ink);
+}
+.risklegacy.rl-battle .rl-battle__route-end--target .rl-battle__route-place { color: var(--rl-red); }
+.risklegacy.rl-battle .rl-battle__route .rl-battle__faction {
+  display: block;
+  min-width: 0;
+  overflow-wrap: break-word;
+  font: 700 12px/1.15 var(--rl-font-body);
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: var(--rl-k70);
+}
+.risklegacy.rl-battle .rl-battle__route .rl-battle__faction::before {
+  display: inline-block;
+  margin-right: 5px;
+  vertical-align: -1px;
+}
+.risklegacy.rl-battle .rl-battle__route-arrow {
+  font: 900 29px/1 var(--rl-font-display);
+  color: var(--rl-red);
+}
 
 
 /* ==========================================================================
@@ -292,8 +349,8 @@
   align-items: center;
   column-gap: var(--rl-space-5);
 }
-.risklegacy .rl-turn-card__token.rl-token { width: 40px; height: 40px; }
-.risklegacy .rl-turn-card__token.rl-token--missile { width: 20px; height: 48px; margin-inline: 10px; }
+.risklegacy .rl-turn-card__token.rl-token { width: 52px; height: 52px; }
+.risklegacy .rl-turn-card__token.rl-token--missile { width: 26px; height: 62px; margin-inline: 13px; }
 .risklegacy .rl-turn-card__lines { display: grid; gap: var(--rl-space-4); min-width: 0; }
 /* label + value rows: a value too long for the line drops below its label, right-aligned (never ragged) */
 .risklegacy.rl-turn-card .rl-chat-card__row {
@@ -308,4 +365,116 @@
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
-.risklegacy .rl-turn-card__note { font-size: 16px; text-align: right; }
+.risklegacy .rl-turn-card__note { font-size: 21px; text-align: right; }
+
+
+/* ==========================================================================
+   Deploy popover — templates/turn/deploy.hbs (module/turn/deploy.mjs): one click on a territory while placing
+   recruited troops opens this steel plate beside the cursor with a slider (1..reserve). Sizes are at the 1.3× UI
+   scale already. Same in both themes (a printed object).
+   ========================================================================== */
+.risklegacy.rl-turn-deploy {
+  position: fixed;
+  z-index: calc(var(--z-index-tooltip, 9999) + 1);   /* above the territory hover tooltip */
+  width: 300px;
+  color: var(--rl-ink);
+  filter: drop-shadow(0 6px 12px rgb(0 0 0 / .45));
+  pointer-events: auto;
+}
+.risklegacy.rl-turn-deploy .rl-turn-deploy__tape { height: 13px; }
+.risklegacy.rl-turn-deploy .rl-turn-deploy__plate {
+  display: grid;
+  gap: var(--rl-space-3);
+  padding: var(--rl-space-4) var(--rl-space-5) var(--rl-space-3);
+  background: var(--rl-grad-steel);
+  box-shadow: var(--rl-bevel-steel), inset 0 -3px 0 var(--rl-steel-lo);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+}
+.risklegacy.rl-turn-deploy .rl-turn-deploy__head { display: grid; gap: var(--rl-space-1); min-width: 0; }
+.risklegacy.rl-turn-deploy .rl-turn-deploy__faction {
+  padding-left: var(--rl-space-3);
+  border-left: 8px solid var(--rl-faction, var(--rl-red));
+  font: normal 900 var(--rl-fs-sm)/1 var(--rl-font-display);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.risklegacy.rl-turn-deploy .rl-turn-deploy__title {
+  font: normal 900 var(--rl-fs-md)/1.05 var(--rl-font-display);
+  text-transform: uppercase;
+  color: var(--rl-red);
+  overflow-wrap: anywhere;
+}
+.risklegacy.rl-turn-deploy .rl-turn-deploy__row {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) 52px;
+  align-items: center;
+  gap: var(--rl-space-3);
+}
+.risklegacy.rl-turn-deploy .rl-turn-deploy__step.rl-btn { min-height: 52px; padding: 0; font-size: 20px; }
+.risklegacy.rl-turn-deploy .rl-turn-deploy__step.rl-btn:disabled { opacity: .35; }
+.risklegacy.rl-turn-deploy .rl-turn-deploy__value {
+  display: block;
+  font: normal 900 58px/1 var(--rl-font-display);
+  text-align: center;
+  color: var(--rl-ink);
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+.risklegacy.rl-turn-deploy input.rl-turn-deploy__range {
+  --rl-turn-fill: 100%;
+  width: 100%;
+  height: 26px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  accent-color: var(--rl-red);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+.risklegacy.rl-turn-deploy input.rl-turn-deploy__range::-webkit-slider-runnable-track {
+  height: 8px;
+  background: linear-gradient(90deg, var(--rl-red) 0 var(--rl-turn-fill), var(--rl-gunmetal) var(--rl-turn-fill) 100%);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / .4);
+}
+.risklegacy.rl-turn-deploy input.rl-turn-deploy__range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 26px;
+  margin-top: -9px;
+  background: var(--rl-ink);
+  border: 2px solid var(--rl-hazard);
+}
+.risklegacy.rl-turn-deploy input.rl-turn-deploy__range::-moz-range-track { height: 8px; background: var(--rl-gunmetal); }
+.risklegacy.rl-turn-deploy input.rl-turn-deploy__range::-moz-range-progress { height: 8px; background: var(--rl-red); }
+.risklegacy.rl-turn-deploy input.rl-turn-deploy__range::-moz-range-thumb {
+  width: 14px; height: 22px; border-radius: 0; background: var(--rl-ink); border: 2px solid var(--rl-hazard);
+}
+.risklegacy.rl-turn-deploy input.rl-turn-deploy__range:focus-visible { outline: 2px solid var(--rl-ink); outline-offset: 2px; }
+.risklegacy.rl-turn-deploy .rl-turn-deploy__quick { display: flex; justify-content: space-between; gap: var(--rl-space-2); }
+.risklegacy.rl-turn-deploy .rl-turn-deploy__set {
+  flex: 0 1 auto;
+  width: auto;
+  min-height: 0;
+  padding: 4px 6px;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  font: normal 700 var(--rl-fs-xs)/1 var(--rl-font-body);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--rl-k80);
+  cursor: pointer;
+}
+.risklegacy.rl-turn-deploy .rl-turn-deploy__set:hover,
+.risklegacy.rl-turn-deploy .rl-turn-deploy__set.is-active { color: var(--rl-red); text-decoration: underline; text-underline-offset: 3px; }
+.risklegacy.rl-turn-deploy .rl-turn-deploy__buttons { display: grid; grid-template-columns: 1fr 1.4fr; gap: var(--rl-space-3); }
+.risklegacy.rl-turn-deploy .rl-turn-deploy__buttons > .rl-btn { min-height: 39px; font-size: 18px; }
+.risklegacy.rl-turn-deploy .rl-turn-deploy__keys {
+  margin: 0;
+  font: italic 400 var(--rl-fs-2xs)/1.2 var(--rl-font-body);
+  color: var(--rl-k70);
+  text-align: center;
+}

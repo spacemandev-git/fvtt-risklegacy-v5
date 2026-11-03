@@ -10,6 +10,8 @@ import { registerAction, runAction } from "../gm/actions.mjs";
 import { getWar } from "../state/_module.mjs";
 import { CARD_TEMPLATE, DIE_TEMPLATE, forgetBattleUI } from "./card.mjs";
 import { registerDefenseQuery } from "./defense.mjs";
+import { registerDiceSettings, setupDiceSoNice } from "./dice.mjs";
+import { readyBattleHighlight, registerBattleHighlight } from "./highlight.mjs";
 import * as flow from "./flow.mjs";
 
 export {
@@ -32,6 +34,8 @@ export function init() {
       never: "RL.Battle.Settings.autoResolve.never"
     }
   });
+  registerDiceSettings();
+  registerBattleHighlight();
 
   registerAction("battle.start", flow.handleStart);
   registerAction("battle.roll", flow.handleRoll);
@@ -59,6 +63,8 @@ export function init() {
 
 export function ready() {
   flow.recoverBattles().catch(err => console.warn("risklegacy | could not recover battles", err));
+  readyBattleHighlight();
+  setupDiceSoNice();
 }
 
 /* -------------------------------------------- */

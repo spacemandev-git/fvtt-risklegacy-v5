@@ -20,24 +20,43 @@ import CampaignWizard from "./wizard.mjs";
  *
  * Players choose factions before anyone places, then place in order (the turn API creates the war with every
  * faction known). Progress is saved on the campaign actor (flag `setup`) so the wizard can be reopened.
+ *
+ * Players watch it live: the flag also carries the GM's current step (`step`) and whether the GM has the wizard open
+ * (`open`). On player clients the same class runs as a read-only viewer (`viewer`), opened, refreshed and closed from
+ * the flag (`syncSetupView`, an updateActor hook). Players act only through their own prompts (`ask`).
+ *
+ * Bot factions place their own starting forces: the bot driver places a bot as soon as it is its pick (stage
+ * `placement`), and the wizard's placement loop waits for that (`bots.placeStart`, shared with the driver) instead of
+ * asking. Factions placed from the War Room or the board are picked up too.
  */
+
+/** Actions only the GM may run: on a player's read-only view they do nothing. */
+const gmOnly = fn => function(event, target) {
+  if ( !game.user.isGM ) return undefined;
+  return fn.call(this, event, target);
+};
+
 export default class GameSetupWizard extends CampaignWizard {
   static DEFAULT_OPTIONS = {
     id: "rl-game-setup",
     classes: ["rl-wizard--setup"],
     window: { title: "RL.Wizard.Setup.title", icon: "fa-solid fa-chess-board" },
     actions: {
-      togglePlayer: GameSetupWizard.#onTogglePlayer,
-      movePlayer: GameSetupWizard.#onMovePlayer,
-      roll: GameSetupWizard.#onRoll,
-      choose: GameSetupWizard.#onChoose,
-      resetChoices: GameSetupWizard.#onResetChoices,
-      deploy: GameSetupWizard.#onDeploy,
-      place: GameSetupWizard.#onPlace,
-      finish: GameSetupWizard.#onFinish,
-      restart: GameSetupWizard.#onRestart,
+      togglePlayer: gmOnly(GameSetupWizard.#onTogglePlayer),
+      movePlayer: gmOnly(GameSetupWizard.#onMovePlayer),
+      roll: gmOnly(GameSetupWizard.#onRoll),
+      choose: gmOnly(GameSetupWizard.#onChoose),
+      resetChoices: gmOnly(GameSetupWizard.#onResetChoices),
+      deploy: gmOnly(GameSetupWizard.#onDeploy),
+      place: gmOnly(GameSetupWizard.#onPlace),
+      finish: gmOnly(GameSetupWizard.#onFinish),
+      restart: gmOnly(GameSetupWizard.#onRestart),
       // Bot players (module/bots): the Bot Manager adds them; the wizard re-renders when the new User appears
-      addBot: () => api("bots", "openBotManager")?.()
+      addBot: gmOnly(() => api("bots", "openBotManager")?.()),
+      // The read-only view: Next / Back / step links are the GM's
+      next: gmOnly(CampaignWizard.DEFAULT_OPTIONS.actions.next),
+      back: gmOnly(CampaignWizard.DEFAULT_OPTIONS.actions.back),
+      goto: gmOnly(CampaignWizard.DEFAULT_OPTIONS.actions.goto)
     }
   };
 
@@ -56,11 +75,37 @@ export default class GameSetupWizard extends CampaignWizard {
     super(options);
     const campaign = state.getCampaign();
     this.draft = !!campaign?.system.rulesAdditions?.B;
+    /** A player's read-only live view of the GM's wizard. */
+    this.viewer = !game.user.isGM;
     const saved = campaign?.getFlag(SYSTEM_ID, "setup");
-    const game = campaign?.system.nextGameNumber ?? 1;
-    this.setup = (saved?.game === game) && !saved.finished ? foundry.utils.deepClone(saved) : this.#fresh(game);
+    const game_ = campaign?.system.nextGameNumber ?? 1;
+    if ( this.viewer ) {
+      this.setup = saved ? foundry.utils.deepClone(saved) : this.#fresh(game_);
+      this.#followStep();
+      return;
+    }
+    this.setup = (saved?.game === game_) && !saved.finished ? foundry.utils.deepClone(saved) : this.#fresh(game_);
     if ( this.setup.recorded ) this.stepIndex = this.steps.length - 1;
     else if ( this.setup.deployed ) this.stepIndex = this.steps.findIndex(s => s.id === "deploy");
+    else if ( this.setup.step ) this.stepIndex = Math.max(0, this.steps.findIndex(s => s.id === this.setup.step));
+  }
+
+  /** Viewer: show the step the GM is on. */
+  #followStep() {
+    const index = this.steps.findIndex(s => s.id === this.setup.step);
+    if ( index >= 0 ) this.stepIndex = index;
+    else if ( this.setup.recorded ) this.stepIndex = this.steps.length - 1;
+    else if ( this.setup.deployed ) this.stepIndex = this.steps.findIndex(s => s.id === "deploy");
+  }
+
+  /** Viewer: take the GM's latest progress from the campaign flag and re-render. */
+  refreshFromFlag() {
+    if ( !this.viewer ) return;
+    const saved = state.getCampaign()?.getFlag(SYSTEM_ID, "setup");
+    if ( !saved ) return;
+    this.setup = foundry.utils.deepClone(saved);
+    this.#followStep();
+    if ( this.rendered ) this.render();
   }
 
   #fresh(gameNumber) {
@@ -74,7 +119,84 @@ export default class GameSetupWizard extends CampaignWizard {
 
   async #save() {
     const campaign = state.getCampaign();
-    if ( campaign && game.user.isGM ) await campaign.setFlag(SYSTEM_ID, "setup", this.setup);
+    if ( !campaign || !game.user.isGM || this.viewer ) return;
+    // The GM's step and whether the wizard is open drive the players' live view (syncSetupView).
+    this.setup.step = this.currentStep?.id ?? "";
+    this.setup.open = !this.setup.finished && !this.#closing;
+    // Replace, not merge: cleared choices (picks: {}) must not keep their old keys in the flag.
+    await campaign.update({
+      [`flags.${SYSTEM_ID}.setup`]: foundry.data.operators.ForcedReplacement.create(foundry.utils.deepClone(this.setup))
+    });
+  }
+
+  /** The GM is closing the wizard (the players' views close with it). */
+  #closing = false;
+
+  /** updateActor hook id: faction placements made outside the wizard (War Room, board, bot driver). */
+  #factionHook = null;
+
+  /** @override */
+  async _onFirstRender(context, options) {
+    await super._onFirstRender(context, options);
+    this.#closing = false;
+    this.#factionHook = Hooks.on("updateActor", (actor, changed) => {
+      if ( (actor.type !== "faction") || !foundry.utils.hasProperty(changed, "system.war") ) return;
+      if ( !this.rendered || (this.currentStep?.id !== "deploy") ) return;
+      if ( this.viewer ) return this.render();
+      this.#syncPlaced();
+    });
+    // Players see the wizard as soon as the GM opens it
+    if ( !this.viewer ) await this.#save();
+  }
+
+  /** @override */
+  async _onRender(context, options) {
+    await super._onRender(context, options);
+    if ( this.viewer ) {
+      // Nothing on a read-only view changes the setup: disable every control the templates still show.
+      for ( const el of this.element.querySelectorAll("[data-action]") ) {
+        if ( el.matches("button, input, select") ) el.disabled = true;
+        else el.removeAttribute("data-action");
+      }
+      return;
+    }
+    // The GM moved to another step: tell the players' views.
+    const step = this.currentStep?.id ?? "";
+    if ( (this.setup.step !== step) && !this.#closing ) await this.#save();
+  }
+
+  /** @override */
+  _onClose(options) {
+    if ( this.#factionHook !== null ) Hooks.off("updateActor", this.#factionHook);
+    this.#factionHook = null;
+    if ( this.viewer ) setupViewClosed(this);
+    else if ( !this.setup.finished ) {
+      this.#closing = true;
+      this.#save().catch(err => console.warn(`${SYSTEM_ID} | campaign: could not save the setup`, err));
+    }
+    super._onClose(options);
+  }
+
+  /**
+   * GM: pick up starting territories placed outside the wizard's loop (War Room, board click, a bot via the driver),
+   * and finish the setup (World Capital, backs of the faction cards) once everyone is placed.
+   */
+  async #syncPlaced() {
+    if ( this.viewer || !this.setup.deployed ) return;
+    let changed = false;
+    for ( const factionId of this.#placementOrder() ) {
+      const territory = game.actors.get(factionId)?.system.war.startingTerritory;
+      if ( territory && !this.setup.placed[factionId] ) {
+        this.setup.placed[factionId] = territory;
+        changed = true;
+      }
+    }
+    if ( changed ) await this.#save();
+    if ( this.busy ) return;   // the placement loop is running and finishes the setup itself
+    if ( !this.setup.recorded && this.#placementOrder().every(f => this.setup.placed[f]) ) {
+      await this.run(() => this.#placeAll());
+    }
+    else if ( this.rendered ) this.render();
   }
 
   /* -------------------------------------------- */
@@ -169,6 +291,41 @@ export default class GameSetupWizard extends CampaignWizard {
   /*  Context                                     */
   /* -------------------------------------------- */
 
+  /** @override */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    if ( !this.viewer ) return context;
+    // A player's live view: no controls, and a line saying whose choice it is.
+    context.readOnly = true;
+    context.footer = { back: false, next: null, buttons: [] };
+    context.waiting = [];
+    context.busy = false;
+    context.viewer = { text: game.i18n.format("RL.Wizard.Setup.viewerLead", { n: this.setup.game }), yourTurn: this.#myTurn() };
+    return context;
+  }
+
+  /** Viewer: is this player the one choosing right now (their prompt is open on their screen)? */
+  #myTurn() {
+    const s = this.setup;
+    const me = game.user.id;
+    switch ( this.currentStep?.id ) {
+      case "factions": return s.order.find(userId => !s.picks[userId]) === me;
+      case "draft": return this.#draftSequence()[s.draftLog.length] === me;
+      case "deploy": {
+        if ( !s.deployed ) return false;
+        const next = this.#placementOrder().find(f => !this.#placedAt(f));
+        return !!next && (this.#participants().find(p => p.faction === next)?.userId === me);
+      }
+      default: return false;
+    }
+  }
+
+  /** Where a faction placed its starting forces: the wizard's record, or the faction (War Room, board, bot driver). */
+  #placedAt(factionId) {
+    if ( this.setup.placed[factionId] ) return this.setup.placed[factionId];
+    return this.setup.deployed ? (game.actors.get(factionId)?.system.war.startingTerritory || "") : "";
+  }
+
   async _prepareStep(stepId) {
     const s = this.setup;
     const base = { draft: this.draft, gameNumber: s.game, deployed: s.deployed };
@@ -249,20 +406,20 @@ export default class GameSetupWizard extends CampaignWizard {
           placement: order.map((factionId, i) => {
             const actor = game.actors.get(factionId);
             const p = participants.find(x => x.faction === factionId);
-            const placed = s.placed[factionId];
+            const placed = this.#placedAt(factionId);
             return {
               n: i + 1, faction: actor?.name ?? "?", key: actor?.system.key, img: actor?.img, player: p?.name ?? "",
-              territory: placed ? territoryName(placed) : "", current: !placed && (order.find(f => !s.placed[f]) === factionId)
+              territory: placed ? territoryName(placed) : "", current: !placed && (order.find(f => !this.#placedAt(f)) === factionId)
             };
           }),
-          allPlaced: order.every(f => s.placed[f])
+          allPlaced: order.every(f => this.#placedAt(f))
         };
       }
       case "done": return {
         ...base,
         seats: this.#participants().map(p => ({
           ...playerRow(p), seat: p.seat + 1,
-          territory: territoryName(s.placed[p.faction] ?? "")
+          territory: territoryName(this.#placedAt(p.faction))
         })),
         absent: state.getFactions().filter(f => !this.#participants().some(p => p.faction === f.id)).map(f => f.name),
         warRoom: !!api("apps", "openWarRoom")
@@ -493,6 +650,12 @@ export default class GameSetupWizard extends CampaignWizard {
 
   static async #onDeploy() {
     if ( !game.user.isGM || this.setup.deployed ) return;
+    await this.#deploy();
+    // Straight on to the starting territories: bots place themselves, players get their prompt in turn.
+    if ( this.setup.deployed && !this.setup.recorded ) await this.run(() => this.#placeAll());
+  }
+
+  async #deploy() {
     await this.run(async () => {
       const missing = [];
       const participants = this.#participants();
@@ -544,6 +707,14 @@ export default class GameSetupWizard extends CampaignWizard {
           const coins = this.#draftValue(p.userId, "coin") ?? 0;
           if ( coins > 0 ) await this.#giveCoins(p.faction, coins, missing);
         }
+      }
+
+      // Draft troop cards: the war knows each faction's starting troops, so placements made outside this wizard
+      // (a bot placing itself, the War Room, the board) use them too. Before beginPlacement: a bot may place at once.
+      const war = state.getWar();
+      if ( this.draft && war ) {
+        const startingTroops = Object.fromEntries(factionIds.map(f => [f, this.#troopsFor(f)]));
+        await war.update({ "system.startingTroops": startingTroops });
       }
 
       const order = this.#placementOrder();
@@ -602,18 +773,62 @@ export default class GameSetupWizard extends CampaignWizard {
       const p = participants.find(x => x.faction === factionId);
       const user = game.users.get(p?.userId);
       const actor = game.actors.get(factionId);
+      const troops = this.#troopsFor(factionId);
+      // Already placed outside this loop (War Room, board click, the bot driver): just record it.
+      const placedElsewhere = actor?.system.war.startingTerritory;
+      if ( placedElsewhere ) {
+        this.setup.placed[factionId] = placedElsewhere;
+        await this.#save();
+        this.render();
+        continue;
+      }
+      // Bot players choose and place their own starting forces (module/bots): the driver does it when it is their
+      // pick; wait for that (the same placement, never a second one) instead of asking anyone.
+      const placeBot = api("bots", "isBotFaction")?.(factionId) ? api("bots", "placeStart") : null;
+      if ( placeBot ) {
+        this.note(game.i18n.format("RL.Wizard.Setup.waitingStart", { name: user?.name ?? "?", faction: actor?.name ?? "?" }));
+        try {
+          await placeBot(factionId);
+        } catch(err) {
+          console.warn(`${SYSTEM_ID} | campaign: bot placement for ${actor?.name} failed`, err);
+        }
+        const territory = game.actors.get(factionId)?.system.war.startingTerritory;
+        if ( !territory ) {
+          ui.notifications.warn(game.i18n.format("RL.Wizard.Setup.botNotPlaced", { faction: actor?.name ?? "?" }));
+          return;
+        }
+        if ( (troops !== STARTING_TROOPS) && api("board", "setTroops") ) {
+          const snapshot = state.buildSnapshot();
+          if ( snapshot?.territories[territory]?.troops !== troops ) {
+            await callArea("board", "setTroops", { faction: factionId, territory, count: troops }, missing);
+          }
+        }
+        this.setup.placed[factionId] = territory;
+        await this.#save();
+        await this.#announce(game.i18n.format("RL.Wizard.Setup.placed", {
+          faction: actor?.name ?? "?", territory: territoryName(territory), troops
+        }));
+        this.render();
+        continue;
+      }
       const allowed = this.#legalStarts(factionId, p?.userId);
       if ( !allowed.length ) {
         ui.notifications.error(game.i18n.format("RL.Wizard.Setup.noStart", { faction: actor?.name ?? "?" }));
         return;
       }
       this.note(game.i18n.format("RL.Wizard.Setup.waitingStart", { name: user?.name ?? "?", faction: actor?.name ?? "?" }));
-      const troops = this.#troopsFor(factionId);
       const territory = await ask(user, "territory", {
         title: game.i18n.format("RL.Wizard.Prompt.startFor", { faction: actor?.name ?? "" }),
         hint: game.i18n.format("RL.Wizard.Prompt.startHint", { troops }),
         allowed, board: true, faction: factionId
       });
+      // Placed from the War Room or the board while the prompt was open: take that placement.
+      if ( actor?.system.war.startingTerritory ) {
+        this.setup.placed[factionId] = actor.system.war.startingTerritory;
+        await this.#save();
+        this.render();
+        continue;
+      }
       if ( !territory ) {
         ui.notifications.info(game.i18n.format("RL.Wizard.Setup.paused", { name: user?.name ?? "?" }));
         return;
@@ -695,11 +910,98 @@ export default class GameSetupWizard extends CampaignWizard {
   }
 }
 
-/** Open "Setup before every game" (GM). */
+/** Open "Setup before every game" (GM); a player gets the read-only live view while the GM runs it. */
 export function openGameSetup() {
-  if ( !game.user.isGM ) return ui.notifications.warn("RL.Legacy.Error.gmOnly", { localize: true });
   const campaign = state.getCampaign();
   if ( !campaign ) return ui.notifications.warn("RL.Error.noCampaign", { localize: true });
+  if ( !game.user.isGM ) {
+    if ( !setupLive() ) return ui.notifications.info("RL.Wizard.Setup.viewerNone", { localize: true });
+    dismissed = null;
+    return showSetupView();
+  }
   const app = foundry.applications.instances.get("rl-game-setup") ?? new GameSetupWizard();
   return app.render({ force: true });
+}
+
+/* -------------------------------------------- */
+/*  The players' live view                      */
+/* -------------------------------------------- */
+
+/** The step a player closed the view on ("game:step"): it opens again on the GM's next step. */
+let dismissed = null;
+/** The view is being closed because the GM closed or finished the setup (not dismissed by the player). */
+let autoClosing = false;
+/** Was the setup live at the last sync (the Actors sidebar button follows it). */
+let wasLive = false;
+
+/** @returns {object|null} the setup flag while the GM has the wizard open for the next game */
+export function setupLive() {
+  const campaign = state.getCampaign();
+  const s = campaign?.getFlag(SYSTEM_ID, "setup");
+  if ( !s?.open || s.finished ) return null;
+  if ( s.game !== (campaign.system.nextGameNumber ?? 1) ) return null;
+  if ( !game.users.activeGM ) return null;
+  return s;
+}
+
+const viewKey = s => `${s.game}:${s.step ?? ""}`;
+
+function showSetupView() {
+  const existing = foundry.applications.instances.get("rl-game-setup");
+  if ( existing?.viewer ) {
+    existing.refreshFromFlag();
+    return existing.render({ force: true });
+  }
+  return new GameSetupWizard().render({ force: true });
+}
+
+/** The player closed the view themselves: don't push it back until the GM moves on. */
+function setupViewClosed(app) {
+  if ( autoClosing ) return;
+  const s = setupLive();
+  if ( s ) dismissed = viewKey(s);
+}
+
+/**
+ * Player clients: open, refresh or close the live view to match the campaign's `setup` flag. Called on ready and when
+ * the campaign actor's flag changes.
+ */
+export async function syncSetupView() {
+  if ( game.user.isGM ) return;
+  const s = setupLive();
+  const app = foundry.applications.instances.get("rl-game-setup");
+  if ( !!s !== wasLive ) {
+    wasLive = !!s;
+    ui.actors?.render();
+  }
+  if ( !s ) {
+    if ( app?.rendered ) {
+      autoClosing = true;
+      try {
+        await app.close();
+      } finally {
+        autoClosing = false;
+      }
+    }
+    dismissed = null;
+    return;
+  }
+  if ( app?.rendered && app.viewer ) return app.refreshFromFlag();
+  if ( dismissed === viewKey(s) ) return;
+  dismissed = null;
+  await showSetupView();
+}
+
+/** Hooks for the players' live view (campaign init). */
+export function registerSetupView() {
+  Hooks.on("updateActor", (actor, changed) => {
+    if ( game.user.isGM || (actor.type !== "campaign") ) return;
+    if ( !foundry.utils.hasProperty(changed, `flags.${SYSTEM_ID}.setup`) ) return;
+    if ( actor !== state.getCampaign() ) return;
+    syncSetupView().catch(err => console.warn(`${SYSTEM_ID} | campaign: setup view`, err));
+  });
+  // The GM disconnecting leaves the flag open: close the view; reconnecting shows it again.
+  Hooks.on("userConnected", user => {
+    if ( !game.user.isGM && user.isGM ) syncSetupView().catch(() => null);
+  });
 }

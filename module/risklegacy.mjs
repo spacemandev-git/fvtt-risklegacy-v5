@@ -23,12 +23,14 @@ import * as apps from "./apps/_module.mjs";
 import * as campaign from "./campaign/_module.mjs";
 import * as bots from "./bots/_module.mjs";
 import * as dev from "./dev/fixtures.mjs";
+import { installUIScale } from "./ui-scale.mjs";
 
 const AREAS = { rules, turn, battle, board, cards, apps, campaign, bots };
 
 Hooks.once("init", () => {
   console.log(`${SYSTEM_ID} | Initializing Risk Legacy`);
   CONFIG.RISKLEGACY = RISKLEGACY;
+  installUIScale();   // our windows open ×UI_SCALE (the CSS is written at that scale)
 
   // Document classes
   CONFIG.Actor.documentClass = documents.RLActor;

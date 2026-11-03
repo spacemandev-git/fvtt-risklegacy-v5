@@ -65,7 +65,7 @@ export function memoryForSystem(memory, profile) {
 /** The system message for this bot in this war (built once, then reused verbatim). */
 export function systemFor(ctx, profile = llmProfileOf(ctx)) {
   const p = personalityOf(ctx);
-  const key = [ctx.bot?.userId ?? ctx.me ?? "", gameOf(ctx), profile.id, p?.id ?? ""].join("|");
+  const key = [ctx.bot?.userId ?? ctx.me ?? "", gameOf(ctx), profile.id, profile.staff ? "staff" : "", p?.id ?? ""].join("|");
   let s = SYSTEM.get(key);
   if ( !s ) {
     s = systemMessage({ personality: p, profile, lore: LORE, memory: memoryForSystem(ctx.bot?.memory, profile) });

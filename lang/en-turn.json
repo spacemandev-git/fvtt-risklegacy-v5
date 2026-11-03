@@ -43,6 +43,9 @@
         "tradeTitle": "Cards for Troops",
         "tradeText": "Turned in {cards} card(s) worth {coins} resources.",
         "tradeResult": "+{troops} troops",
+        "resetTitle": "Deployment Reset",
+        "resetText": "{faction} takes back {count} troop(s) from {territories}.",
+        "resetResult": "{reserve} troop(s) to place",
         "starsTitle": "Red Star Purchased",
         "starsText": "Turned in {cards} Resource cards.",
         "starsNote": "{total} of 4!",
@@ -115,6 +118,15 @@
         "mobileFrom": "Move which HQ?",
         "mobileTo": "Move the HQ to…",
         "badIntel": "Bad Intel: deny {faction} which continent bonus?"
+      },
+      "Deploy": {
+        "title": "Deploy to {territory}",
+        "label": "Troops to place",
+        "half": "Half",
+        "all": "All",
+        "confirm": "Deploy",
+        "cancel": "Cancel",
+        "keys": "Enter deploys · Esc cancels · ← → adjust"
       },
       "Error": {
         "missingApi": "{api} isn't available yet.",
@@ -197,7 +209,9 @@
         "tooMany": "You only have {reserve} troop(s) to place.",
         "notControlled": "You don't control {name}.",
         "forbidden": "Troops can't be placed in {name}.",
-        "cautious": "Cautious: recruited troops go into no more than 2 territories."
+        "cautious": "Cautious: recruited troops go into no more than 2 territories.",
+        "resetTooLate": "The deployment stands: the turn has moved past step 2.",
+        "nothingToReset": "No troops have been placed this step."
       },
       "expand": {
         "alreadyYours": "You already control {to}: that's a maneuver.",

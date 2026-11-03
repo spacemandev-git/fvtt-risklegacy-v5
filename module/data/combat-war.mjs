@@ -17,6 +17,7 @@ const str = () => new StringField({ required: true, blank: true });
  * `turn.flags` keys written by the turn controller (read by the rules engine, cards and battle areas):
  *   placedIn: string[]            territories recruited troops were placed in (cautious)
  *   stealthy: string              territory used by the stealthy power this turn
+ *   deployed: [{territory, count}] reserve placements this turn (turn.resetDeployment takes them back in step 2)
  *   lastAdvance: {from, to, kind} the last expansion/conquest: more troops may follow from `from` (not a maneuver)
  *   expansions: [{from, to, cost, city}]
  *   conquests: [{from, to, defender, city, seaLine}]   (mission checks)

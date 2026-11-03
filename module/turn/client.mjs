@@ -39,6 +39,8 @@ export const tradeForTroops = payload => call("turn.tradeForTroops", payload);
 export const recruit = (payload = {}) => call("turn.recruit", payload);
 export const joinWar = payload => call("turn.joinWar", payload);
 export const placeReserve = payload => call("turn.placeReserve", payload);
+/** Take back this step's reserve placements (`{faction?}`): resolves `{removed, reserve, territories}` or null. */
+export const resetDeployment = (payload = {}) => call("turn.resetDeployment", payload);
 export const expand = payload => call("turn.expand", payload);
 export const maneuver = payload => call("turn.maneuver", payload);
 /** More troops following the last expansion/conquest from the same territory (not a maneuver). */

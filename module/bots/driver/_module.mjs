@@ -79,7 +79,10 @@ export const isPaused = () => paused();
 /** Manual trigger or retry of the current bot turn. */
 export const playTurn = fid => play(fid);
 
-/** Scripted setups: place a bot faction's starting forces (its pick, stage `placement`). */
+/**
+ * Place a bot faction's starting forces (its pick, stage `placement`). The turn loop does this by itself; the setup
+ * wizard and scripts await the same placement (concurrent calls share one promise).
+ */
 export const placeStart = fid => place(fid);
 
 /** @returns {{running: object|null, paused: boolean, lastError: object|null, waiting: string|null, errorDialog: boolean, heuristicSession: boolean, stats: object}} */

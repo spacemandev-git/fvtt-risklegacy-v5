@@ -1,4 +1,4 @@
-import { PIECES, SYSTEM_ID } from "../config.mjs";
+import { PIECES, SYSTEM_ID, UI_SCALE } from "../config.mjs";
 import { getCampaign, pieceKind, preload } from "../state/_module.mjs";
 import {
   boardForScene, centerOf, isBoardScene, layoutOrder, piecesByTerritory, territoryAt, territoryPolygons
@@ -206,6 +206,7 @@ export class RLBoardLayer extends foundry.canvas.layers.InteractionLayer {
     const r = 25;
     const c = new PIXI.Container();
     c.position.set(center.x + (radius * 0.78), center.y - (radius * 0.78));
+    c.scale.set(UI_SCALE);   // board overlay follows the system UI scale
     const g = c.addChild(new PIXI.Graphics());
     g.beginFill(0x000000, 0.35).drawCircle(2, 3, r + 3).endFill();
     g.lineStyle(4, contested ? 0xb11116 : 0x111213, 1).beginFill(color, 1).drawCircle(0, 0, r).endFill();
@@ -246,9 +247,49 @@ export class RLBoardLayer extends foundry.canvas.layers.InteractionLayer {
     // The running pick/placement mode: allowed territories, the hovered one brighter
     const mode = interaction.currentMode();
     if ( !mode || (mode.kind === "point") ) return;
+    if ( mode.paint ) return this.#drawPaint(mode);
     const ids = mode.allowed ?? [];
     for ( const id of ids ) draw(id, mode.color, { hovered: id === this.hovered });
     if ( this.hovered && !mode.allowed ) draw(this.hovered, mode.color, { hovered: true });
+  }
+
+  /**
+   * A mode that colours each territory itself (the war mode: sources, the selected source, targets, move-in) and may
+   * show a drag arrow from the selected source to the pointer.
+   * @param {{paint: {id: string, color: number, line?: number, width?: number, fill?: number, selected?: boolean}[],
+   *   clickable?: string[], allowed?: string[],
+   *   drag?: {from: {x: number, y: number}, to: {x: number, y: number}, color: number}}} mode
+   */
+  #drawPaint(mode) {
+    const g = this.highlights;
+    const clickable = new Set(mode.clickable ?? mode.allowed ?? []);
+    for ( const p of mode.paint ) {
+      const hovered = (p.id === this.hovered) && clickable.has(p.id);
+      const width = p.width ?? 10;
+      for ( const points of territoryPolygons(p.id, canvas.scene) ) {
+        // A dark under-stroke keeps the outline readable on any board colour
+        if ( p.selected || p.outline || hovered ) g.lineStyle(width + 12, 0x111213, 0.85).drawPolygon(points);
+        g.lineStyle(hovered ? width + 4 : width, hovered ? 0xfbfcfc : (p.line ?? p.color), 0.95)
+          .beginFill(p.color, hovered ? 0.5 : (p.fill ?? 0.3)).drawPolygon(points).endFill();
+      }
+    }
+    const d = mode.drag;
+    if ( !d?.from || !d?.to ) return;
+    const dx = d.to.x - d.from.x;
+    const dy = d.to.y - d.from.y;
+    const len = Math.hypot(dx, dy);
+    if ( len < 20 ) return;
+    const ux = dx / len;
+    const uy = dy / len;
+    const head = Math.min(60, len / 2);
+    const bx = d.to.x - (ux * head);
+    const by = d.to.y - (uy * head);
+    const wing = head * 0.6;
+    for ( const [width, color] of [[26, 0x111213], [14, d.color]] ) {
+      g.lineStyle(width, color, 0.95).moveTo(d.from.x, d.from.y).lineTo(bx, by);
+    }
+    g.lineStyle(6, 0x111213, 0.95).beginFill(d.color, 1)
+      .drawPolygon([d.to.x, d.to.y, bx - (uy * wing), by + (ux * wing), bx + (uy * wing), by - (ux * wing)]).endFill();
   }
 
   /* -------------------------------------------- */
@@ -396,8 +437,35 @@ export class RLBoardLayer extends foundry.canvas.layers.InteractionLayer {
   }
 
   /** @override */
-  _onClickRight() {
-    interaction.cancelMode();
+  _onClickRight(event) {
+    interaction.handleRightClick(event);
+  }
+
+  /* Left-drags on the board go to the running mode (the war mode drags from a territory to a target). */
+
+  /** @override */
+  _onDragLeftStart(event) {
+    this.#drag("start", event);
+  }
+
+  /** @override */
+  _onDragLeftMove(event) {
+    this.#drag("move", event);
+  }
+
+  /** @override */
+  _onDragLeftDrop(event) {
+    this.#drag("drop", event);
+  }
+
+  /** @override */
+  _onDragLeftCancel(event) {
+    this.#drag("cancel", event);
+  }
+
+  #drag(phase, event) {
+    const point = event?.getLocalPosition ? event.getLocalPosition(this) : canvas.mousePosition;
+    interaction.handleDrag(phase, territoryAt(point, canvas.scene), event, point);
   }
 
   /** @override */

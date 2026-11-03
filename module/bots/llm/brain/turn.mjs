@@ -19,12 +19,13 @@ import { clamp, round, territoryName, why } from "../../brain/util.mjs";
 import {
   FACTS, STOP_NOW, STOP_WHEN, attackPlanMessage, attackPlanSchema, endTurnMessage, endTurnSchema, turnPlanMessage, turnPlanSchema
 } from "../prompts.mjs";
-import { knobsOf, llmProfileOf, moveForwardShare, stepFloor } from "../profiles.mjs";
+import { knobsOf, llmProfileOf, moveForwardShare, oddsFloor, stepFloor } from "../profiles.mjs";
 import { askModel, gateSay, invalid, isHeuristic, memoOf, withPending } from "./call.mjs";
 import { bigHitSinceLastTurn, boardFacts } from "./facts.mjs";
 import {
   attackMenu, cardMenu, drawMenu, frontMenu, goodOptionsRemain, jevProfileOf, joinMenu, legalPlans, maneuverMenu, scarMenu
 } from "./menus.mjs";
+import { HQ_ALARM, HQ_SAFE, RACE_ALARM, assessPlans, cardConquest, raceThreats, worstThreat } from "./strategy.mjs";
 
 const H = ctx => ({ ...ctx, ask: null });
 const START_TIMINGS = new Set(["startOfAnyTurn", "duringOwnTurn"]);
@@ -94,6 +95,75 @@ function readTurnPlan(p, m) {
 }
 
 /**
+ * Warlord staff suggestion for the placement: the Jev Warlord's tuned allocation (staging + HQ + exposed borders, its
+ * code judgments, no Jev call), restricted to the fronts on the menu. Null when it names none of them.
+ * @returns {Promise<{front:string, territory:string, troops:number}[]|null>}
+ */
+async function staffPlacementOf(ctx, reserve, fronts) {
+  const r = await jev.planPlacement(H(ctx), { reserve });
+  const keys = new Set(fronts.map(f => f.key));
+  const out = (r?.placements ?? []).filter(p => keys.has(p.territory) && p.count > 0)
+    .map(p => ({ front: territoryName(ctx.state, p.territory), territory: p.territory, troops: p.count }));
+  return out.length ? out : null;
+}
+
+/**
+ * Warlord sanity layer for the placement: when the planned troops leave the bot's own HQ likely to fall next turn
+ * (HQ_ALARM) and the reserve can bring it under that, move the troops needed to make it safe (HQ_SAFE, or as safe as
+ * the reserve allows) from the other fronts (those staging the weakest attacks first; never from a decisive one).
+ * Mutates `plan.placements`. @returns {boolean} whether it changed anything
+ */
+function guardHqPlacement(ctx, plan, m) {
+  const hq = m.fronts.find(f => f.isHq);
+  if ( !hq ) return false;
+  const reserve = plan.reserve ?? m.reserve;
+  const entries = plan.placements;
+  const at = entries.find(e => e.territory === hq.territory)?.count ?? 0;
+  const threat = k => worstThreat(ctx, hq.territory, k, { depth: 2 }).p;
+  const p0 = threat(at);
+  if ( p0 < HQ_ALARM || at >= reserve ) return false;
+  // A hopeless defence (still over HQ_ALARM with the whole reserve) is left to the model.
+  if ( threat(reserve) >= HQ_ALARM ) return false;
+  // The smallest garrison from the reserve that gets under HQ_SAFE (the threat falls as troops rise): binary search;
+  // the whole reserve when HQ_SAFE is out of reach.
+  let want = reserve;
+  if ( threat(reserve) <= HQ_SAFE ) {
+    let lo = at;
+    let hi = reserve;
+    while ( hi - lo > 1 ) {
+      const mid = (lo + hi) >> 1;
+      if ( threat(mid) > HQ_SAFE ) lo = mid; else hi = mid;
+    }
+    want = hi;
+  }
+  let need = want - at;
+  const placed = entries.reduce((n, e) => n + e.count, 0);
+  let spare = Math.max(0, reserve - placed);
+  const add = Math.min(need, spare);
+  need -= add;
+  const donors = entries.filter(e => e.territory !== hq.territory && !e.front?.best?.decisive)
+    .sort((a, b) => (a.front?.best?.P ?? 0) - (b.front?.best?.P ?? 0));
+  let taken = 0;
+  for ( const d of donors ) {
+    if ( need <= 0 ) break;
+    const k = Math.min(d.count, need);
+    d.count -= k;
+    need -= k;
+    taken += k;
+  }
+  const total = add + taken;
+  if ( !total ) return false;
+  let e = entries.find(x => x.territory === hq.territory);
+  if ( !e ) {
+    e = { territory: hq.territory, count: 0, front: hq };
+    entries.push(e);
+  }
+  e.count += total;
+  plan.placements = entries.filter(x => x.count > 0);
+  return true;
+}
+
+/**
  * The turn plan (one call), made at the first start-of-turn decision and cached for the turn.
  * @param {object} ctx
  * @param {{scarCards?:object[], targets?:string[], legalJoin?:string[]}} [extra]  arguments the driver passed
@@ -122,7 +192,12 @@ export async function ensureTurnPlan(ctx, extra = {}) {
   const fronts = reserve > 0 ? frontMenu(ctx, profile, sit, reserve, tradeReserve) : [];
   const m = { cards: cm.options, scars, join, fronts, reserve, tradeReserve, maxFronts: Math.min(3, fronts.length) };
 
-  const plan = { llm: false, buy: null, bought: false, trade: null, scars: [], join: null, placements: [], placed: false, reserve };
+  const plan = { llm: false, buy: null, bought: false, trade: null, scars: [], join: null, placements: [], placed: false, reserve, vetoes: [] };
+  // Warlord: a buyable Red Star with no trade worth weighing is bought by code (menus.cardMenu).
+  if ( cm.autoBuy ) {
+    plan.buy = { ...cm.autoBuy };
+    plan.vetoes.push("buyStar");
+  }
   const real = (m.cards.length >= 2) || scars.length > 0 || join.length >= 2 || fronts.length >= 2;
   if ( !real ) {
     plan.join = join[0]?.territory ?? null;
@@ -132,9 +207,10 @@ export async function ensureTurnPlan(ctx, extra = {}) {
   }
 
   const key = join.length > 0 || bigHitSinceLastTurn(ctx);
+  const staffPlacement = (profile.staff && fronts.length >= 2) ? await staffPlacementOf(ctx, reserve, fronts) : null;
   const res = await askModel(ctx, {
     purpose: "turn plan",
-    user: turnPlanMessage({ board: boardFacts(ctx, profile, { detail: "turn" }), ...m, key }),
+    user: turnPlanMessage({ board: boardFacts(ctx, profile, { detail: "turn" }), ...m, key, autoBuy: cm.autoBuy ?? null, staffPlacement }),
     schema: turnPlanSchema({ cards: m.cards.map(o => o.key), scars, join: join.map(o => o.key), fronts: fronts.map(o => o.key) }),
     validate: p => readTurnPlan(p, m)
   });
@@ -146,6 +222,7 @@ export async function ensureTurnPlan(ctx, extra = {}) {
   plan.join = v.join?.territory ?? (join.length === 1 ? join[0].territory : null);
   plan.placements = v.placements;
   if ( v.reserve ) plan.reserve = v.reserve;
+  if ( profile.veto && plan.placements.length && guardHqPlacement(ctx, plan, m) ) plan.vetoes.push("hqPlacement");
   plan.thinking = res.thinking;
   memo.plan = plan;
   memo.pendingSay = gateSay(ctx, res.say, { key: key || !!plan.buy });
@@ -171,7 +248,7 @@ export async function planStartOfTurn(ctx) {
     const have = new Set(hand.map(c => c.id));
     const ids = plan.buy.ids.every(id => have.has(id)) ? plan.buy.ids : (plan.buy.stars >= 2 && hand.length >= 8
       ? [...hand].sort((a, b) => (a.coins ?? 1) - (b.coins ?? 1)).slice(0, 8).map(c => c.id) : starCards(hand));
-    return withPending(ctx, { buyRedStars: ids, why: why("buyStar", { count: stars + Math.floor(ids.length / 4) }) });
+    return withPending(ctx, { buyRedStars: ids, why: why("buyStar", { count: stars + Math.floor(ids.length / 4), ...(plan.vetoes?.includes("buyStar") ? { veto: "buyStar" } : {}) }) });
   }
   return withPending(ctx, { buyRedStars: null, why: why("holdCards", { count: hand.length, ...(plan.trade ? { label: "trade for troops" } : {}) }) });
 }
@@ -256,7 +333,8 @@ export async function planPlacement(ctx, { reserve } = {}) {
     placements: entries.map(({ territory, count }) => ({ territory, count })),
     why: why(reason, {
       territory: main.territory, count: main.count,
-      ...(reason === "stageAttack" && f.best ? { to: f.best.to, chance: round(f.best.P, 2) } : {})
+      ...(reason === "stageAttack" && f.best ? { to: f.best.to, chance: round(f.best.P, 2) } : {}),
+      ...(plan.vetoes?.includes("hqPlacement") ? { veto: "hqPlacement" } : {})
     })
   });
 }
@@ -302,6 +380,45 @@ function readAttackPlan(p, options, maxSteps, { retry = false } = {}) {
   return { steps, stopWhen: stopAt >= 0 ? "after_these_steps" : p.stop_when };
 }
 
+/**
+ * Warlord sanity layer: a rival likely to win on its next turn (RACE_ALARM) must be answered. When the model's steps
+ * include nothing that stops it but the menu has an option that does (at the big-swing floor), that option goes first.
+ * @returns {object|null} the option to prepend
+ */
+function stopLeaderStep(ctx, profile, knobs, options, steps) {
+  if ( steps.some(s => s.stops) ) return null;
+  const alarm = raceThreats(ctx).filter(t => t.p >= RACE_ALARM).map(t => t.fid);
+  if ( !alarm.length ) return null;
+  const names = new Set(alarm.map(fid => ctx.view?.factionNames?.[fid] ?? ctx.state.factions[fid]?.name));
+  const gain = o => Math.max(0, ...(o.race ?? []).filter(r => names.has(r.name)).map(r => r.before - r.after)) * o.P;
+  return options.filter(o => o.stops && (o.decisive || o.P >= oddsFloor(profile, knobs, true)) && gain(o) > 0)
+    .sort((a, b) => gain(b) - gain(a))[0] ?? null;
+}
+
+/**
+ * Warlord sanity layer: the turn would end without a conquest, so without a resource card. When a safe conquest is
+ * on the board (strategy.cardConquest: high odds, low losses, positive value, no HQ risk), code adds it as the last
+ * step, once per turn.
+ * @returns {object|null} the step added
+ */
+function cardInsurance(ctx, profile, sit, a) {
+  if ( !profile.veto || a.insured ) return null;
+  if ( (ctx.state.turn?.log?.conquered ?? 0) > 0 ) return null;
+  a.insured = true;
+  const plans = assessPlans(ctx, jevProfileOf(profile), legalPlans(ctx, profile, sit, { chains: false }));
+  const p = cardConquest(ctx, plans);
+  if ( !p ) return null;
+  const t = ctx.state.territories[p.to];
+  const step = {
+    key: `card_${p.to}_from_${p.from}`, plan: p, kind: "attack", from: p.from, to: p.to, end: p.to, path: [...p.path],
+    P: p.P, eLoss: p.eLoss, decisive: false, big: false, toName: t?.name ?? p.to, leave: 0, veto: "earnCard"
+  };
+  a.steps.push(step);
+  a.idx = a.steps.length - 1;
+  a.vetoes = [...(a.vetoes ?? []), "earnCard"];
+  return step;
+}
+
 /** Ask for a (re)plan. Returns false when the menu is empty (no call). */
 async function planAttacks(ctx, profile, knobs, sit, replan = null, options = null) {
   const memo = memoOf(ctx);
@@ -317,11 +434,13 @@ async function planAttacks(ctx, profile, knobs, sit, replan = null, options = nu
   const troops = (ctx.state.factions[ctx.me]?.troops ?? 0);
   const sofar = replan ? FACTS.sofar(conquered - a.conquered0, Math.max(0, a.troops0 - troops)) : "";
   const maxSteps = Math.min(options.length, profile.menu);
+  const noCardYet = profile.staff && !conquered && (ctx.view?.drawOptions?.eligible !== true);
   const res = await askModel(ctx, {
     purpose: replan ? "replan" : "attack plan",
     user: attackPlanMessage({
       board: boardFacts(ctx, profile, { detail: "attack" }), options, hqFloor: profile.hqFloor, replan, sofar,
-      maxSteps, key: options.some(o => o.decisive)
+      maxSteps, key: options.some(o => o.decisive), staff: !!profile.staff,
+      cardNote: noCardYet ? FACTS.cardNote((ctx.view?.hand ?? []).length) : ""
     }),
     schema: attackPlanSchema(options.map(o => o.key)),
     validate: (p, o) => readAttackPlan(p, options, maxSteps, o)
@@ -330,6 +449,13 @@ async function planAttacks(ctx, profile, knobs, sit, replan = null, options = nu
   a.idx = 0;
   a.stopWhen = res.value.stopWhen;
   a.planned = true;
+  if ( profile.veto ) {
+    const forced = stopLeaderStep(ctx, profile, knobs, options, a.steps);
+    if ( forced ) {
+      a.steps.unshift({ ...forced, leave: a.steps[0]?.leave ?? 0, veto: "stopLeader" });
+      a.vetoes = [...(a.vetoes ?? []), "stopLeader"];
+    }
+  }
   const big = a.steps.some(s => s.decisive || s.plan.endFx.hq || s.plan.endFx.knockOut);
   const say = gateSay(ctx, res.say, { key: big });
   if ( say ) memo.pendingSay = say;
@@ -418,7 +544,7 @@ export async function nextMove(ctx) {
   let a = memo.attack;
   if ( !a ) {
     a = memo.attack = { steps: [], idx: 0, stopWhen: "after_these_steps", replans: 0, conquered0: conquered, troops0: state.factions[me]?.troops ?? 0, planned: false };
-    if ( !await planAttacks(ctx, profile, knobs, sit) ) {
+    if ( !await planAttacks(ctx, profile, knobs, sit) && !cardInsurance(ctx, profile, sit, a) ) {
       // Nothing on the menu: every attack is under the odds floor (or there is none at all).
       const anyAttack = legalPlans(ctx, profile, sit, { chains: false }).some(p => p.kind === "attack");
       return withPending(ctx, stop(anyAttack ? "stopOddsPoor" : "stopEnough", conquered));
@@ -432,6 +558,7 @@ export async function nextMove(ctx) {
         const options = attackMenu(ctx, profile, knobs, sit);
         if ( options.length && goodOptionsRemain(options) && await planAttacks(ctx, profile, knobs, sit, FACTS.replanDone, options) ) continue;
       }
+      if ( cardInsurance(ctx, profile, sit, a) ) continue;
       return withPending(ctx, stop("stopEnough", conquered));
     }
     const hop = nextHop(ctx, step);
@@ -440,10 +567,10 @@ export async function nextMove(ctx) {
       continue;
     }
     let move = hop.broken ? null : hopMove(ctx, profile, step, hop);
-    const floor = stepFloor(profile, knobs, step.decisive);
+    const floor = stepFloor(profile, knobs, step.decisive, !!step.big);
     if ( !move || ((move.type === "attack") && (move.P < floor)) ) {
       const why0 = hop.broken ? FACTS.replanBroken(step.toName) : FACTS.replanOdds(territoryName(state, hop.to ?? step.to));
-      if ( a.replans < profile.replans ) {
+      if ( (a.replans < profile.replans) && (step.veto !== "earnCard") ) {
         const options = attackMenu(ctx, profile, knobs, sit);
         if ( options.length && await planAttacks(ctx, profile, knobs, sit, why0, options) ) continue;
       }
@@ -452,7 +579,13 @@ export async function nextMove(ctx) {
       continue;
     }
     a.current = { from: move.from, to: move.to, step: a.idx };
-    return withPending(ctx, moveDecision(ctx, move, step.plan, sit, step.decisive));
+    const decision = moveDecision(ctx, move, step.plan, sit, step.decisive);
+    if ( step.veto ) {
+      // A code override (sanity layer): narrated as the code's reason, logged as a veto.
+      decision.why.veto = step.veto;
+      if ( step.veto === "earnCard" ) decision.why.reason = "cardConquest";
+    }
+    return withPending(ctx, decision);
   }
   return withPending(ctx, stop("stopEnough", conquered));
 }
@@ -518,6 +651,22 @@ function readEndTurn(p, maneuvers, draws) {
   return { maneuver, draw };
 }
 
+/**
+ * Warlord sanity layer: when the HQ is likely to fall next turn (HQ_ALARM) and a maneuver on the menu makes it at least
+ * 15 points safer, the turn doesn't end without it, unless the chosen maneuver protects another HQ or makes another
+ * front at least twice as much safer.
+ * @returns {object|null} the HQ maneuver to make instead of the chosen one
+ */
+function hqManeuver(maneuvers, chosen) {
+  const cut = m => (m?.threat ? m.threat.p - m.threat.pAfter : 0);
+  const hq = maneuvers.filter(m => m.isHq && m.threat && m.threat.p >= HQ_ALARM && cut(m) >= 0.15)
+    .sort((a, b) => cut(b) - cut(a))[0];
+  if ( !hq || chosen === hq || chosen?.isHq ) return null;
+  // An HQ is worth about two stars of swing: another front stands only if it gains at least twice as much safety.
+  if ( chosen && cut(chosen) >= 2 * cut(hq) ) return null;
+  return hq;
+}
+
 /** The one maneuver of the turn (and, in the same call, the card to draw). */
 export async function planManeuver(ctx) {
   if ( isHeuristic(ctx) ) return jev.planManeuver(H(ctx));
@@ -534,13 +683,28 @@ export async function planManeuver(ctx) {
   }
   const ms = ctx.view?.missionStatus;
   const draws = (ms?.canComplete && ms.status === "complete") ? [] : drawMenu(ctx);
+  if ( profile.staff ) {
+    // The Jev Warlord's maneuver (code judgments, no Jev call), marked on the menu as the staff pick.
+    const code = await jev.planManeuver(H(ctx));
+    const pick = code && maneuvers.find(m => m.from === code.from && m.to === code.to);
+    if ( pick ) pick.staff = true;
+  }
   const res = await askModel(ctx, {
     purpose: "end of turn",
     user: endTurnMessage({ board: boardFacts(ctx, profile, { detail: "end" }), maneuvers, draws }),
     schema: endTurnSchema({ maneuvers: maneuvers.map(m => m.key), draws: draws.map(d => d.key) }),
     validate: p => readEndTurn(p, maneuvers, draws)
   });
-  const { maneuver, draw } = res.value;
+  let { maneuver } = res.value;
+  const { draw } = res.value;
+  let veto = null;
+  if ( profile.veto ) {
+    const forced = hqManeuver(maneuvers, maneuver);
+    if ( forced ) {
+      maneuver = forced;
+      veto = "hqManeuver";
+    }
+  }
   const say = gateSay(ctx, res.say);
   memo.end = { decision: null, draw };
   if ( !maneuver ) {
@@ -551,7 +715,7 @@ export async function planManeuver(ctx) {
   const reason = state.territories[maneuver.to]?.hq === me ? "reinforceHq" : (maneuver.threat ? "defendBorder" : "consolidate");
   const decision = withPending(ctx, {
     from: maneuver.from, to: maneuver.to, count: maneuver.count,
-    why: why(reason, { from: maneuver.from, to: maneuver.to, count: maneuver.count, territory: maneuver.to, thinking: res.thinking })
+    why: why(reason, { from: maneuver.from, to: maneuver.to, count: maneuver.count, territory: maneuver.to, thinking: res.thinking, ...(veto ? { veto } : {}) })
   });
   if ( say ) decision.say = say;
   memo.end.decision = decision;

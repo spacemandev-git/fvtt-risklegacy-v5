@@ -159,8 +159,10 @@ test("calls per turn: 2 to 5 at every level; the turn plan is made once and read
 });
 
 test("replans: keep_going replans while good options remain, never more than the level allows (easy 0, normal 1, hard 2)", async () => {
+  // Hold the cards where the level offers it (the Warlord isn't offered "hold" when a Red Star is buyable).
+  const cardsOf = req => (req.schema.schema.properties.cards ? { cards: enumOf(req, "cards").includes("hold_cards") ? "hold_cards" : enumOf(req, "cards")[0] } : {});
   const script = purpose => (purpose === "turn plan"
-    ? req => ({ thinking: "x", cards: "hold_cards", scar_mercenary: "keep_mercenary", placements: [{ front: enumOf(req, "placements.front")[0], troops: 1 }], say: "" })
+    ? req => ({ thinking: "x", ...cardsOf(req), scar_mercenary: "keep_mercenary", placements: [{ front: enumOf(req, "placements.front")[0], troops: 1 }], say: "" })
     : (purpose === "attack plan" || purpose === "replan")
       ? req => ({ thinking: "x", steps: [enumOf(req, "steps")[0]], keep_at_least: 0, stop_when: "keep_going", say: "" })
       : undefined);
@@ -180,15 +182,21 @@ test("replans: keep_going replans while good options remain, never more than the
     }
   }
   assert.deepEqual(replans, { easy: 0, normal: 1, hard: 2 });
-  // after_these_steps never replans.
+  // after_these_steps never extends the plan once its steps are done (replans only when a step's odds drop under the
+  // level's floor, which the Warlord's stricter floors do here).
   const once = purpose => ((purpose === "attack plan") ? req => ({ thinking: "x", steps: [enumOf(req, "steps")[0]], keep_at_least: 0, stop_when: "after_these_steps", say: "" }) : undefined);
-  assert.equal((await turnCalls("hard", { script: once })).by("replan").length, 0);
+  for ( const difficulty of ["normal", "hard"] ) {
+    const r = await turnCalls(difficulty, { script: once });
+    assert.ok(r.by("replan").every(c => !userOf(c.request).includes("planned steps are done")), `${difficulty}: no keep_going extension`);
+    if ( difficulty === "normal" ) assert.equal(r.by("replan").length, 0);
+  }
 });
 
 test("a stop answer stops at once; a plan step is executed with fresh odds and the HQ floor", async () => {
+  // Commander: a stop is a stop. (The Warlord's sanity layer may override it: see warlord.test.mjs.)
   reset();
   const stop = fakeChat(() => ({ thinking: "Not worth it.", steps: ["stop_now"], keep_at_least: 0, stop_when: "keep_going", say: "" }));
-  const { out } = await runLLMCall(brain, "leader-one-star", 1, { chat: stop, difficulty: "hard" });
+  const { out } = await runLLMCall(brain, "leader-one-star", 1, { chat: stop, difficulty: "normal" });
   assert.equal(out.type, "stop");
   assert.equal(out.why.thinking, "Not worth it.");
   reset();

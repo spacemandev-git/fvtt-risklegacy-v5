@@ -290,7 +290,8 @@ Design the calls; this is the intended shape:
 |---|---|---|---|
 | Board context | own territories + neighbours, its HQ, Red Star counts | + every faction's stars, troops, territories, continents; threats to its HQ | + hand counts and coins, mission, events, powers, `view.recent` (what happened since its last turn) |
 | Odds in menus | verbal bands only ("good chance") | exact % with bands | exact % + expected losses + what the take changes |
-| Menu | 5 options, lightly pre-scored (may include poor ones) | 6, without options under 25% (unless code says decisive) | 8, plus 2–3-step chains; HQ floor enforced by code |
+| Menu | 5 options, lightly pre-scored (may include poor ones) | 6, without options under 25% (unless code says decisive) | 8, plus 2–3-step chains; HQ floor enforced by code; valued and pruned by code, 45% / 33% (big swing) floors (§11) |
+| Staff work and sanity layer | none | none | race facts, net values, code suggestions; code overrides clearly bad picks (§11) |
 | Replans per turn | 0 | 1 | 2 |
 | Rules / strategy / campaign | rules only | + strategy + `CAMPAIGN_SHORT` | + `CAMPAIGN_PRIMER` + `view.campaign` facts |
 | Memory | none, no debrief | reads `notes` + grudges; writes debrief | reads everything; writes debrief |
@@ -491,3 +492,133 @@ each model played each seat twice. `onError: "heuristic"`.
   - GLM 5.3 costs about 4× the Flash model without playing visibly better.
 - **Suggested defaults:** GLM 5.3 Flash (US) for every level. GLM 5.3 is for flavour (richer table talk) rather than
   strength.
+
+## 11. A harder chat Warlord (2026-11-03)
+
+The chat Warlord didn't play visibly better than the Commander (§10.2). The board effect explains part of that, but
+reading the code showed it was also handicapped compared with the Jev Warlord, which is tuned (`BOTS.md` §5.4).
+
+### 11.1 Why the Warlord was weak
+1. **Looser odds than the tuned bots.** The Warlord menu's floor was 25% (15% for a gambler), and a running attack kept
+   rolling down to 20%. The Jev Warlord's tuned floors are 55%, or 40% for a big swing, and tuning found that every
+   extra risk lost games. Chat models also lean toward acting, so thin options on the menu got taken.
+2. **Menus padded with bad options.** The menu was the top 8 by code value, even when most of them had negative value
+   (expensive attacks, gift expansions). The model saw odds and facts but no net value, and couldn't tell the 8th
+   option from the 1st.
+3. **No HQ-risk term.** The Jev Warlord charges an attack out of the HQ for the rise in the HQ's capture chance
+   (`hqRiskOf`). The chat menu ranked those attacks without it, so only the 4-troop floor protected the HQ.
+4. **No race maths.** The prompt listed each rival's stars and best HQ attack, but never said "this rival wins next
+   turn unless…" or which option stops that. Answering a rival on 3 Red Stars was left to the model's arithmetic.
+5. **Card timing left to taste.** The model could hold four or more cards instead of buying a Red Star (a knock-out
+   hands them over), buy one star when two were buyable, or trade a hand one card short of a star for a few troops.
+6. **Turns without a card.** A `stop_now`, or a plan whose attacks all failed, ended the turn with no conquest, so no
+   card, even when a near-certain conquest was on the board. The Jev bots count the card in every score.
+7. **Placement and maneuver had no safety net.** The model could pile everything on an attack front while a
+   defensible HQ was very likely to fall, or skip the maneuver that would have saved it.
+8. **Personality over strategy.** The Warlord prompt let the style text ("attack every turn with everything") compete
+   with the facts on equal terms. A risk knob of 1 also lowered the floors by 10 points.
+
+### 11.2 What changed (Warlord only; Recruit and Commander are unchanged)
+- **Odds discipline** (`llm/profiles.mjs`): `minChance` is 45% and `minChanceBig` is 33%. A big swing is an HQ, a
+  knock-out, a continent (code level 3 or higher) or a take that stops a rival winning. Decisive takes stay at 15%.
+  The personality's risk moves the floors by ±5 points (`riskShift`). A running attack stops 5 points under its floor
+  (40% / 28%).
+- **Staff work** (`llm/brain/strategy.mjs`, `profile.staff`), all computed by code:
+  - `winChanceNextTurn` gives each rival's chance to win on its next turn: certain when its hand buys the missing
+    stars, otherwise its best HQ capture when it is one star short (with its recruits, and a card trade when it can't
+    buy), or a rough product of two captures when it is two short.
+  - `assessPlans` gives every option a **net value** in troop-equivalents: the shared pre-score, minus the HQ risk
+    (the Jev Warlord's formula), plus P × the fall in each threatening rival's win chance × the worth of stopping a win.
+  - The menu is sorted by that value and drops anything below 0, unless it is decisive or stops a win.
+  - Each option line states its net value, how it moves each rival's chance to win next turn, and how much it weakens
+    the HQ.
+  - The prompt gets a **THE RACE** block: who could win next turn, how, and what stops it. It also says when no
+    conquest has been made yet this turn, and that options from the same territory share its troops.
+  - The turn plan shows a **staff placement suggestion**: the Jev Warlord's tuned `allocateReserve`, run code-only.
+    The maneuver the Jev Warlord would make is marked "staff pick".
+- **Sanity layer** (`profile.veto`), code overrides of clearly bad picks:
+  - **Cards.** "Hold" isn't offered when a Red Star is buyable, and the only buy offered is the biggest one. With no
+    trade worth weighing, code buys without asking (`why.veto: "buyStar"`). A trade must beat the hand's progress
+    toward a star (`warlordTradeFloor`: 4 / 7 / 13 / 21 troops for 1 / 2 / 3 / 4+ cards) unless the HQ needs
+    defenders.
+  - **Stopping a rival.** When a rival's chance to win next turn is at least 50% and the plan has no step that stops
+    it, the best stopping option (at the big-swing floor) goes first (`stopLeader`).
+  - **The card.** When the plan ends with no conquest this turn, code adds the safe conquest that earns the card:
+    odds of 75% or more, at most 2 expected losses, positive value and no HQ risk. This happens once per turn
+    (`earnCard`, narrated as `cardConquest`).
+  - **HQ placement.** If the planned troops leave the own HQ at least 45% likely to fall, and the reserve can bring it
+    under that, code moves the troops needed to get under 30% (or as low as the reserve allows). They come from the
+    weakest staging fronts, never from a decisive one (`hqPlacement`). A hopeless HQ is left to the model.
+  - **HQ maneuver.** If the HQ is at least 45% likely to fall and a maneuver makes it 15 points safer, the turn
+    doesn't end without that maneuver. The exceptions: the chosen maneuver protects another HQ, or makes another front
+    at least twice as much safer (`hqManeuver`).
+  - Every override sets `why.veto` on the decision, so the Bot Log shows how often the model was overruled.
+- **Prompt framing.** The Warlord's system message adds a priority rule: winning comes first. The style decides
+  between options of similar worth and colours the talk, and the staff's sums are followed unless the model sees a
+  concrete reason, such as the campaign, a grudge worth a small cost, or a rival's habits. The model still chooses
+  from code-made legal menus. Prompts still contain no player names, and the system message is still one per bot per
+  war.
+- **Calls per turn** stay at 2–5. The overrides add no calls. Stricter floors can trigger an odds-drop replan where
+  the old floors didn't, still bounded by the Warlord's 2 replans.
+- **Tests:** `module/bots/llm/brain/tests/warlord.test.mjs` (10 tests) covers the race maths, valued and pruned
+  menus, floors, each override, Commander unchanged, and the A/B patch. Two `levels.test.mjs` tests were adjusted:
+  the Commander now checks "a stop is a stop", and a card answer is chosen from the menu, since the Warlord no longer
+  offers "hold" when a star is buyable. All 211 tests in `node --test module/rules/tests/ module/battle/tests/
+  module/bots/brain/tests/ module/bots/driver/tests/ module/bots/llm/brain/tests/` pass.
+- **Live smoke check** (GLM 5.3 Flash US, Warlord, berserker): 3 fixtures and 1 full turn, 7 calls, $0.0097, no
+  failures. The model followed the race facts (it took Balkania's captured HQ to stop a 99% win threat) and used the
+  staff pick at the end of the turn.
+
+### 11.3 Ideas not implemented yet (most valuable first)
+1. **Code-evaluated multi-target sequences.** Options are valued one at a time, from the current board. A "card,
+   then HQ" or "break the continent, then hold" sequence from one stack should be valued together: simulate the
+   expected board after each step and offer the 2–3 best sequences as single options.
+2. **Defensive lookahead for placement.** Value the board after the rivals' next turn: the expected stars lost
+   across every border, not just the HQ. Then rank fronts by "stars kept + stars gained".
+3. **Kingmaking beyond next turn.** The race maths only looks one turn ahead. A two-turn horizon (stars plus cards
+   plus recruits) would stop the bot weakening the second player while the leader runs away.
+4. **Missile timing as part of the race.** Missiles stay a per-battle prompt. Holding them for the battle that stops
+   a rival's winning HQ capture (the race block knows which one) would be stronger.
+5. **Calibrate the net-value weights in tournaments** (`winStake` = gain level 3.5, `hqStake`, the 45%/33% floors),
+   the way `BOTS.md` §5.4 tuned the Jev Warlord. A `profilePatch`-style switch for the LLM profiles exists for this
+   (`setLLMProfilePatch`).
+6. **Opponent models from memory.** Turn the notes' "Enclave buys stars fast" into code facts (each rival's buy rate,
+   aggression) that change the race maths.
+7. **Scar cards and Join the War with staff values,** the same way as attacks.
+
+### 11.4 Evaluation plan: seat- and faction-balanced (for the user to run; not run here)
+The question is whether the new Warlord wins more than the Commander, and more than the Warlord before §11, once the
+seat and faction effects are removed. Seat 1 as Balkania won about 3 games in 4 (§10.2, `BOTS.md` §5.4).
+
+- **Design.** Three bots per game on one model (GLM 5.3 Flash US, the default), each with a fixed personality
+  (`mathematician`) so the personality isn't a variable. Rotate in a Latin square:
+  - The bot under test sits in seat 0, 1 and 2.
+  - The faction triple (Khan, Balkania, Enclave) is rotated cyclically through the seats: 3 orders.
+  - Each of the 9 cells is played 6 times: **54 games per arm**, close to the 60 per comparison `BOTS.md` §5.4 asks
+    for.
+  - Play the same schedule on the advanced board as well (`RL_T.variant: "advanced"`, `data/boards/advanced.json`)
+    to dilute the original board's seat effect.
+- **Arms** (each the bot under test against 2 Commanders on the same model):
+  - **A:** the new Warlord: `RL_T.bots = [{engine:"llm", difficulty:"hard", model:"z-ai/glm-5.3-flash:US",
+    personality:"mathematician"}, …2 × normal…]`, rotated as above.
+  - **B:** the Warlord before §11. Same schedule, with `--code-before` running
+    `const P = await import("/systems/fvtt-risklegacy-v5/module/bots/llm/profiles.mjs");
+    P.setLLMProfilePatch({hard: P.WARLORD_CLASSIC});`.
+  - **C (control):** a Commander in the test seat, which measures the seat/faction baseline directly.
+  - Optional **D:** the new Warlord against 2 Jev Warlords, the strongest code opponents.
+- **Analysis.**
+  - The primary metric is win rate against the control arm C in the same cells (a paired difference per cell), with
+    Wilson 95% intervals.
+  - Also fit a logistic regression of win on seat, faction, board and arm, so the arm effect is net of seat and
+    faction.
+  - With 54 games per arm, the standard error is about 6.4 points, so a 15-point gain is about 2.3 SE.
+  - Lower-variance secondary metrics: final Red Stars, Red Star-turns (the sum of stars at the end of each round), HQ
+    lost (yes/no), share of turns ending with a card, rounds survived, and veto counts by type (from `why.veto` in the
+    Bot Log). Many `stopLeader`/`hqPlacement` vetoes would mean the model ignores the race block. Many `earnCard`
+    vetoes would mean it stops too early.
+  - Report results per seat as well, so a gain that only shows in seat 1 is visible.
+- **Cost and time.** §10.2 cost $0.114 for 6 games with three Flash Warlords, about $0.006 per Warlord seat-game.
+  One Warlord and 2 Commanders on Flash cost about $0.01–0.015 per game, so about $0.6–0.8 per 54-game arm and about
+  $2–3 for arms A–C. That is within `spendCap` 2 per game, and should be set with `onError: "heuristic"` (count the
+  heuristic decisions). At 4–9 minutes per game, one arm takes 4–8 hours on one sandbox; run 2–3 sandboxes on
+  separate ports in parallel.

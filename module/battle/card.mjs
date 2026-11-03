@@ -6,7 +6,7 @@
  * re-renders a message whenever it is updated, so every client sees the card change live.
  */
 import { SYSTEM_PATH } from "../config.mjs";
-import { canActFor, getCampaign, getCampaignBoard, getFactions, getHand, getWar } from "../state/_module.mjs";
+import { canActFor, canSeeHand, getCampaign, getCampaignBoard, getFactions, getHand, getWar } from "../state/_module.mjs";
 import { runAction } from "../gm/actions.mjs";
 import { normalizeKey, resolveDice } from "./modifiers.mjs";
 import { lookup } from "./services.mjs";
@@ -75,7 +75,9 @@ function preRollOptions(sys, user = game.user) {
       options.push({ action: "emp", faction: faction.id, label: loc("RL.Battle.Button.emp", { faction: faction.name }) });
     }
     if ( scarred || (typeof game.risklegacy?.cards?.playScar !== "function") ) continue;
-    // Players only see scar cards in hands they can open.
+    // Scar cards are secret: only in hands this user may see (a GM only for the faction(s) they play, or with the
+    // gmSeeAllHands override), even though a GM may act for anyone.
+    if ( !canSeeHand(user, faction) ) continue;
     for ( const card of getHand(faction)?.cards ?? [] ) {
       if ( card.type !== "scar" ) continue;
       const entry = lookup("scars", card.system?.scar);

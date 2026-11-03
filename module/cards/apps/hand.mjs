@@ -1,4 +1,4 @@
-import { CARDS_PER_RED_STAR } from "../../config.mjs";
+import { CARDS_PER_RED_STAR, SYSTEM_ID } from "../../config.mjs";
 import * as state from "../../state/_module.mjs";
 import { getResourceCards } from "../resources.mjs";
 import { scarTargets } from "../scars.mjs";
@@ -11,7 +11,8 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const { renderTemplate } = foundry.applications.handlebars;
 
 /**
- * A faction's hand: card faces for its owners (backs and a count for everyone else), the coin total, and the
+ * A faction's hand: card faces for its player (state.canSeeHand; backs and a count for everyone else, a GM
+ * included unless they play that faction or turned on the `gmSeeAllHands` override), the coin total, and the
  * "Trade for Red Star" / "Trade for troops" buttons wired to game.risklegacy.turn.buyRedStars / tradeForTroops.
  *
  * Three ways to show it:
@@ -30,7 +31,8 @@ export function handContext(faction, { interactive = true, compact = false } = {
   const actor = factionActor(faction);
   if ( !actor ) return null;
   const hand = state.getHand(actor);
-  const reveal = !!hand && (hand.isOwner || game.user.isGM);
+  // Secret: only the faction's own player (a GM too only for the faction(s) they play, or with the explicit override)
+  const reveal = !!hand && state.canSeeHand(game.user, actor);
   const resources = getResourceCards(actor);
   const scars = hand?.cards.filter(c => c.type === "scar") ?? [];
   const others = hand?.cards.filter(c => !["territory", "coin", "scar"].includes(c.type)) ?? [];
@@ -151,7 +153,8 @@ export class RLHandElement extends HTMLElement {
   connectedCallback() {
     this.classList.add("rl-hand-host");
     this.addEventListener("click", this.#onClick);
-    for ( const name of ["createCard", "updateCard", "deleteCard", "updateCards", "createCards", "deleteCards", "updateCombat", "updateActor"] ) {
+    for ( const name of ["createCard", "updateCard", "deleteCard", "updateCards", "createCards", "deleteCards", "updateCombat", "updateActor",
+      `${SYSTEM_ID}.handVisibility`] ) {
       this.#hooks.push([name, Hooks.on(name, () => this.#refresh())]);
     }
     this.refresh();

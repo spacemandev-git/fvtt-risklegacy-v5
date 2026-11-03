@@ -47,7 +47,7 @@
   position: fixed;
   z-index: 10000;
   pointer-events: none;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 0 0 1px rgb(0 0 0 / .5), 0 18px 40px rgb(0 0 0 / .55);
   background: var(--rl-card-paper);
@@ -88,12 +88,12 @@
   aspect-ratio: 63 / 88;
   object-fit: cover;
   border: 0;
-  border-radius: clamp(3px, .8cqi, 8px);
+  border-radius: clamp(4px, .8cqi, 10px);
   box-shadow: var(--rl-shadow-card);
   transition: box-shadow .15s, filter .15s, transform .15s;
 }
 .risklegacy .rl-sb-card--landscape { height: auto; width: 96%; aspect-ratio: 88 / 63; }
-.risklegacy .rl-sb-card.rl-cardback { font-size: clamp(10px, 2.2cqi, 22px); }
+.risklegacy .rl-sb-card.rl-cardback { font-size: clamp(13px, 2.2cqi, 29px); }
 
 /* piles: a few card edges under the top card */
 .risklegacy .rl-sb-stack {
@@ -106,7 +106,7 @@
 .risklegacy .rl-sb-stack::after {
   content: "";
   position: absolute; inset: 0;
-  border-radius: clamp(3px, .8cqi, 8px);
+  border-radius: clamp(4px, .8cqi, 10px);
   background: #e9e7df;
   box-shadow: 0 1px 2px rgb(0 0 0 / .45);
 }
@@ -119,16 +119,16 @@
   justify-self: center;
   z-index: 3;
   margin-bottom: -1.1cqi;
-  padding: 5px 16px 4px 10px;            /* right side clears the 8 px chamfer */
+  padding: 7px 21px 5px 13px;            /* right side clears the 8 px chamfer */
   max-width: 120%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   background: var(--rl-grad-steel);
   box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(0 0 0 / .45);
-  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
   color: var(--rl-ink);
-  font: 800 clamp(10px, 1.45cqi, 14px)/1 var(--rl-font-display);
+  font: 800 clamp(13px, 1.45cqi, 18px)/1 var(--rl-font-display);
   letter-spacing: var(--rl-track-caps);
   text-transform: uppercase;
 }
@@ -143,14 +143,14 @@
   justify-self: end;
   z-index: 3;
   display: grid; place-items: center;
-  width: clamp(18px, 3.4cqi, 32px);
+  width: clamp(23px, 3.4cqi, 42px);
   aspect-ratio: 1;
   margin: -0.8cqi -0.8cqi 0 0;
   border-radius: 50%;
   background: radial-gradient(circle at 40% 35%, #f9df8a, #d5a43a 50%, #8a5a12 78%, var(--rl-coin-brown) 80%);
   box-shadow: 0 1px 3px rgb(0 0 0 / .55);
   color: var(--rl-ink);
-  font: 900 clamp(11px, 2.1cqi, 20px)/1 var(--rl-font-display);
+  font: 900 clamp(14px, 2.1cqi, 26px)/1 var(--rl-font-display);
 }
 .risklegacy .rl-sb-value.is-even { box-shadow: 0 0 0 3px var(--rl-red-bright), 0 1px 3px rgb(0 0 0 / .55); }
 .risklegacy .rl-sb-yours {
@@ -158,17 +158,17 @@
   justify-self: start;
   z-index: 3;
   margin: 0 0 0 -6%;
-  padding: 0 4px;
+  padding: 0 5px;
   background: rgb(255 255 255 / .85);
   transform: rotate(-6deg);
-  font-size: clamp(12px, 1.8cqi, 18px);
+  font-size: clamp(16px, 1.8cqi, 23px);
 }
 
 /* drawing: legal choices glow, the rest dims */
 .risklegacy .rl-sb-slot.is-allowed > .rl-sb-card,
 .risklegacy .rl-sb-slot.is-allowed > .rl-sb-stack {
   box-shadow: 0 0 0 3px var(--rl-red-bright), 0 0 16px 2px rgb(196 21 28 / .7);
-  border-radius: clamp(3px, .8cqi, 8px);
+  border-radius: clamp(4px, .8cqi, 10px);
   transform: translateY(-2px);
 }
 .risklegacy .rl-sb-slot.is-dimmed > .rl-sb-card,
@@ -178,8 +178,8 @@
   align-self: end;
   margin-bottom: 18%;
   min-height: 0;
-  padding: 5px 12px 3px;
-  font-size: clamp(11px, 1.6cqi, 15px);
+  padding: 7px 16px 4px;
+  font-size: clamp(14px, 1.6cqi, 20px);
 }
 
 /* the coin pile's printed note */
@@ -190,23 +190,23 @@
   display: flex; align-items: center; gap: var(--rl-space-3);
   width: 100%;
   margin-top: 5%;
-  padding: 5px 6px 5px 8px;
+  padding: 7px 8px 7px 10px;
   background: var(--rl-cream);
   border: 2px solid var(--rl-ink);
   box-shadow: var(--rl-shadow-panel);
   color: var(--rl-ink);
-  font: 700 clamp(8px, 1.05cqi, 11px)/1.15 var(--rl-font-body);
+  font: 700 clamp(10px, 1.05cqi, 14px)/1.15 var(--rl-font-body);
   cursor: help;
 }
-.risklegacy .rl-sb-coinnote .rl-token { width: clamp(14px, 2.4cqi, 24px); height: clamp(14px, 2.4cqi, 24px); }
+.risklegacy .rl-sb-coinnote .rl-token { width: clamp(18px, 2.4cqi, 31px); height: clamp(18px, 2.4cqi, 31px); }
 .risklegacy .rl-sb-coinnote__text { flex: 1; }
 .risklegacy .rl-sb-coinnote.is-spent .rl-sb-coinnote__text { text-decoration: line-through var(--rl-red) 2px; }
 .risklegacy .rl-sb-coinnote.is-spent .rl-token { filter: grayscale(1) opacity(.5); }
 .risklegacy .rl-sb-coinnote__spent {
-  position: absolute; right: -4px; bottom: -1.2em;
-  padding: 0 3px;
+  position: absolute; right: -5px; bottom: -1.2em;
+  padding: 0 4px;
   background: rgb(255 255 255 / .85);
-  font-size: clamp(12px, 1.7cqi, 17px);
+  font-size: clamp(16px, 1.7cqi, 22px);
   line-height: 1;
   transform: rotate(-5deg);
 }
@@ -215,11 +215,11 @@
 .risklegacy .rl-sb-status {
   align-self: end; z-index: 3;
   margin-bottom: 9%;
-  padding: 5px 10px 4px;
+  padding: 7px 13px 5px;
   background: var(--rl-cream);
   border: 2px solid var(--rl-ink);
   color: var(--rl-ink);
-  font: 800 clamp(9px, 1.3cqi, 13px)/1.1 var(--rl-font-display);
+  font: 800 clamp(12px, 1.3cqi, 17px)/1.1 var(--rl-font-display);
   letter-spacing: var(--rl-track-caps);
   text-transform: uppercase;
 }
@@ -232,12 +232,12 @@
   align-self: end; z-index: 3;
   margin-bottom: 16%;
   width: auto; height: auto; min-height: 0;
-  padding: 5px 10px 4px;
+  padding: 7px 13px 5px;
   border: 2px solid var(--rl-ink);
   border-radius: 0;
   background: var(--rl-cream);
   color: var(--rl-ink);
-  font: 800 clamp(9px, 1.3cqi, 13px)/1 var(--rl-font-display);
+  font: 800 clamp(12px, 1.3cqi, 17px)/1 var(--rl-font-display);
   letter-spacing: var(--rl-track-caps);
   text-transform: uppercase;
   cursor: pointer;
@@ -249,16 +249,16 @@
   position: absolute;
   left: 7%; top: 45.4%;              /* in the gap between the DRAW tag and slot 1's coin */
   z-index: 2;
-  padding: 0 6px;
+  padding: 0 8px;
   color: var(--rl-red);
-  font-size: clamp(12px, 2cqi, 21px);
+  font-size: clamp(16px, 2cqi, 27px);
   line-height: 1;
   white-space: nowrap;
   transform: rotate(-2deg);
   text-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 0 2px #fff;
   pointer-events: none;
 }
-.risklegacy .rl-sb-hint.is-hot { font-size: clamp(14px, 2.4cqi, 25px); }
+.risklegacy .rl-sb-hint.is-hot { font-size: clamp(18px, 2.4cqi, 33px); }
 .risklegacy .rl-sb-hint.is-hot::after {
   content: "";
   position: absolute; inset: -.35em -.3em;
@@ -270,7 +270,7 @@
 /* status bar */
 .risklegacy .rl-sb-status-bar {
   display: flex; align-items: center; gap: var(--rl-space-5);
-  min-height: 34px;
+  min-height: 44px;
   padding: var(--rl-space-3) var(--rl-space-5);
   background: var(--rl-grad-steel);
   box-shadow: var(--rl-bevel-steel), var(--rl-shadow-panel);
@@ -289,7 +289,7 @@
   position: relative;
   display: block;
   flex: none;
-  width: 92px;
+  width: 120px;
   aspect-ratio: 63 / 88;
   border-radius: var(--rl-radius-card);
   cursor: pointer;
@@ -304,29 +304,30 @@
 }
 .risklegacy .rl-pick:hover:not(.is-disabled) { transform: translateY(-3px); }
 .risklegacy .rl-pick.is-selected > img { box-shadow: 0 0 0 3px var(--rl-red-bright), 0 0 14px rgb(196 21 28 / .6); }
-.risklegacy .rl-pick.is-selected { transform: translateY(-6px); }
+.risklegacy .rl-pick.is-selected,
+.risklegacy .rl-pick.is-selected:hover:not(.is-disabled) { transform: translateY(-6px); }
 .risklegacy .rl-pick.is-disabled { cursor: not-allowed; filter: grayscale(.8) brightness(.75); }
 .risklegacy .rl-pick:has(input:focus-visible) > img { outline: 2px solid var(--rl-focus); outline-offset: 2px; }
 .risklegacy .rl-pick__slot,
 .risklegacy .rl-pick__count {
-  position: absolute; left: 50%; bottom: -11px; transform: translateX(-50%);
-  padding: 3px 10px 2px;
+  position: absolute; left: 50%; bottom: -14px; transform: translateX(-50%);
+  padding: 4px 13px 3px;
   background: var(--rl-grad-steel);
   box-shadow: 0 1px 2px rgb(0 0 0 / .4);
   color: var(--rl-ink);
-  font: 900 13px/1 var(--rl-font-display);
+  font: 900 17px/1 var(--rl-font-display);
 }
 .risklegacy .rl-pick__value {
-  position: absolute; right: -6px; top: -6px;
+  position: absolute; right: -8px; top: -8px;
   display: grid; place-items: center;
-  width: 24px; height: 24px; border-radius: 50%;
+  width: 31px; height: 31px; border-radius: 50%;
   background: radial-gradient(circle at 40% 35%, #f9df8a, #d5a43a 50%, #8a5a12 78%, var(--rl-coin-brown) 80%);
   box-shadow: 0 1px 2px rgb(0 0 0 / .5);
   color: var(--rl-ink);
-  font: 900 15px/1 var(--rl-font-display);
+  font: 900 20px/1 var(--rl-font-display);
 }
 .risklegacy .rl-pick__value.is-even { box-shadow: 0 0 0 2px var(--rl-red-bright), 0 1px 2px rgb(0 0 0 / .5); }
-.risklegacy .rl-pick__flag { position: absolute; left: 4px; top: 6px; padding: 0 3px; background: rgb(255 255 255 / .85); transform: rotate(-6deg); font-size: 15px; }
+.risklegacy .rl-pick__flag { position: absolute; left: 5px; top: 8px; padding: 0 4px; background: rgb(255 255 255 / .85); transform: rotate(-6deg); font-size: 20px; }
 .risklegacy .rl-pick__empty {
   display: grid; place-items: center; height: 100%;
   border: 2px dashed var(--rl-k40);
@@ -348,11 +349,11 @@
   flex: 1;
   display: flex; flex-wrap: wrap; align-content: flex-start; gap: var(--rl-space-6);
   padding: var(--rl-space-4) var(--rl-space-3) var(--rl-space-5) var(--rl-space-2);   /* room for the coins and the lift */
-  max-height: min(380px, 48vh);         /* three full rows of cards before it scrolls */
+  max-height: min(494px, 48vh);         /* three full rows of cards before it scrolls */
   overflow-y: auto;
 }
 .risklegacy .rl-choose__empty { margin: 0; color: var(--rl-on-page-muted); font-style: italic; }
-.risklegacy .rl-choose__cards .rl-pick { width: 78px; }
+.risklegacy .rl-choose__cards .rl-pick { width: 101px; }
 .risklegacy .rl-trade-chart {
   flex: none;
   width: auto;
@@ -364,8 +365,8 @@
   font: 800 var(--rl-fs-base)/1 var(--rl-font-display);
   text-align: center;
 }
-.risklegacy .rl-trade-chart th { padding: 6px 10px 5px; background: var(--rl-ink); color: #fff; font-weight: 800; text-transform: uppercase; letter-spacing: var(--rl-track-caps); }
-.risklegacy .rl-trade-chart td { padding: 4px 10px; border-top: 1px solid var(--rl-k40); }
+.risklegacy .rl-trade-chart th { padding: 8px 13px 7px; background: var(--rl-ink); color: #fff; font-weight: 800; text-transform: uppercase; letter-spacing: var(--rl-track-caps); }
+.risklegacy .rl-trade-chart td { padding: 5px 13px; border-top: 1px solid var(--rl-k40); }
 .risklegacy .rl-trade-chart tr.is-current td { background: var(--rl-red); color: #fff; }
 .risklegacy .rl-pick-summary {
   margin-top: var(--rl-space-5);
@@ -384,16 +385,16 @@ rl-hand.rl-hand-host { display: block; }
 .risklegacy.rl-hand-view,
 .risklegacy .rl-hand-view {
   display: flex; flex-direction: column; gap: var(--rl-space-5);
-  --rl-hand-card-w: 84px;
+  --rl-hand-card-w: 109px;
   --rl-hand-gap: var(--rl-space-6);
 }
 .risklegacy.rl-hand-view.is-compact,
-.risklegacy .rl-hand-view.is-compact { --rl-hand-card-w: 58px; --rl-hand-gap: var(--rl-space-5); gap: var(--rl-space-4); }
+.risklegacy .rl-hand-view.is-compact { --rl-hand-card-w: 75px; --rl-hand-gap: var(--rl-space-5); gap: var(--rl-space-4); }
 .risklegacy .rl-hand-view__head { display: flex; align-items: center; gap: var(--rl-space-4); }
 .risklegacy .rl-hand-view__head .rl-label { color: var(--rl-page-heading); }
 .risklegacy .rl-hand-view__count { color: var(--rl-on-page-muted); font-style: italic; }
 .risklegacy .rl-hand-view__coins { margin-left: auto; display: inline-flex; align-items: center; gap: var(--rl-space-3); font: 900 var(--rl-fs-lg)/1 var(--rl-font-display); }
-.risklegacy .rl-hand-view__coins .rl-coin { width: 20px; height: 20px; }
+.risklegacy .rl-hand-view__coins .rl-coin { width: 26px; height: 26px; }
 /* each row of cards: the padding leaves room for the coin badges (−5 px) and the hover lift (−4 px) */
 .risklegacy .rl-hand-view__cards,
 .risklegacy .rl-hand-view__scars,
@@ -418,15 +419,15 @@ rl-hand.rl-hand-host { display: block; }
   border-radius: var(--rl-radius-card);
   box-shadow: var(--rl-shadow-card);
 }
-.risklegacy .rl-hand-card > .rl-cardback { display: grid; font-size: 11px; }
+.risklegacy .rl-hand-card > .rl-cardback { display: grid; font-size: 14px; }
 .risklegacy .rl-hand-card__value {
-  position: absolute; right: -5px; top: -5px;
+  position: absolute; right: -7px; top: -7px;
   display: grid; place-items: center;
-  width: 22px; height: 22px; border-radius: 50%;
+  width: 29px; height: 29px; border-radius: 50%;
   background: radial-gradient(circle at 40% 35%, #f9df8a, #d5a43a 50%, #8a5a12 78%, var(--rl-coin-brown) 80%);
   box-shadow: 0 1px 2px rgb(0 0 0 / .5);
   color: var(--rl-ink);
-  font: 900 14px/1 var(--rl-font-display);
+  font: 900 18px/1 var(--rl-font-display);
 }
 /* a playable scar: the PLAY button sits under the card instead of covering its text */
 .risklegacy .rl-hand-card:has(> .rl-hand-card__play) {
@@ -436,7 +437,7 @@ rl-hand.rl-hand-host { display: block; }
 .risklegacy .rl-hand-card:has(> .rl-hand-card__play) > img { height: auto; aspect-ratio: 88 / 63; }
 .risklegacy .rl-hand-view__empty { margin: 0; color: var(--rl-on-page-muted); font-style: italic; }
 .risklegacy .rl-hand-view__actions { display: flex; flex-wrap: wrap; gap: var(--rl-space-4); margin-top: var(--rl-space-2); }
-.risklegacy .rl-hand-view__actions .rl-token { width: 20px; height: 20px; }
+.risklegacy .rl-hand-view__actions .rl-token { width: 26px; height: 26px; }
 /* the hand window keeps the shared 16 px window padding */
 
 /* --------------------------------------------------------------------------
@@ -449,8 +450,8 @@ rl-hand.rl-hand-host { display: block; }
   max-height: 70vh; overflow-y: auto;
   padding: var(--rl-space-3);              /* room for the pending ring */
 }
-.risklegacy .rl-pile-card { position: relative; flex: none; width: 110px; margin: 0; display: flex; flex-direction: column; gap: var(--rl-space-4); }
-.risklegacy .rl-pile-card--landscape { width: 160px; }
+.risklegacy .rl-pile-card { position: relative; flex: none; width: 143px; margin: 0; display: flex; flex-direction: column; gap: var(--rl-space-4); }
+.risklegacy .rl-pile-card--landscape { width: 208px; }
 .risklegacy .rl-pile-card > img {
   display: block; width: 100%; aspect-ratio: 63 / 88; object-fit: cover; border: 0;
   border-radius: var(--rl-radius-card); box-shadow: var(--rl-shadow-card);
@@ -468,11 +469,11 @@ rl-hand.rl-hand-host { display: block; }
 }
 .risklegacy .rl-pile-card__name { flex: 1 1 0; min-width: 0; }
 .risklegacy .rl-pile-card__value { flex: none; }
-.risklegacy .rl-pile-card figcaption > .rl-hand { flex: 1 1 100%; font-size: 17px; line-height: 1; text-transform: none; letter-spacing: 0; }
-.risklegacy .rl-pile-card__pending { font-size: 17px; line-height: 1; }
+.risklegacy .rl-pile-card figcaption > .rl-hand { flex: 1 1 100%; font-size: 22px; line-height: 1; text-transform: none; letter-spacing: 0; }
+.risklegacy .rl-pile-card__pending { font-size: 22px; line-height: 1; }
 .risklegacy .rl-pile-card__resolve { display: flex; flex-direction: column; gap: var(--rl-space-3); }
-.risklegacy .rl-pile-card__resolve .rl-btn.rl-btn--icon { font-size: 13px; padding: 5px 10px 4px; }   /* beats the shared --icon padding */
-.risklegacy .rl-pile-card__resolve .rl-btn.rl-btn--destroy { padding-left: 26px; }   /* clear the hazard edge */
+.risklegacy .rl-pile-card__resolve .rl-btn.rl-btn--icon { font-size: 17px; padding: 7px 13px 5px; }   /* beats the shared --icon padding */
+.risklegacy .rl-pile-card__resolve .rl-btn.rl-btn--destroy { padding-left: 34px; }   /* clear the hazard edge */
 .risklegacy .rl-pile__empty { margin: 0; font-style: italic; color: var(--rl-on-page-muted); }
 
 /* --------------------------------------------------------------------------
@@ -484,27 +485,27 @@ rl-hand.rl-hand-host { display: block; }
 .risklegacy.rl-cards-chat .rl-chat-card__head { flex-wrap: wrap; row-gap: var(--rl-space-2); }
 .risklegacy.rl-cards-chat .rl-chat-card__title { flex: 1 1 auto; }
 .risklegacy.rl-cards-chat .rl-chat-card__body { display: flex; flex-wrap: wrap; align-items: center; gap: var(--rl-space-4); }
-.risklegacy.rl-cards-chat .rl-chat-card__body > .rl-token { width: 36px; height: 36px; }
+.risklegacy.rl-cards-chat .rl-chat-card__body > .rl-token { width: 47px; height: 47px; }
 .risklegacy .rl-cards-chat__images { display: flex; flex-wrap: wrap; align-items: center; gap: var(--rl-space-5) var(--rl-space-4); }
 /* core styles every <figure> as a full-width block with 1rem margins (and centres its img): undo that */
 .risklegacy .rl-cards-chat__figure { position: relative; flex: none; width: auto; margin: 0; }
 .risklegacy .rl-cards-chat__figure img {
   display: block; margin: 0; border: 0;
-  border-radius: 5px;
+  border-radius: 7px;
   box-shadow: var(--rl-shadow-card);
   object-fit: cover;
 }
-.risklegacy .rl-cards-chat__figure--portrait img { width: 92px; aspect-ratio: 63 / 88; }
-.risklegacy.rl-cards-chat--setup .rl-cards-chat__figure--portrait img { width: 54px; }   /* slots 1–4 on one line */
-.risklegacy .rl-cards-chat__figure--landscape img { width: 180px; aspect-ratio: 88 / 63; }
-.risklegacy .rl-cards-chat__figure--sticker img { width: 54px; height: 54px; object-fit: contain; box-shadow: none; filter: drop-shadow(0 1px 2px rgb(0 0 0 / .4)); }
+.risklegacy .rl-cards-chat__figure--portrait img { width: 120px; aspect-ratio: 63 / 88; }
+.risklegacy.rl-cards-chat--setup .rl-cards-chat__figure--portrait img { width: 70px; }   /* slots 1–4 on one line */
+.risklegacy .rl-cards-chat__figure--landscape img { width: 234px; aspect-ratio: 88 / 63; }
+.risklegacy .rl-cards-chat__figure--sticker img { width: 70px; height: 70px; object-fit: contain; box-shadow: none; filter: drop-shadow(0 1px 2px rgb(0 0 0 / .4)); }
 .risklegacy .rl-cards-chat__figure figcaption {
-  position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%);
-  padding: 2px 7px 1px;
+  position: absolute; left: 50%; bottom: -9px; transform: translateX(-50%);
+  padding: 3px 9px 1px;
   background: var(--rl-grad-steel);
   box-shadow: 0 1px 2px rgb(0 0 0 / .35);
   color: var(--rl-ink);
-  font: 900 11px/1 var(--rl-font-display);
+  font: 900 14px/1 var(--rl-font-display);
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -524,20 +525,20 @@ rl-hand.rl-hand-host { display: block; }
   padding: var(--rl-space-4) var(--rl-space-5);
   border-top: 1px solid var(--rl-k30);
 }
-.risklegacy .rl-cards-chat__buttons .rl-btn { flex: 1 1 auto; font-size: 13px; min-height: 28px; padding: 5px 10px 4px; }
+.risklegacy .rl-cards-chat__buttons .rl-btn { flex: 1 1 auto; font-size: 17px; min-height: 36px; padding: 7px 13px 5px; }
 .risklegacy .rl-cards-chat__buttons:not(:has(button)) { display: none; }   /* players: chat.mjs removes the GM buttons */
 
 /* event-card.hbs: the "does not occur" stamp, and the outcome block (who, dice rows, summary, marker note) */
-.risklegacy .rl-stamp.rl-cards-chat__stamp { margin: var(--rl-space-3) auto; font-size: 20px; }
+.risklegacy .rl-stamp.rl-cards-chat__stamp { margin: var(--rl-space-3) auto; font-size: 26px; }
 .risklegacy.rl-cards-chat .rl-chat-card__body.rl-cards-chat__outcome {
   display: grid; gap: var(--rl-space-4);
   border-top: 1px solid var(--rl-k30);
 }
 .risklegacy .rl-cards-chat__lead { display: flex; align-items: baseline; justify-content: space-between; gap: var(--rl-space-4); }
-.risklegacy .rl-cards-chat__lead-value { font-size: 16px; text-align: right; }
+.risklegacy .rl-cards-chat__lead-value { font-size: 21px; text-align: right; }
 .risklegacy .rl-cards-chat__row-value { display: inline-flex; align-items: center; gap: var(--rl-space-3); text-align: right; }
 .risklegacy .rl-cards-chat__row-value .is-strong { font-weight: 700; }
 .risklegacy .rl-cards-chat__summary { display: flex; align-items: center; gap: var(--rl-space-4); font-weight: 700; }
-.risklegacy .rl-cards-chat__summary > .rl-token { width: 32px; height: 32px; }
+.risklegacy .rl-cards-chat__summary > .rl-token { width: 42px; height: 42px; }
 .risklegacy .rl-cards-chat__summary > div { flex: 1; min-width: 0; }
-.risklegacy .rl-cards-chat__note { font-size: 16px; text-align: right; }
+.risklegacy .rl-cards-chat__note { font-size: 21px; text-align: right; }

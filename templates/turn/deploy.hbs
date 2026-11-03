@@ -1,0 +1,24 @@
+<div class="rl-hazard rl-turn-deploy__tape" aria-hidden="true"></div>
+<form class="rl-turn-deploy__plate" autocomplete="off">
+  <header class="rl-turn-deploy__head">
+    {{#if factionName}}<span class="rl-turn-deploy__faction">{{factionName}}</span>{{/if}}
+    <span class="rl-turn-deploy__title">{{title}}</span>
+  </header>
+  <div class="rl-turn-deploy__row">
+    <button type="button" class="rl-btn rl-turn-deploy__step" data-step="-1" aria-label="−" tabindex="-1"><i class="fa-solid fa-minus" inert></i></button>
+    <output class="rl-turn-deploy__value" aria-live="polite">{{value}}</output>
+    <button type="button" class="rl-btn rl-turn-deploy__step" data-step="1" aria-label="+" tabindex="-1"><i class="fa-solid fa-plus" inert></i></button>
+  </div>
+  <input class="rl-turn-deploy__range" type="range" name="count" min="{{min}}" max="{{max}}" step="1" value="{{value}}"
+    aria-label="{{localize "RL.Turn.Deploy.label"}}">
+  <div class="rl-turn-deploy__quick">
+    <button type="button" class="rl-turn-deploy__set" data-set="{{min}}" tabindex="-1">{{min}}</button>
+    {{#if showHalf}}<button type="button" class="rl-turn-deploy__set" data-set="{{half}}" tabindex="-1">{{localize "RL.Turn.Deploy.half"}} · {{half}}</button>{{/if}}
+    <button type="button" class="rl-turn-deploy__set" data-set="{{max}}" tabindex="-1">{{localize "RL.Turn.Deploy.all"}} · {{max}}</button>
+  </div>
+  <footer class="rl-turn-deploy__buttons">
+    <button type="button" class="rl-btn" data-action="cancel"><i class="fa-solid fa-xmark" inert></i> {{localize "RL.Turn.Deploy.cancel"}}</button>
+    <button type="submit" class="rl-btn rl-btn--primary" data-action="confirm"><i class="fa-solid fa-person-military-rifle" inert></i> {{localize "RL.Turn.Deploy.confirm"}}</button>
+  </footer>
+  <p class="rl-turn-deploy__keys">{{localize "RL.Turn.Deploy.keys"}}</p>
+</form>

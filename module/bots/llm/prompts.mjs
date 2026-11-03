@@ -77,6 +77,11 @@ const LEVEL_NOTES = {
   hard: "You are a Warlord: you think a move ahead, weigh the Red Star race, the cards and the campaign, and never hand a rival a free HQ."
 };
 
+/** The Warlord's priority rule (levels with staff work, BOTS-LLM.md §11): the personality never overrides sound play. */
+const STAFF_NOTE = "At this level winning comes first: your style decides between options of similar worth and colours how you talk, but never"
+  + " makes you take a clearly worse move. Your staff's estimates (net value, the race, HQ danger) are exact sums: follow them"
+  + " unless you see a concrete reason they miss, such as the campaign, a grudge worth a small cost, or a rival's habits.";
+
 /**
  * The system message: role, rules, strategy and campaign (by level), the personality, notes from past games (normal:
  * notes; hard: notes, lessons and past games), table-talk rules and output rules. Identical for one bot in one war.
@@ -109,6 +114,7 @@ export function systemMessage({ personality, profile, lore, memory = null }) {
     if ( lines.length ) me.push(`Lines in your voice (examples of the tone; don't repeat them word for word): ${lines.join(" / ")}`);
   }
   me.push(LEVEL_NOTES[profile.id] ?? LEVEL_NOTES.normal);
+  if ( profile.staff ) me.push(STAFF_NOTE);
   parts.push(`WHO YOU ARE\n${me.join("\n")}`);
 
   if ( memory ) {
@@ -184,6 +190,9 @@ export function boardText(b) {
     }
     if ( b.bordersMore ) out.push(`(and ${pl(b.bordersMore, "more territory", "more territories")})`);
   }
+  if ( b.race ) {
+    out.push(b.race.length ? `THE RACE (who could win on their next turn):\n${b.race.map(r => `- ${r}`).join("\n")}` : "THE RACE: no rival can win on its next turn.");
+  }
   if ( b.cards ) out.push(`Your resource cards: ${pl(b.cards.count, "card")} worth ${pl(b.cards.coins, "coin")}.`);
   if ( b.mission ) out.push(`Mission (anyone may complete it for ${b.mission.reward}): ${b.mission.name}: ${b.mission.text}${b.mission.status ? ` (${b.mission.status})` : ""}`);
   if ( b.events?.length ) out.push(`Active events: ${b.events.map(e => `${e.name}${e.text ? `: ${e.text}` : ""}`).join(" | ")}`);
@@ -232,8 +241,15 @@ export function attackLine(o, odds) {
   if ( odds === "full" && o.exposure !== undefined ) bits.push(o.exposure ? `afterwards it borders an enemy stack of ${o.exposure}` : "afterwards no enemy troops border it");
   if ( o.attackedMe ) bits.push(`${o.defender} attacked you since your last turn`);
   if ( o.decisive ) bits.push("decisive for the war");
+  for ( const r of o.race ?? [] ) {
+    bits.push(`${r.after < r.before ? "lowers" : "raises"} ${possessive(r.name)} chance to win next turn: ${pct(r.before)} → ${pct(r.after)}`);
+  }
+  if ( o.hqRisk ) bits.push(`leaves your HQ in ${o.hqRisk.name} weaker: ${pct(o.hqRisk.before)} → ${pct(o.hqRisk.after)} to fall next turn`);
+  if ( o.value !== undefined ) bits.push(`net value ${o.value >= 0 ? "+" : ""}${o.value.toFixed(1)} (staff estimate, in troops)`);
   return `- ${o.key}: ${cap(head)}. ${bits.map(cap).join(". ")}.`;
 }
+
+const possessive = n => (/s$/i.test(n) ? `${n}'` : `${n}'s`);
 
 /** One placement front. */
 export function frontLine(f, odds, reserve, tradeReserve = null) {
@@ -299,6 +315,7 @@ export function maneuverLine(m, odds) {
   if ( m.purpose ) bits.push(m.purpose);
   if ( m.threat ) bits.push(`${m.threat.faction} could take ${m.toName} next turn: ${chanceText(m.threat.p, odds)} now, ${chanceText(m.threat.pAfter, odds)} after`);
   if ( m.leaves ) bits.push(m.leaves);
+  if ( m.staff ) bits.push("staff pick");
   return `- ${m.key}: ${bits.join("; ")}.`;
 }
 
@@ -321,6 +338,7 @@ const SAY_KEY = "say: this is a big moment at the table; a short line in charact
  */
 export function turnPlanMessage(d) {
   const out = ["YOUR TURN: plan the start of it.", boardText(d.board), "", "DECIDE"];
+  if ( d.autoBuy ) out.push(`Cards: your officers spend ${pl(d.autoBuy.stars * 4, "card")} on ${pl(d.autoBuy.stars, "Red Star")} this turn (a star in hand can't be lost; cards can).`);
   if ( d.cards?.length ) out.push("cards (pick one):", ...d.cards.map(cardLine));
   if ( d.scars?.length ) {
     out.push("Scar cards you may play now (each leaves a permanent mark on the board); for each, pick where, or keep it:");
@@ -334,6 +352,9 @@ export function turnPlanMessage(d) {
     const trade = d.tradeReserve ? ` (${d.tradeReserve} in total if you trade)` : "";
     out.push(`placements: you will place ${pl(d.reserve, "troop")}${trade}. Give 1 to ${d.maxFronts} fronts with troop counts; troops you leave out go to your first front. Fronts:`);
     out.push(...d.fronts.map(f => frontLine(f, d.board.odds, d.reserve, d.tradeReserve)));
+    if ( d.staffPlacement?.length ) {
+      out.push(`Staff suggestion for your ${pl(d.reserve, "troop")} (the code's tuned split): ${list(d.staffPlacement.map(s => `${s.troops} on ${s.front}`))}.`);
+    }
   }
   out.push("", d.key ? SAY_KEY : SAY_ROUTINE);
   return out.join("\n");
@@ -344,6 +365,10 @@ export function attackPlanMessage(d) {
   const out = [d.replan ? `YOUR ATTACKS: replan (${d.replan}).` : "YOUR ATTACKS: plan this turn's attacks and expansions.", boardText(d.board)];
   if ( d.sofar ) out.push(`This turn so far: ${d.sofar}.`);
   if ( d.hqFloor > 1 ) out.push(`Your officers always leave at least ${pl(d.hqFloor, "troop")} in each HQ you hold (enforced).`);
+  if ( d.cardNote ) out.push(d.cardNote);
+  if ( d.staff ) {
+    out.push("Staff notes: options are listed best first by net value, in troops: the odds times what the take is worth, plus the turn's card, minus expected losses, minus any rise in your HQ's danger, plus any fall in a rival's chance to win. Options worth less than nothing aren't listed. Options from the same territory share its troops: the later ones get what is left.");
+  }
   out.push("", "OPTIONS (each attack rolls until the territory falls or the odds turn bad; a push carries the whole stack forward):");
   out.push(...d.options.map(o => attackLine(o, d.board.odds)));
   out.push("",
@@ -468,6 +493,7 @@ export const FACTS = {
   replanOdds: target => `the odds against ${target} have dropped`,
   replanDone: "your planned steps are done and good options remain",
   replanBroken: target => `the push toward ${target} stalled`,
+  cardNote: (cards) => `No conquest yet this turn: your first one earns a resource card (you hold ${pl(cards, "card")}; any 4 buy a Red Star).`,
   kind: {
     faction: "pick your faction for this game",
     draft: "a draft pick for this game",

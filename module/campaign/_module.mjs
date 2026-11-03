@@ -19,7 +19,7 @@ import * as rulebook from "./rulebook.mjs";
 import { registerPrompts } from "./apps/prompts.mjs";
 import { openNewCampaign } from "./apps/new-campaign.mjs";
 import { openFirstGame } from "./apps/first-game.mjs";
-import { openGameSetup } from "./apps/game-setup.mjs";
+import { openGameSetup, registerSetupView, setupLive, syncSetupView } from "./apps/game-setup.mjs";
 import { openEndGame } from "./apps/end-game.mjs";
 import { openLanding } from "./apps/landing.mjs";
 import StickerSheet, { openStickerSheet } from "./apps/sticker-sheet.mjs";
@@ -33,11 +33,13 @@ export function init() {
   registerPrompts();
   placements.registerPlacementPrompts();
   packs.registerHooks();
+  registerSetupView();
   Hooks.on("renderActorDirectory", addDirectoryButton);
 }
 
 export async function ready() {
-  if ( !game.user.isGM ) return;
+  // Players: the GM may be running the game setup right now (a live, read-only view)
+  if ( !game.user.isGM ) return syncSetupView();
   const campaign = state.getCampaign();
   if ( !campaign ) return openLanding();
   const endGame = campaign.getFlag(SYSTEM_ID, "endGame");
@@ -47,10 +49,23 @@ export async function ready() {
   return null;
 }
 
-/** A "Risk Legacy" button in the Actors sidebar header that opens the landing page (GM). */
+/**
+ * A "Risk Legacy" button in the Actors sidebar header that opens the landing page (GM). Players get a "Game setup"
+ * button there while the GM runs the setup, to reopen the live view.
+ */
 function addDirectoryButton(app, element) {
-  if ( !game.user.isGM ) return;
   const actions = element.querySelector(".header-actions");
+  if ( !game.user.isGM ) {
+    const host = actions ?? element.querySelector(".directory-header");
+    if ( !host || host.querySelector(".rl-campaign-button") || !setupLive() ) return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "rl-campaign-button";
+    button.innerHTML = `<i class="fa-solid fa-chess-board" inert></i><span>${game.i18n.localize("RL.Wizard.Setup.viewerButton")}</span>`;
+    button.addEventListener("click", () => openGameSetup());
+    host.append(button);
+    return;
+  }
   if ( !actions || actions.querySelector(".rl-campaign-button") ) return;
   const button = document.createElement("button");
   button.type = "button";

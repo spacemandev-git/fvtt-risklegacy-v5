@@ -20,8 +20,9 @@ export { getTurnInfo } from "./info.mjs";
 export {
   createWar, beginPlacement, placeStartingForces, beginPlay, setPhase, advancePhase, buyRedStars, tradeForTroops,
   recruit, joinWar, placeReserve, expand, maneuver, advance, moveHQ, attack, recordConquest, protect, usePower, endWar,
-  eliminate, endTurn, choose, confirm, chooseCount
+  eliminate, endTurn, choose, confirm, chooseCount, resetDeployment
 } from "./client.mjs";
+export { chooseDeployment, closeDeployment } from "./deploy.mjs";
 export {
   promptStartingTerritory, promptJoinWar, promptBuyRedStars, promptTrade, promptAttack, promptExpand, promptManeuver,
   promptPower
@@ -45,6 +46,7 @@ const ACTIONS = {
   "turn.recruit": [steps.recruit, true],
   "turn.joinWar": [steps.joinWar, true],
   "turn.placeReserve": [steps.placeReserve, true],
+  "turn.resetDeployment": [steps.resetDeployment, true],
   "turn.expand": [steps.expand, true],
   "turn.maneuver": [steps.maneuver, true],
   "turn.advance": [steps.advance, true],

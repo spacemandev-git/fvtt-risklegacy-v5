@@ -8,6 +8,7 @@
  *  - layers.mjs       canvas layers: legacy marks under the pieces, badges/highlights/drag hint/sticker ghost above
  *  - marks.mjs        drawing the stickers and the writing on the board, added territories, pen-drawn sea lines
  *  - interaction.mjs  pickTerritory, pickPoint, click-to-place, highlights, prompt banner, hover tooltip
+ *  - war-mode.mjs     the sticky attack/expand mode of step 3 (armed from the War Room; click or drag on the board)
  *  - geometry.mjs     territory lookup, piece slots, isOpenWater
  *  - controls.mjs     scene controls and token HUD buttons
  *
@@ -22,6 +23,7 @@ import { clearSlotCache, isBoardScene, territoryAt } from "./geometry.mjs";
 import * as interaction from "./interaction.mjs";
 import { onRenderTokenHUD } from "./controls.mjs";
 import { RLTokenRuler } from "./ruler.mjs";
+import { initWarMode } from "./war-mode.mjs";
 
 export { buildBoardScene, syncTerritoryRegions } from "./scene.mjs";
 export {
@@ -32,6 +34,11 @@ export {
 } from "./interaction.mjs";
 export { territoryAt, piecesByTerritory, factionPieces, territorySlots, isOpenWater } from "./geometry.mjs";
 export { previewMove } from "./movement.mjs";
+/** Sticky attack/expand mode of step 3 (war-mode.mjs). */
+export { armWarMode, toggleWarMode, disarmWarMode, warMode } from "./war-mode.mjs";
+export {
+  showBattleMarker, clearBattleMarker, redrawBattleMarker, battleMarker, battleFocus
+} from "./battle-marker.mjs";
 
 /** Redraw the legacy marks (e.g. after a campaign change made outside document hooks). */
 export function refreshMarks() {
@@ -46,6 +53,7 @@ export function refreshBadges() {
 export function init() {
   registerSettings();
   registerKeybindings();
+  initWarMode();
 
   CONFIG.Canvas.layers.rlMarks = { layerClass: RLMarksLayer, group: "primary" };
   CONFIG.Canvas.layers.rlBoard = { layerClass: RLBoardLayer, group: "interface" };

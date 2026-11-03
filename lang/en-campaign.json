@@ -199,7 +199,12 @@
         "doneHero": "To war.",
         "doneLead": "Written on the backs of the faction cards for game {n}:",
         "doneAside": "The player who placed first takes the first turn.",
-        "finish": "To war!"
+        "finish": "To war!",
+        "viewerLead": "The Gamemaster is setting up game {n}. This view follows along; you'll be asked when it's your turn to choose.",
+        "viewerYourTurn": "Your turn: make your choice in the window that opened for you (or on the board).",
+        "viewerButton": "Game setup",
+        "viewerNone": "The Gamemaster isn't running the game setup right now.",
+        "botNotPlaced": "{faction} (a bot) hasn't placed its starting forces yet. Check the bot log, then choose starting territories again."
       },
       "Prompt": {
         "factionTitle": "Choose a faction",

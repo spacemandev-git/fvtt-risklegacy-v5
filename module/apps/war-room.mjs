@@ -1,4 +1,4 @@
-import { CARDS_PER_RED_STAR, PHASES, PHASE_ORDER, RED_STARS_TO_WIN, STARTING_TROOPS, SYSTEM_ID } from "../config.mjs";
+import { CARDS_PER_RED_STAR, PHASES, PHASE_ORDER, RED_STARS_TO_WIN, STARTING_TROOPS, SYSTEM_ID, uiScaled } from "../config.mjs";
 import * as state from "../state/_module.mjs";
 import { chooseNumber, chooseOption } from "./dialogs.mjs";
 import {
@@ -8,7 +8,9 @@ import {
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-const WIDTH = 340;
+/** Default width at 1× (DEFAULT_OPTIONS); the window opens at WIDTH (×UI_SCALE, see module/ui-scale.mjs). */
+const BASE_WIDTH = 340;
+const WIDTH = uiScaled(BASE_WIDTH);
 
 /**
  * What each control needs from the other areas (feature-detected; they ship independently). Each entry lists
@@ -19,6 +21,7 @@ const NEEDS = {
   tradeTroops: [[["turn", "promptTrade"]], [["turn", "tradeForTroops"], ["cards", "chooseResourceCards"]]],
   recruit: [[["turn", "recruit"]]],
   placeTroops: [[["board", "startPlacement"]]],
+  resetDeployment: [[["turn", "resetDeployment"]]],
   joinWar: [[["turn", "promptJoinWar"]], [["turn", "joinWar"], ["board", "pickTerritory"]]],
   attack: [[["turn", "promptAttack"]], [["turn", "attack"], ["board", "pickTerritory"]]],
   expand: [[["turn", "promptExpand"]], [["turn", "expand"], ["board", "pickTerritory"]]],
@@ -62,16 +65,18 @@ export default class WarRoom extends HandlebarsApplicationMixin(ApplicationV2) {
       controls: [{ icon: "fa-solid fa-down-left-and-up-right-to-center", label: "RL.UI.WarRoom.Compact", action: "toggleCompact" },
         { icon: "fa-solid fa-thumbtack", label: "RL.UI.WarRoom.Redock", action: "redock" }]
     },
-    position: { width: WIDTH, height: "auto" },
+    position: { width: BASE_WIDTH, height: "auto" },
     actions: {
       buyStars: WarRoom.#onBuyStars,
       tradeTroops: WarRoom.#onTradeTroops,
       recruit: WarRoom.#onRecruit,
       placeTroops: WarRoom.#onPlaceTroops,
+      resetDeployment: WarRoom.#onResetDeployment,
       placeStart: WarRoom.#onPlaceStart,
       joinWar: WarRoom.#onJoinWar,
       attack: WarRoom.#onAttack,
       expand: WarRoom.#onExpand,
+      disarm: WarRoom.#onDisarm,
       maneuver: WarRoom.#onManeuver,
       nextStep: WarRoom.#onNextStep,
       endTurn: WarRoom.#onEndTurn,
@@ -228,7 +233,8 @@ export default class WarRoom extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /**
-   * Scar cards held by the factions this user plays (a GM sees every faction's: hot-seat and corrections). Several
+   * Scar cards held by the factions this user plays (state.canSeeHand: scars are secret, so a GM sees only the
+   * factions they play, or every faction's with the explicit gmSeeAllHands override). Several
    * scars are played "at the start of any player's turn", so this shows whenever such a card is in hand, not only on
    * the holder's turn. Bunker / Ammo Shortage are played from the battle card, before the attack roll.
    */
@@ -239,7 +245,7 @@ export default class WarRoom extends HandlebarsApplicationMixin(ApplicationV2) {
     try {
       strict = game.settings.get(SYSTEM_ID, "enforcement") === "strict";
     } catch(err) { /* default strict */ }
-    const mine = actor => game.user.isGM || (actor.system.war.playerId === game.user.id);
+    const mine = actor => state.canSeeHand(game.user, actor);
     return state.getFactions({ active: true }).filter(mine).map(actor => {
       const cards = (getScars(actor) ?? []).map(card => {
         const play = card.getFlag(SYSTEM_ID, "play") ?? state.findEntry("scars", card.system.catalogId)?.play ?? {};
@@ -324,7 +330,12 @@ export default class WarRoom extends HandlebarsApplicationMixin(ApplicationV2) {
       } : null,
       recruit: phase === "recruit" ? this.#recruitPanel(actor, f, snap, log) : null,
       attack: phase === "attack" ? {
-        conquered: log.conquered, expanded: log.expanded, attacks: log.attacks, reserve: w.reserve
+        conquered: log.conquered, expanded: log.expanded, attacks: log.attacks, reserve: w.reserve,
+        // The board's sticky attack/expand mode (canvas war-mode.mjs), when armed for this faction
+        armed: (() => {
+          const mode = api("board", "warMode")?.();
+          return (mode?.faction === actor.id) ? mode.action : "";
+        })()
       } : null,
       maneuver: phase === "maneuver" ? {
         done: log.maneuver.done,
@@ -380,8 +391,17 @@ export default class WarRoom extends HandlebarsApplicationMixin(ApplicationV2) {
       ...breakdown,
       continents: (breakdown.continents ?? []).map(c => ({ ...c, label: snap.continents?.[c.id]?.name || c.id }))
     };
+    // Troops placed from the reserve this step, which "Reset deployment" takes back (until the turn moves to step 3)
+    let deployed = 0;
+    const resetCheck = api("rules", "checkResetDeployment");
+    if ( resetCheck && snap ) {
+      try {
+        const r = resetCheck(snap, actor.id);
+        deployed = r.ok ? r.data.total : 0;
+      } catch(err) { /* rules not ready */ }
+    }
     return {
-      joining, joinTroops: Math.floor(STARTING_TROOPS / 2),
+      joining, joinTroops: Math.floor(STARTING_TROOPS / 2), deployed,
       breakdown, recruited: log.recruited, recruitTotal: log.recruitTotal, traded: log.tradedForTroops,
       joined: log.joinedWar, reserve: actor.system.war.reserve,
       handCount: f?.hand?.count ?? 0, coins: f?.hand?.coins ?? 0
@@ -398,12 +418,20 @@ export default class WarRoom extends HandlebarsApplicationMixin(ApplicationV2) {
     this.#unwatch = watchHooks(WAR_HOOKS, () => {
       if ( this.rendered ) this.render();
     }, { wait: 150, filter: affectsWar });
+    this.#warModeHook = Hooks.on("risklegacy.warModeChanged", () => {
+      if ( this.rendered ) this.render();
+    });
   }
+
+  /** Hook id of risklegacy.warModeChanged (the armed attack/expand mode is shown on the buttons). */
+  #warModeHook = null;
 
   /** @inheritDoc */
   _onClose(options) {
     this.#unwatch?.();
     this.#unwatch = null;
+    if ( this.#warModeHook !== null ) Hooks.off("risklegacy.warModeChanged", this.#warModeHook);
+    this.#warModeHook = null;
     const { left, top } = this.position;
     const saved = WarRoom.#isEdgePosition({ left, top }) ? { left, top } : {};
     game.settings.set(SYSTEM_ID, "warRoomPosition", saved).catch(() => {});
@@ -520,6 +548,20 @@ export default class WarRoom extends HandlebarsApplicationMixin(ApplicationV2) {
     }
   }
 
+  /**
+   * Take back this step's reserve placements (turn.resetDeployment). A running click-to-place session is stopped
+   * first, and click-to-place starts (again) afterwards, so the player can redeploy straight away.
+   */
+  static async #onResetDeployment() {
+    const faction = this.#actingFaction();
+    if ( !faction || !available("resetDeployment") ) return;
+    if ( this.#placing ) await attempt(() => api("board", "stopPlacement")?.());
+    const result = await this.#run(() => game.risklegacy.turn.resetDeployment({ faction: faction.id }));
+    if ( (result?.reserve > 0) && !this.#placing && available("placeTroops") ) {
+      WarRoom.#onPlaceTroops.call(this).catch(err => console.error(`${SYSTEM_ID} | restart placement failed`, err));
+    }
+  }
+
   static async #onPlaceStart() {
     const war = state.getWar();
     const id = war?.system.placement.order?.[war.system.placement.index];
@@ -550,6 +592,9 @@ export default class WarRoom extends HandlebarsApplicationMixin(ApplicationV2) {
   static async #onAttack() {
     const faction = this.#actingFaction();
     if ( !faction || !available("attack") ) return;
+    // Sticky board mode (canvas war-mode.mjs): stays armed after each battle; pressing it again stops it
+    const toggle = api("board", "toggleWarMode");
+    if ( toggle ) return WarRoom.#toggleWarMode(this, toggle, faction, "attack");
     const prompt = api("turn", "promptAttack");
     if ( prompt ) return this.#run(() => prompt(faction.id));
     await this.#run(async () => {
@@ -581,6 +626,8 @@ export default class WarRoom extends HandlebarsApplicationMixin(ApplicationV2) {
   static async #onExpand() {
     const faction = this.#actingFaction();
     if ( !faction || !available("expand") ) return;
+    const toggle = api("board", "toggleWarMode");
+    if ( toggle ) return WarRoom.#toggleWarMode(this, toggle, faction, "expand");
     const prompt = api("turn", "promptExpand");
     if ( prompt ) return this.#run(() => prompt(faction.id));
     await this.#run(async () => {
@@ -600,6 +647,21 @@ export default class WarRoom extends HandlebarsApplicationMixin(ApplicationV2) {
       }) : 1;
       if ( count ) await game.risklegacy.turn.expand({ faction: faction.id, from, to, count });
     });
+  }
+
+  /** Arm / switch / stop the board's sticky attack-expand mode (no busy lock: the mode outlives the click). */
+  static async #toggleWarMode(app, toggle, faction, action) {
+    try {
+      await toggle({ faction: faction.id, action });
+    } catch(err) {
+      console.error(`${SYSTEM_ID} | war mode failed`, err);
+      ui.notifications.error(err.message);
+    }
+    if ( app.rendered ) app.render();
+  }
+
+  static #onDisarm() {
+    api("board", "disarmWarMode")?.();
   }
 
   /** Expansion cost note (city population + fortification). */

@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   canJoinWar, checkJoinWar, checkMoveHQ, checkPlacement, checkStartingTerritory, hqPlacements,
-  legalStartingTerritories, placementTargets
+  legalStartingTerritories, placementTargets, deployedTroops, checkResetDeployment
 } from "../_module.mjs";
 import { loadBoard, makeState } from "./helpers.mjs";
 
@@ -168,4 +168,20 @@ test("HQ powers: khan_1 / rally placements, mobile", () => {
   assert.equal(checkMoveHQ(s, "a", "alaska", "alberta").ok, true);
   assert.equal(checkMoveHQ(s, "a", "alaska", "kamchatka").reason, "RL.Rules.mobile.notControlled");
   assert.equal(checkMoveHQ(s, "a", "alberta", "alaska").reason, "RL.Rules.mobile.noHQ");
+});
+
+test("reset deployment: this step's placements, before step 3", () => {
+  const deployed = [{ territory: "peru", count: 2 }, { territory: "brazil", count: 1 }, { territory: "peru", count: 3 }];
+  const turn = { faction: "a", phase: "recruit", log: { recruited: true, flags: { deployed } } };
+  const s = makeState({ factions: { a: { reserve: 0 }, b: {} }, pieces: { peru: { a: 6 }, brazil: { a: 2 } }, turn });
+  assert.deepEqual(deployedTroops(s), { peru: 5, brazil: 1 });
+  const r = checkResetDeployment(s, "a");
+  assert.equal(r.ok, true);
+  assert.equal(r.data.total, 6);
+  assert.equal(checkResetDeployment(s, "b").reason, "RL.Rules.turn.notYourTurn");
+  const none = makeState({ factions: { a: { reserve: 4 } }, pieces: { peru: { a: 1 } }, turn: { faction: "a", phase: "recruit", log: { recruited: true } } });
+  assert.equal(checkResetDeployment(none, "a").reason, "RL.Rules.place.nothingToReset");
+  const late = makeState({ factions: { a: {} }, pieces: { peru: { a: 6 } }, turn: { ...turn, phase: "attack" } });
+  assert.equal(checkResetDeployment(late, "a").reason, "RL.Rules.place.resetTooLate");
+  assert.equal(checkResetDeployment(makeState({ factions: { a: {} } }), "a").reason, "RL.Rules.turn.noWar");
 });

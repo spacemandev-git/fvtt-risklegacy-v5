@@ -7,10 +7,27 @@
           "hint": "When nobody in the war holds a Missile, battles resolve as soon as the dice land. Otherwise the attacker clicks Resolve once everyone has had the chance to fire.",
           "whenNoMissiles": "When nobody holds a Missile",
           "never": "Never (the attacker clicks Resolve)"
+        },
+        "dice3d": {
+          "name": "3D Battle Dice (Dice So Nice)",
+          "hint": "Throw the black attack dice and red defence dice in 3D on every screen with the Dice So Nice module. The previous throw is cleared before each new one."
+        },
+        "panToBattle": {
+          "name": "Pan to Battles",
+          "hint": "When another player attacks, move your view to the battling territories if they are off screen."
         }
       },
+      "Dice": {
+        "promptTitle": "Enable 3D Dice?",
+        "promptBody": "Risk Legacy throws its battle dice in 3D with <strong>{module}</strong>, which is installed but not enabled in this world. Enable it now? Every connected client will reload.",
+        "enable": "Enable and Reload",
+        "later": "Not Now",
+        "never": "Don't Ask Again",
+        "notInstalled": "Risk Legacy: install the Dice So Nice module (Add-on Modules) to see battle dice thrown in 3D. Battles work without it.",
+        "tuned": "Risk Legacy: Dice So Nice's \"disable during combat\" setting was turned off, since every Risk Legacy turn runs in a combat and it would hide all battle dice."
+      },
       "Card": {
-        "title": "Attack · {territory}",
+        "title": "Battle",
         "vs": "{attack} vs {defend}",
         "dice": "{count} dice",
         "round": "Round {round}",

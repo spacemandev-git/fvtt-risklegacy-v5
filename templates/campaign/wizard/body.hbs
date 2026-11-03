@@ -1,4 +1,18 @@
 <section class="rl-wizard-body">
+  {{#if viewer}}
+  <div class="rl-wizard-waiting rl-cp-viewer">
+    <div class="rl-wizard-waiting__row">
+      <i class="fa-solid fa-eye" inert></i>
+      <span>{{viewer.text}}</span>
+    </div>
+    {{#if viewer.yourTurn}}
+    <div class="rl-wizard-waiting__row rl-cp-viewer__turn">
+      <i class="fa-solid fa-hand-pointer" inert></i>
+      <span>{{localize "RL.Wizard.Setup.viewerYourTurn"}}</span>
+    </div>
+    {{/if}}
+  </div>
+  {{/if}}
   {{#if waiting.length}}
   <div class="rl-wizard-waiting">
     {{#each waiting}}

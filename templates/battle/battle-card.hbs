@@ -7,10 +7,16 @@
       <h3 class="rl-chat-card__title">{{title}}</h3>
       <span class="rl-chat-card__sub">{{sub}}</span>
     </div>
-    <div class="rl-battle__factions">
-      <span class="rl-battle__faction" style="--rl-faction: {{attacker.color}}">{{attacker.name}}</span>
-      <span class="rl-battle__arrow-right" aria-hidden="true">&rarr;</span>
-      <span class="rl-battle__faction" style="--rl-faction: {{defender.color}}">{{defender.name}}</span>
+    <div class="rl-battle__route">
+      <div class="rl-battle__route-end" style="--rl-faction: {{attacker.color}}">
+        <span class="rl-battle__route-place">{{attacker.territory}}</span>
+        <span class="rl-battle__faction">{{attacker.name}}</span>
+      </div>
+      <span class="rl-battle__route-arrow" aria-hidden="true">&rarr;</span>
+      <div class="rl-battle__route-end rl-battle__route-end--target" style="--rl-faction: {{defender.color}}">
+        <span class="rl-battle__route-place">{{defender.territory}}</span>
+        <span class="rl-battle__faction">{{defender.name}}</span>
+      </div>
     </div>
   </header>
 

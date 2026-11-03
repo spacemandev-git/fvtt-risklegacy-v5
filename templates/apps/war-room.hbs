@@ -120,6 +120,13 @@
         {{/if}}
       </div>
       {{/if}}
+      {{#if (and isMine panel.recruit.deployed)}}
+      <div class="rl-wr__buttons rl-wr__reset">
+        <button type="button" class="rl-btn" data-action="resetDeployment" {{disabled (or (not canAct) (not controls.resetDeployment))}}
+          data-tooltip="{{localize "RL.UI.WarRoom.ResetDeploymentTip" count=panel.recruit.deployed}}">
+          <i class="fa-solid fa-rotate-left" inert></i> {{localize "RL.UI.WarRoom.ResetDeployment" count=panel.recruit.deployed}}</button>
+      </div>
+      {{/if}}
     {{/if}}
 
     {{!-- 3. Expand & attack --}}
@@ -132,12 +139,19 @@
       </dl>
       {{#if panel.attack.reserve}}<p class="rl-wr__warn"><i class="fa-solid fa-triangle-exclamation" inert></i> {{localize "RL.UI.WarRoom.ReserveLeft" count=panel.attack.reserve}}</p>{{/if}}
       {{#if isMine}}
-      <div class="rl-wr__buttons">
-        <button type="button" class="rl-btn" data-action="expand" {{disabled (or (not canAct) (not controls.expand) (not legal.expand))}}
-          {{#if tips.expand}}data-tooltip="{{tips.expand}}"{{/if}}>
+      {{#if panel.attack.armed}}
+      <p class="rl-wr__armed"><i class="fa-solid fa-{{#if (eq panel.attack.armed "attack")}}crosshairs{{else}}person-walking-arrow-right{{/if}}" inert></i>
+        <span>{{#if (eq panel.attack.armed "attack")}}{{localize "RL.UI.WarRoom.ArmedAttack"}}{{else}}{{localize "RL.UI.WarRoom.ArmedExpand"}}{{/if}}</span>
+        <button type="button" class="rl-btn rl-wr__armed-stop" data-action="disarm"><i class="fa-solid fa-xmark" inert></i> {{localize "RL.UI.WarRoom.StopMode"}}</button></p>
+      {{/if}}
+      <div class="rl-wr__buttons rl-wr__modes">
+        <button type="button" class="rl-btn{{#if (eq panel.attack.armed "expand")}} is-armed{{/if}}" data-action="expand" aria-pressed="{{#if (eq panel.attack.armed "expand")}}true{{else}}false{{/if}}"
+          {{disabled (and (not (eq panel.attack.armed "expand")) (or (not canAct) (not controls.expand) (not legal.expand)))}}
+          data-tooltip="{{#if tips.expand}}{{tips.expand}}{{else}}{{localize "RL.UI.WarRoom.ExpandModeTip"}}{{/if}}">
           <i class="fa-solid fa-person-walking-arrow-right" inert></i> {{localize "RL.UI.WarRoom.Expand"}}</button>
-        <button type="button" class="rl-btn rl-btn--primary" data-action="attack" {{disabled (or (not canAct) (not controls.attack) (not legal.attack))}}
-          {{#if tips.attack}}data-tooltip="{{tips.attack}}"{{/if}}>
+        <button type="button" class="rl-btn{{#unless (eq panel.attack.armed "expand")}} rl-btn--primary{{/unless}}{{#if (eq panel.attack.armed "attack")}} is-armed{{/if}}" data-action="attack" aria-pressed="{{#if (eq panel.attack.armed "attack")}}true{{else}}false{{/if}}"
+          {{disabled (and (not (eq panel.attack.armed "attack")) (or (not canAct) (not controls.attack) (not legal.attack)))}}
+          data-tooltip="{{#if tips.attack}}{{tips.attack}}{{else}}{{localize "RL.UI.WarRoom.AttackModeTip"}}{{/if}}">
           <i class="fa-solid fa-crosshairs" inert></i> {{localize "RL.UI.WarRoom.Attack"}}</button>
       </div>
       {{/if}}

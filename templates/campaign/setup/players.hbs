@@ -13,18 +13,20 @@
         {{#if redStar}}<span class="rl-token" data-tooltip="RL.Wizard.Setup.redStarToken"></span>
         {{else}}<span class="rl-counter"><span class="rl-token rl-token--missile"></span><span class="rl-counter__value">{{missiles}}</span></span>{{/if}}
       </span>
+      {{#unless ../readOnly}}
       <span class="rl-camp-seat__controls">
         <button type="button" class="rl-btn rl-btn--icon" data-action="movePlayer" data-user="{{userId}}" data-dir="up" {{disabled first}} aria-label="{{localize "RL.Wizard.Setup.moveUp"}}"><i class="fa-solid fa-arrow-up" inert></i></button>
         <button type="button" class="rl-btn rl-btn--icon" data-action="movePlayer" data-user="{{userId}}" data-dir="down" {{disabled last}} aria-label="{{localize "RL.Wizard.Setup.moveDown"}}"><i class="fa-solid fa-arrow-down" inert></i></button>
         <button type="button" class="rl-btn rl-btn--icon" data-action="togglePlayer" data-user="{{userId}}" {{disabled ../deployed}} aria-label="{{localize "RL.Wizard.Setup.remove"}}" data-tooltip="RL.Wizard.Setup.remove"><i class="fa-solid fa-user-minus" inert></i></button>
       </span>
+      {{/unless}}
     </li>
     {{else}}
     <li class="rl-slot">{{localize "RL.Wizard.Setup.noPlayers"}}</li>
     {{/each}}
   </ol>
   {{#unless countOk}}<p class="rl-hand rl-hand--red">{{localize "RL.Wizard.Setup.countHint" n=count}}</p>{{/unless}}
-  {{#if (or others.length (not deployed))}}
+  {{#if (and (not readOnly) (or others.length (not deployed)))}}
   <div class="rl-camp-setup-others">
     <span class="rl-label">{{localize "RL.Wizard.Setup.addPlayer"}}</span>
     {{#each others}}

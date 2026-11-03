@@ -41,7 +41,7 @@ const area = name => game.risklegacy?.[name] ?? {};
  * Make sure the world board is on the canvas.
  * @returns {Promise<boolean>}
  */
-async function ensureBoardView() {
+export async function ensureBoardView() {
   if ( canvas.ready && isBoardScene(canvas.scene) ) return true;
   const scene = getBoardScene();
   if ( !scene ) {
@@ -95,7 +95,8 @@ export function clearHighlights() {
 /*  Modes                                       */
 /* -------------------------------------------- */
 
-function startMode(m) {
+/** Start a board mode (also used by war-mode.mjs for the sticky attack/expand mode). */
+export function startMode(m) {
   mode = m;
   const layer = canvas.rlBoard;
   const previous = canvas.activeLayer;
@@ -107,7 +108,7 @@ function startMode(m) {
   layer?.drawGhost();
 }
 
-function endMode({ restore = true } = {}) {
+export function endMode({ restore = true } = {}) {
   const m = mode;
   mode = null;
   removeBanner();
@@ -153,6 +154,23 @@ export function handleClick(territory, event, point) {
     return;
   }
   mode.onClick?.(territory, event);
+}
+
+/** A right-click on the board while the rlBoard layer is active: the mode may handle it (e.g. deselect), else cancel. */
+export function handleRightClick(event) {
+  if ( mode?.onRightClick?.(event) ) return;
+  cancelMode();
+}
+
+/**
+ * A left-drag on the board while the rlBoard layer is active (modes that support it, e.g. the war mode).
+ * @param {"start"|"move"|"drop"|"cancel"} phase
+ * @param {string|null} territory   territory under the pointer
+ * @param {PIXI.FederatedEvent} event
+ * @param {{x: number, y: number}} [point]
+ */
+export function handleDrag(phase, territory, event, point) {
+  mode?.onDrag?.(phase, territory, event, point);
 }
 
 /** Re-render the banner and highlights of the running mode (e.g. after the reserve changed). */
@@ -280,7 +298,8 @@ export function checkPoint(point) {
 
 /**
  * Let a faction place troops by clicking territories.
- *   reserve   click: 1 troop, shift-click: 3, through `turn.placeReserve` until the reserve is empty
+ *   reserve   click: a slider picks how many troops (turn.chooseDeployment), shift-click: 1, through
+ *             `turn.placeReserve` (one batch per click) until the reserve is empty
  *   starting  one click: HQ + starting troops in a legal starting territory (`turn.placeStartingForces`)
  *   join      one click: Join the War in a legal starting territory (`turn.joinWar`)
  * @param {object} options
@@ -314,8 +333,8 @@ export async function startPlacement({ faction, mode: placeMode = "reserve" } = 
         busy = true;
         try {
           if ( placeMode === "reserve" ) {
-            const left = reserve();
-            const count = Math.max(1, Math.min(event?.shiftKey ? 3 : 1, left || 1));
+            const count = await reserveCount(faction, territory, reserve(), event);
+            if ( !count || (mode !== m) ) return;
             await placeReserve(faction, territory, count);
             placed += count;
           }
@@ -343,10 +362,31 @@ export async function startPlacement({ faction, mode: placeMode = "reserve" } = 
         renderBanner();
         canvas.rlBoard?.drawHighlights();
       },
-      onCancel: () => resolve({ placed, territory: null, cancelled: true })
+      onCancel: () => {
+        area("turn").closeDeployment?.();
+        resolve({ placed, territory: null, cancelled: true });
+      }
     };
     startMode(m);
   });
+}
+
+/**
+ * How many reserve troops a click places: the turn area's deploy slider (1..reserve, beside the cursor), or 1 with
+ * Shift held / one troop left. Without the slider (sandbox): 1, Shift 3. Null when the slider was cancelled.
+ * @param {string} faction
+ * @param {string} territory
+ * @param {number} left       troops in the reserve
+ * @param {PIXI.FederatedEvent} [event]
+ * @returns {Promise<number|null>}
+ */
+async function reserveCount(faction, territory, left, event) {
+  const choose = area("turn").chooseDeployment;
+  if ( typeof choose !== "function" ) return Math.max(1, Math.min(event?.shiftKey ? 3 : 1, left || 1));
+  if ( event?.shiftKey || (left <= 1) ) return 1;
+  const native = event?.nativeEvent ?? event;
+  const at = Number.isFinite(native?.clientX) ? { x: native.clientX, y: native.clientY } : undefined;
+  return choose({ faction, territory, max: left, at });
 }
 
 /** Stop click-to-place (or a pick) without placing anything else. */
@@ -423,7 +463,10 @@ async function renderBanner() {
     factionName: faction?.name ?? "",
     factionColor: faction ? (faction.system.color?.css ?? "#808285") : "",
     reserve: mode.reserve,
-    hasReserve: Number.isFinite(mode.reserve)
+    hasReserve: Number.isFinite(mode.reserve),
+    // War mode (war-mode.mjs): Attack / Expand switch, and "Stop" instead of "Cancel"
+    switches: mode.switches ?? null,
+    cancelLabel: mode.cancelLabel ?? ""
   });
   if ( (ticket !== bannerRender) || !mode ) return;
   if ( !bannerElement ) {
@@ -432,7 +475,9 @@ async function renderBanner() {
     bannerElement.className = "risklegacy rl-board-banner";
     bannerElement.setAttribute("role", "status");
     bannerElement.addEventListener("click", event => {
-      if ( event.target.closest("[data-action='cancel']") ) cancelMode();
+      if ( event.target.closest("[data-action='cancel']") ) return cancelMode();
+      const button = event.target.closest("[data-mode-action]");
+      if ( button ) mode?.onBannerAction?.(button.dataset.modeAction, button, event);
     });
     document.body.append(bannerElement);
   }

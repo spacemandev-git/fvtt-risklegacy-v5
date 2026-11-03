@@ -268,9 +268,11 @@ not async, so a Promise for non-bots would break them for every player. It maps 
 Board-geometry picks (sea line, Alien Island point, Fallout Zone) use code-only heuristics: sample candidates and
 validate them with the existing helpers (`board.isOpenWater`, the placement validators).
 
-The payload shapes for each kind are in decisions.md §1–6. During the setup wizard, answer the wizard's `territory`
-ask and **don't** call `placeStartingForces` yourself; the wizard does that after the answer.
-`placeStart(factionId)` exists for scripted setups (e2e).
+The payload shapes for each kind are in decisions.md §1–6. Starting territories: in stage `placement` the turn loop
+places a bot itself as soon as it is its pick (`placeStart(factionId)`: `chooseStartingTerritory`, then
+`turn.placeStartingForces`), whoever started the placement (setup wizard, War Room, a script). The setup wizard's
+placement loop doesn't ask bots; it waits on the same `placeStart` promise (one placement per faction, shared by every
+caller). The `territory` answer with `data.faction` still works for any other caller.
 
 ### 6.4 Hook-point edits (bots-driver; minimal, guarded, commented "Bot players answer here (module/bots)")
 | File | Function | Edit |

@@ -12,6 +12,16 @@ export const SYSTEM_ID = "fvtt-risklegacy-v5";
 /** Root URL of this system's files (prefix for every asset/template path). */
 export const SYSTEM_PATH = `systems/${SYSTEM_ID}`;
 
+/**
+ * UI scale of the system's own interface (windows, sheets, dialogs, chat cards, board overlays). The CSS in
+ * styles/*.css is written at this scale; numeric ApplicationV2 `position.width/height` defaults of every app with
+ * the `risklegacy` class are multiplied by it at construction (module/ui-scale.mjs), so write those at 1×.
+ */
+export const UI_SCALE = 1.3;
+
+/** A 1× pixel size at the system's UI scale (rounded to whole pixels). */
+export const uiScaled = (px) => Math.round(px * UI_SCALE);
+
 /** Build a full path to a file shipped with the system: `systemPath("assets/icons/star.png")`. */
 export const systemPath = (relative) => relative?.startsWith("systems/") || relative?.includes("://")
   ? relative : `${SYSTEM_PATH}/${relative}`;

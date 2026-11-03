@@ -1,5 +1,5 @@
 import { PHASE_ORDER, PHASES, SYSTEM_ID } from "../config.mjs";
-import { getCampaignBoard, getHand, pieceKind } from "../state/_module.mjs";
+import { getCampaignBoard, getHand, pieceKind, reasonText } from "../state/_module.mjs";
 import * as rules from "../rules/_module.mjs";
 import { continentName, factionText, postCard, powerName, territoryName } from "./chat.mjs";
 import { advanceTurn, continentLine, endWarInternal } from "./war.mjs";
@@ -247,8 +247,43 @@ export async function placeReserve(payload, { user }) {
   await actor.update({ "system.war.reserve": reserve });
   const flags = flagsOf(war);
   const placedIn = [...new Set([...(flags.placedIn ?? []), territory])];
-  await updateTurn(war, {}, { placedIn, ...(result.data?.stealthy ? { stealthy: territory } : {}) });
+  // Remember this step's placements so the player can take them back (turn.resetDeployment) before step 3
+  const deployed = [...(flags.deployed ?? []), { territory, count }];
+  await updateTurn(war, {}, { placedIn, deployed, ...(result.data?.stealthy ? { stealthy: territory } : {}) });
   return { territory, count, reserve, tokens, stealthy: !!result.data?.stealthy };
+}
+
+/**
+ * [GM] Reset the deployment: take back every troop placed from the reserve this turn (`turn.flags.deployed`) and
+ * return them to the reserve, so they can be placed again. Only on the faction's own turn and before the turn moves
+ * on to step 3 (always checked, whatever the enforcement level). Troops placed by other means (start-of-turn
+ * powers, events) stay. Clears the Cautious / Stealthy bookkeeping of those placements.
+ * @param {{faction?: string}} payload
+ * @returns {Promise<{removed: number, reserve: number, territories: string[]}>}
+ */
+export async function resetDeployment(payload, { user }) {
+  const { war, actor, fid, snap } = context(payload, user);
+  const check = rules.checkResetDeployment(snap, fid);
+  if ( !check.ok ) throw new Error(reasonText(check));
+  let removed = 0;
+  const territories = [];
+  for ( const [territory, count] of Object.entries(check.data.deployed) ) {
+    const res = await callApi("board", "removeTroops", { faction: fid, territory, count });
+    const n = Math.min(count, Number(res?.removed ?? count) || 0);
+    removed += n;
+    if ( n ) territories.push(territory);
+  }
+  const reserve = actor.system.war.reserve + removed;
+  await actor.update({ "system.war.reserve": reserve });
+  await updateTurn(war, {}, { deployed: [], placedIn: [], stealthy: "" });
+  await postCard({
+    faction: actor, kind: "deploymentReset", title: t("RL.Turn.Chat.resetTitle"),
+    text: t("RL.Turn.Chat.resetText", {
+      faction: factionText(actor), count: removed, territories: territories.map(id => esc(territoryName(id))).join(", ") || "—"
+    }),
+    result: t("RL.Turn.Chat.resetResult", { reserve })
+  });
+  return { removed, reserve, territories };
 }
 
 /* -------------------------------------------- */

@@ -435,6 +435,10 @@
         "hint": "Auto rolls the most dice the defender can. Prompt asks the defending player every battle.",
         "auto": "Auto (maximum)",
         "prompt": "Ask the defender"
+      },
+      "gmSeeAllHands": {
+        "name": "GM: Show All Hands",
+        "hint": "Show every faction's hand, scar cards included, on this GM's screen (for fixing mistakes). Leave it off if you also play a faction: you then see only your own hand, like any player."
       }
     },
     "Enforce": {

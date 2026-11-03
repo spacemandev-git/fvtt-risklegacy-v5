@@ -14,6 +14,7 @@ import { continentName, factionName, territoryName } from "../../brain/util.mjs"
 import { playerLabel } from "../prompts.mjs";
 import { knobsOf } from "../profiles.mjs";
 import { gameOf } from "./call.mjs";
+import { raceLines } from "./strategy.mjs";
 
 const CAP_ITEM = 140;
 const clip = (s, n = CAP_ITEM) => {
@@ -238,6 +239,8 @@ export function boardFacts(ctx, profile, { detail = "turn" } = {}) {
     });
   }
 
+  // Warlord staff work: who could win on their next turn, and what stops it (strategy.mjs).
+  if ( profile.staff && ["turn", "attack", "end"].includes(detail) ) b.race = raceLines(ctx);
   if ( detail === "turn" || detail === "end" ) {
     const hand = ctx.view?.hand ?? [];
     b.cards = { count: hand.length, coins: hand.reduce((n, c) => n + (c.coins ?? 1), 0) };

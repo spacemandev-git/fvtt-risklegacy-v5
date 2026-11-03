@@ -7,8 +7,16 @@
   {{#if hasReserve}}
   <span class="rl-board-banner__count"><b>{{reserve}}</b> {{localize "RL.Canvas.Banner.toPlace"}}</span>
   {{/if}}
+  {{#if switches}}
+  <span class="rl-board-banner__switches" role="group">
+    {{#each switches}}
+    <button type="button" class="rl-btn rl-board-banner__switch{{#if active}} is-armed{{/if}}" data-mode-action="{{action}}"
+      aria-pressed="{{#if active}}true{{else}}false{{/if}}"><i class="{{icon}}" inert></i> {{label}}</button>
+    {{/each}}
+  </span>
+  {{/if}}
   <span class="rl-board-banner__hint">{{hint}}</span>
   <button type="button" class="rl-btn rl-board-banner__cancel" data-action="cancel">
-    <i class="fa-solid fa-xmark" inert></i> {{localize "RL.Canvas.Banner.cancel"}}
+    <i class="fa-solid fa-xmark" inert></i> {{#if cancelLabel}}{{cancelLabel}}{{else}}{{localize "RL.Canvas.Banner.cancel"}}{{/if}}
   </button>
 </div>

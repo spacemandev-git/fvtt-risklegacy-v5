@@ -57,7 +57,18 @@ export const LLM_PROFILES = Object.freeze({
     odds: "full",             // exact % + expected losses + everything the take changes
     menu: 8,
     preScore: "ranked",
-    minChance: 0.25,
+    // Warlord odds discipline (BOTS-LLM.md §11): the Jev Warlord's tuned floors were 55% / 40% for a big swing; the
+    // chat Warlord used to see (and keep rolling at) 20–25%. Now 45% for ordinary takes, 33% for a big swing (an HQ,
+    // a knock-out, a continent, or a take that stops a rival winning next turn), 15% when decisive.
+    minChance: 0.45,
+    minChanceBig: 0.33,
+    riskShift: 0.05,          // the personality's risk moves the floors ±5 points here (±10 at the other levels)
+    // Staff work (§11): code values every option (net troop-equivalents incl. HQ risk and the Red Star race), prunes
+    // options worth less than nothing, states race facts and code suggestions in the prompt.
+    staff: true,
+    // Sanity layer (§11): code overrides clearly bad picks (holding cards when a Red Star is buyable, leaving the HQ to
+    // fall, ending a turn without the safe conquest that earns a card, ignoring a rival about to win).
+    veto: true,
     chains: true,             // 2–3-step chains toward HQs, continents and knock-outs
     maxChains: 3,
     replans: 2,
@@ -92,9 +103,24 @@ export const ROUTINE_SAYS_PER_TURN = 1;
 
 const NEUTRAL_KNOBS = Object.freeze({ risk: 0.5, aggression: 0.5, chattiness: 0.5, vengeance: 0.5, patience: 0.5 });
 
-/** The profile for a context's difficulty (normal when unknown). */
+/**
+ * Evaluation-only overrides, per level, for A/B games (BOTS-LLM.md §11.4), e.g. the Warlord before §11:
+ * `setLLMProfilePatch({hard: WARLORD_CLASSIC})`. Page-local (nothing is saved); `null` clears it.
+ */
+const PATCHES = {};
+export function setLLMProfilePatch(patch = null) {
+  for ( const k of Object.keys(PATCHES) ) delete PATCHES[k];
+  Object.assign(PATCHES, patch ?? {});
+}
+
+/** The Warlord as it was before the staff work and sanity layer (BOTS-LLM.md §11), for A/B evaluation. */
+export const WARLORD_CLASSIC = Object.freeze({ minChance: 0.25, minChanceBig: undefined, riskShift: 0.1, staff: false, veto: false });
+
+/** The profile for a context's difficulty (normal when unknown), with any evaluation patch applied. */
 export function llmProfileOf(ctx) {
-  return LLM_PROFILES[ctx?.difficulty] ?? LLM_PROFILES.normal;
+  const base = LLM_PROFILES[ctx?.difficulty] ?? LLM_PROFILES.normal;
+  const patch = PATCHES[base.id];
+  return patch ? Object.freeze({ ...base, ...patch }) : base;
 }
 
 /** The personality knobs (0..1 each), neutral when the bot has no personality. */
@@ -109,20 +135,31 @@ export function knobsOf(ctx) {
 }
 
 /**
- * The attack menu's odds floor: the level's floor shifted by the personality's risk (risk 1 → 10 points lower,
- * risk 0 → 10 points higher). Risky personalities see, and take, thinner odds.
+ * The attack menu's odds floor: the level's floor (its big-swing floor when `big`) shifted by the personality's risk
+ * (risk 1 → `2 × riskShift` lower, risk 0 → that much higher; 10 points by default, 5 at Warlord). Risky
+ * personalities see, and take, thinner odds.
  */
-export function oddsFloor(profile, knobs) {
-  return Math.min(0.6, Math.max(0.05, profile.minChance + ((0.5 - knobs.risk) * 0.2)));
+export function oddsFloor(profile, knobs, big = false) {
+  const base = (big && profile.minChanceBig !== undefined) ? profile.minChanceBig : profile.minChance;
+  return Math.min(0.6, Math.max(0.05, base + ((0.5 - knobs.risk) * 2 * (profile.riskShift ?? 0.1))));
 }
 
 /**
  * The floor under which a planned attack is abandoned or replanned while it runs: a little under the menu floor
- * (the plan was made knowing the odds), shifted by risk the same way.
+ * (the plan was made knowing the odds), shifted by risk the same way. `big`: the level's big-swing floor (Warlord).
  */
-export function stepFloor(profile, knobs, decisive = false) {
+export function stepFloor(profile, knobs, decisive = false, big = false) {
   if ( decisive ) return DECISIVE_MIN_CHANCE;
-  return Math.max(0.05, oddsFloor(profile, knobs) - 0.05);
+  return Math.max(0.05, oddsFloor(profile, knobs, big) - 0.05);
+}
+
+/**
+ * Warlord trades: the smallest trade (troops) worth giving up cards that are this close to a Red Star (4 any cards),
+ * unless the HQ needs defenders. 1 card: 4; 2 cards: 7; 3 cards (one conquest from a star): 13; 4+ (a star is
+ * buyable now): 21.
+ */
+export function warlordTradeFloor(handCount) {
+  return [4, 4, 7, 13][handCount] ?? 21;
 }
 
 /** How many attack options the menu offers: aggressive personalities see up to two more, timid ones two fewer. */

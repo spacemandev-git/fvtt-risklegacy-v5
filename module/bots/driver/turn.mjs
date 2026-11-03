@@ -4,6 +4,7 @@
  * Triggers: `risklegacy.turnStarted` (deferred with setTimeout), `updateCombat` (GM rewinds don't fire turnStarted),
  * `ready` (a turn interrupted by a reload) and `updateSetting` (resume). A bot acts only when
  * `war.combatant.actorId === fid && war.system.turn.faction === fid` and the stage is `playing`, one turn at a time.
+ * In stage `placement` it places a bot's HQ and starting troops when it is that bot's pick (`tickPlacement`).
  * Everything is re-derived from the documents (the turn record says what has been done), so a reload mid-turn just
  * carries on. Actions go through `RL.actions.run("turn.<verb>")`, which throws on refusal: the move is added to
  * `ctx.excluded` and the brain is asked again. Guards: 60 actions and 5 refusals per turn, then the turn ends.
@@ -53,6 +54,7 @@ async function tick() {
     return;
   }
   const war = getWar();
+  if ( war?.system.stage === "placement" ) return tickPlacement(war);
   if ( !war || (war.system.stage !== "playing") ) return;
   const fid = war.combatant?.actorId;
   if ( !fid || !isCurrent(fid) || !botOfFaction(fid) ) return;
@@ -71,6 +73,43 @@ async function tick() {
   attempts.set(key, n);
   current = playBotTurn(fid, key).catch(err => {
     console.error("risklegacy | bots: turn failed", err);
+    noteError(err.message, fid);
+    status.stats.errors += 1;
+  });
+  try {
+    await current;
+  } finally {
+    current = null;
+    status.running = null;
+    recheck = false;
+    schedule(50);
+  }
+}
+
+/**
+ * Stage `placement`: a bot whose pick it is chooses and places its own HQ and starting troops, however the placement
+ * was started (the setup wizard, the War Room, a script). The setup wizard waits on the same `placeStart` promise.
+ */
+async function tickPlacement(war) {
+  const { order = [], index = 0 } = war.system.placement ?? {};
+  const fid = order[index];
+  if ( !fid || !botOfFaction(fid) || game.actors.get(fid)?.system.war.startingTerritory ) return;
+  const key = `${war.id}:placement:${fid}`;
+  const n = (attempts.get(key) ?? 0) + 1;
+  if ( n > 3 ) {
+    if ( n === 4 ) {
+      attempts.set(key, n);
+      status.stats.stalls += 1;
+      const name = game.actors.get(fid)?.name ?? "?";
+      noteError(game.i18n.format("RL.Bots.Driver.Notify.stalled", { faction: name }), fid);
+      ui.notifications.warn(game.i18n.format("RL.Bots.Driver.Notify.stalled", { faction: name }));
+    }
+    return;
+  }
+  attempts.set(key, n);
+  status.running = { faction: fid, name: game.actors.get(fid)?.name ?? "", key, step: "placement" };
+  current = placeStart(fid).catch(err => {
+    console.error("risklegacy | bots: starting placement failed", err);
     noteError(err.message, fid);
     status.stats.errors += 1;
   });
@@ -472,18 +511,31 @@ async function endTurnSafely(T) {
 /*  Starting placement (scripted setups)        */
 /* -------------------------------------------- */
 
+/** faction id → the starting placement in progress (one at a time per faction, shared by every caller). */
+const placing = new Map();
+
 /**
- * Place a bot faction's HQ and starting troops (stage `placement`, its pick). The setup wizard doesn't need this: it
- * asks the bot through the `territory` answer and places the pieces itself.
+ * Place a bot faction's HQ and starting troops (stage `placement`, its pick): the bot chooses with its own brain
+ * (`chooseStartingTerritory`, Jev or chat model; a legal fallback if the brain fails). The turn loop calls this when it
+ * is a bot's pick, and the setup wizard waits on it, so concurrent callers share one placement.
  * @param {string} fid
- * @returns {Promise<{territory: string}|null>}
+ * @returns {Promise<{territory: string, already?: boolean}>}  `already`: it had placed before this call
  */
-export async function placeStart(fid) {
+export function placeStart(fid) {
+  if ( placing.has(fid) ) return placing.get(fid);
+  const promise = placeStartNow(fid).finally(() => placing.delete(fid));
+  placing.set(fid, promise);
+  return promise;
+}
+
+async function placeStartNow(fid) {
   const bot = botOfFaction(fid);
   if ( !bot ) throw new Error(game.i18n.localize("RL.Bots.Driver.Error.notBot"));
   const war = getWar();
   if ( war?.system.stage !== "placement" ) throw new Error(game.i18n.localize("RL.Bots.Driver.Error.notPlacement"));
-  if ( game.actors.get(fid)?.system.war.startingTerritory ) return null;
+  // Already placed (by the turn loop a moment ago, or by hand): report where, place nothing.
+  const placed = game.actors.get(fid)?.system.war.startingTerritory;
+  if ( placed ) return { territory: placed, already: true };
   const myPick = () => { const w = getWar(); return w?.system.placement.order[w.system.placement.index] === fid; };
   await waitFor(myPick, 10_000);
   await waitIfPaused();

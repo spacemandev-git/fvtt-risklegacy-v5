@@ -225,7 +225,8 @@ export default class FactionSheet extends HandlebarsApplicationMixin(ActorSheetV
     const actor = this.document;
     const hand = state.getHand(actor);
     const count = live?.hand?.count ?? hand?.cards.size ?? 0;
-    const visible = !!hand && (game.user.isGM || hand.testUserPermission(game.user, "OBSERVER") || actor.isOwner);
+    // Secret: a GM sees only the hand of a faction they play (or every hand with the gmSeeAllHands override)
+    const visible = !!hand && state.canSeeHand(game.user, actor);
     // Preferred: the cards area's live <rl-hand> element (handles face-down backs and refreshes itself)
     if ( customElements.get("rl-hand") ) {
       return { live: true, interactive: state.canActFor(game.user, actor), exists: !!hand, visible, count, cards: [] };

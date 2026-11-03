@@ -150,5 +150,14 @@
     "units": ""
   },
   "initiative": "1d6",
-  "background": "systems/fvtt-risklegacy-v5/assets/board/original.webp"
+  "background": "systems/fvtt-risklegacy-v5/assets/board/original.webp",
+  "relationships": {
+    "recommends": [
+      {
+        "id": "dice-so-nice",
+        "type": "module",
+        "reason": "3D battle dice"
+      }
+    ]
+  }
 }

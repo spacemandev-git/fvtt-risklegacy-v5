@@ -15,8 +15,9 @@ import { attackOdds } from "../../brain/odds.mjs";
 import { PROFILES } from "../../brain/profiles.mjs";
 import { continentName, factionName, opponents, slug, territoryName } from "../../brain/util.mjs";
 import { FACTS } from "../prompts.mjs";
-import { menuSize, minTradeTroops, oddsFloor, DECISIVE_MIN_CHANCE } from "../profiles.mjs";
+import { menuSize, minTradeTroops, oddsFloor, warlordTradeFloor, DECISIVE_MIN_CHANCE } from "../profiles.mjs";
 import { attackersOfMe } from "./facts.mjs";
+import { assessPlans } from "./strategy.mjs";
 
 /** The Jev profile whose code pre-scores rank this level's candidates. */
 export const jevProfileOf = profile => PROFILES[profile.jev] ?? PROFILES.normal;
@@ -82,7 +83,11 @@ export function attackMenu(ctx, profile, knobs, sit) {
   const { state } = ctx;
   const random = typeof ctx.random === "function" ? ctx.random : Math.random;
   const plans = legalPlans(ctx, profile, sit);
-  const floor = oddsFloor(profile, knobs);
+  // Warlord staff work: net value incl. HQ risk and the Red Star race; ranked by it.
+  if ( profile.staff ) {
+    assessPlans(ctx, jevProfileOf(profile), plans);
+    plans.sort((a, b) => b.staff.value - a.staff.value);
+  }
   const n = menuSize(profile, knobs);
   const pool = [];
   const sigs = new Set();
@@ -90,8 +95,10 @@ export function attackMenu(ctx, profile, knobs, sit) {
   for ( const p of plans ) {
     p.decisive = isDecisive(ctx, p.endFx, sit);
     if ( p.kind === "attack" || p.chain ) {
-      if ( p.P < (p.decisive ? DECISIVE_MIN_CHANCE : floor) ) continue;
+      if ( p.P < (p.decisive ? DECISIVE_MIN_CHANCE : oddsFloor(profile, knobs, !!p.staff?.big)) ) continue;
     }
+    // Warlord: nothing worth less than nothing (unless decisive, or it stops a rival winning).
+    if ( profile.staff && !p.decisive && !p.staff.stops && p.staff.value < 0 ) continue;
     if ( p.chain ) {
       // A push is only worth listing when no direct attack on the same end is at least as likely.
       if ( chains >= (profile.maxChains ?? 0) ) continue;
@@ -128,14 +135,20 @@ export function attackMenu(ctx, profile, knobs, sit) {
       defender: defender ? factionName(ctx, defender) : null, defenderId: defender, defenders: end.troops,
       hqOf: !defender && end.hq ? factionName(ctx, end.hq) : null,
       consequences: takeFacts(ctx, p.endFx), exposure: p.endFx.exposure,
-      attackedMe: !!defender && attackedMe.has(defender)
+      attackedMe: !!defender && attackedMe.has(defender),
+      big: !!p.staff?.big,
+      ...(p.staff ? {
+        value: p.staff.value, stops: p.staff.stops,
+        race: p.staff.race.map(r => ({ name: r.name, before: r.before, after: r.after })),
+        hqRisk: p.staff.hq ? { name: territoryName(state, p.staff.hq.id), before: p.staff.hq.before, after: p.staff.hq.after } : null
+      } : {})
     };
   });
 }
 
-/** Is there an option worth a replan (code: positive utility at the floor, or decisive)? */
+/** Is there an option worth a replan (code: positive utility, or the Warlord's net value, at the floor; or decisive)? */
 export function goodOptionsRemain(options) {
-  return options.some(o => o.decisive || ((o.plan.utility ?? 0) > 0.5));
+  return options.some(o => o.decisive || o.stops || ((o.value ?? o.plan.utility ?? 0) > 0.5));
 }
 
 /* -------------------------------------------- */
@@ -169,9 +182,25 @@ export function cardMenu(ctx, profile, knobs, sit) {
   }
   const trade = bestTrade(state, me, hand);
   const hqNeedy = (sit?.hqNeed ?? 0) > 0 && (sit?.hqWorst ?? 0) >= 0.25;
+  // Warlord: a trade must be worth the progress toward a Red Star it gives up (warlordTradeFloor), unless the HQ needs
+  // defenders; at the other levels the personality's patience sets the smallest trade.
+  const tradeFloor = profile.veto ? Math.max(minTradeTroops(knobs), warlordTradeFloor(hand.length)) : minTradeTroops(knobs);
   if ( trade && rules.checkTrade(state, me, trade.coins, { ignoreTurn: true }).ok
-    && ((trade.troops >= minTradeTroops(knobs)) || (hqNeedy && trade.troops >= 4)) ) {
+    && ((trade.troops >= tradeFloor) || (hqNeedy && trade.troops >= 4)) ) {
     out.options.push({ key: "trade_for_troops", kind: "trade", coins: trade.coins, troops: trade.troops, cardsLeft: hand.length - trade.ids.length, ids: trade.ids });
+  }
+  const buys = out.options.filter(o => o.kind === "buy");
+  if ( profile.veto && buys.length ) {
+    // Warlord sanity layer: holding cards when a Red Star is buyable only risks them (a knock-out hands them over), and
+    // buying one star when two are buyable leaves one on the table. The biggest purchase is the only buy offered; with
+    // no trade worth weighing against it, code buys (no call).
+    const buy = buys.at(-1);
+    out.options = out.options.filter(o => o.kind !== "buy" || o === buy);
+    if ( !out.options.some(o => o.kind === "trade") ) {
+      out.options = [];
+      out.autoBuy = { ids: buy.ids, stars: buy.stars };
+    }
+    return out;
   }
   out.options.push({ key: "hold_cards", kind: "hold", cards: hand.length, coins: coinsOf(hand), note: FACTS.holdNote });
   if ( out.options.length < 2 ) out.options = [];
@@ -319,7 +348,7 @@ export function frontMenu(ctx, profile, sit, reserve, tradeReserve = null) {
       const end = state.territories[best.to];
       bestOut = {
         to: best.to, toName: end.name, defender: end.owner ? factionName(ctx, end.owner) : null, defenders: end.troops,
-        P: best.P, headline: takeFacts(ctx, best.endFx)[0] ?? ""
+        P: best.P, headline: takeFacts(ctx, best.endFx)[0] ?? "", decisive: isDecisive(ctx, best.endFx, sit)
       };
       if ( tradeReserve ) {
         bestTrade = { P: attackOdds(state, me, f.id, best.to, { lookup: ctx.lookup, A: t.troops + tradeReserve, activeEvents: ctx.view?.activeEvents?.map(e => e.id) }).pConquer };
@@ -387,7 +416,7 @@ export function maneuverMenu(ctx, profile, sit) {
     }
     return {
       key: uniqueKey(seen, slug(`from_${m.from}_to_${m.to}`)), from: m.from, to: m.to, count: m.count,
-      fromName: from.name, fromTroops: from.troops, toName: to.name, toTroops: to.troops, purpose, threat,
+      fromName: from.name, fromTroops: from.troops, toName: to.name, toTroops: to.troops, purpose, threat, isHq: to.hq === me,
       leaves: isInterior(m.from) ? "" : FACTS.leavesWeak(from.name, from.troops - m.count)
     };
   });

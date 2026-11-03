@@ -22,7 +22,7 @@ export {
 } from "./recruit.mjs";
 export {
   checkStartingTerritory, legalStartingTerritories, checkJoinWar, canJoinWar, checkPlacement, placementTargets,
-  hqPlacements, checkMoveHQ
+  hqPlacements, checkMoveHQ, deployedTroops, checkResetDeployment
 } from "./placement.mjs";
 export {
   maxAttackDice, defenderMaxDice, enterLosses, expandCost, checkExpand, checkAttack, connectedThroughOwned,

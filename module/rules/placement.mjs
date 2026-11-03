@@ -1,3 +1,4 @@
+import { PHASE_ORDER } from "../config.mjs";
 import { fail, ok } from "./result.mjs";
 import { areAdjacent, faction, isFounder, isMarked, isOccupied, territory, turnFlags } from "./state.mjs";
 import { hasPower, POWERS, territoryHas } from "./powers.mjs";
@@ -116,6 +117,41 @@ export function checkPlacement(state, factionId, territoryId, count, { ignoreTur
  */
 export function placementTargets(state, factionId) {
   return Object.keys(state?.territories ?? {}).filter(id => checkPlacement(state, factionId, id, 1).ok);
+}
+
+/**
+ * Recruited troops placed from the reserve this turn (`turn.flags.deployed`: one `{territory, count}` entry per
+ * placement), summed per territory.
+ * @param {object} state
+ * @returns {Object<string, number>}  territory id → troops placed
+ */
+export function deployedTroops(state) {
+  const out = {};
+  for ( const e of turnFlags(state).deployed ?? [] ) {
+    const n = Number(e?.count) || 0;
+    if ( e?.territory && (n > 0) ) out[e.territory] = (out[e.territory] ?? 0) + n;
+  }
+  return out;
+}
+
+/**
+ * May the faction take back this step's placements (every troop placed from the reserve, back into the reserve)?
+ * Only on its own turn, in steps 1–2 (once the turn moves on to step 3 the deployment stands), and only when
+ * something was placed.
+ * @param {object} state
+ * @param {string} factionId
+ * @returns {import("./result.mjs").RuleResult}  data {deployed: {territory: count}, total}
+ */
+export function checkResetDeployment(state, factionId) {
+  const turn = state?.turn;
+  if ( !turn ) return fail("RL.Rules.turn.noWar");
+  if ( turn.stage !== "playing" ) return fail("RL.Rules.turn.notPlaying");
+  if ( turn.faction !== factionId ) return fail("RL.Rules.turn.notYourTurn");
+  if ( PHASE_ORDER.indexOf(turn.phase) > PHASE_ORDER.indexOf("recruit") ) return fail("RL.Rules.place.resetTooLate");
+  const deployed = deployedTroops(state);
+  const total = Object.values(deployed).reduce((sum, n) => sum + n, 0);
+  if ( !total ) return fail("RL.Rules.place.nothingToReset");
+  return ok({ deployed, total });
 }
 
 /** Troops placed by HQ-based powers (khan_1: 1, rally: 2): one entry per territory with an HQ the faction controls. */
